@@ -1,0 +1,2 @@
+# ignore .pyc .pyo etc.
+.py[co]
