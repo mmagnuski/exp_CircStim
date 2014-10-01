@@ -6,7 +6,9 @@ from matplotlib      import patches
 from matplotlib.path import Path
 from psychopy        import visual
 
-# CHECK slider class - if available in psychopy
+# TODOs:
+# [ ] draw pizzas not as speparate parts but united according to grouping
+# [ ] units used by CircStim?
 
 
 class CircStim:
@@ -30,18 +32,12 @@ class CircStim:
 			  '+' - +-shaped constrast pattern
 			  'm' - mask type contrast pattern,
 			        each pizza is different
+			  second character:
+			  'd' or 'b' - the first pizza is dark (black)
+			  'l' or 'w' - the first pizza is bright as light (white)
     window  - psychopy window to draw the stimulus in
     opacity - we use opactiy to manipulate contrast
 	'''
-	# how CircStim should work:
-	#   - contrast should be available to change
-	#   - r = radius (what units?)
-	#   - pattern = 'x' '+' or 'm'
-	#   - win - pass a window object
-	#   - 'd'/'l', 0/1 defines whether starting pizza element is dark or white
-	#   - n = (minimum 8), divisible by 8; number of angles of the circle
-	#     OR n = 1 (positive integer) - multiplied by 8 gives n in the sense above
-	#   - df = DataFrame; trial = N; [?]
 	
 	# defaults
 	r       = 1
@@ -110,7 +106,7 @@ class CircStim:
 					                              vertices   = self.pizza[p], 
 					                              closeShape = True, 
 					                              pos        = (0, 0), 
-					                              opacity    = 0.0
+					                              opacity    = self.opacity
 					                              )
 
 	def draw(self):
