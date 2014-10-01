@@ -10,7 +10,29 @@ from psychopy        import visual
 
 
 class CircStim:
+	'''
+	c = CircStim(**kwargs)
 
+	CircStim is a pizza-like circular stimulus.
+	You can check out how it looks like by typing:
+	>> c = CircStim(n = 4)
+	>> c.plot()
+
+	parameters
+	----------
+
+	n       - number of triangular polygons each 
+			  pizza element concisits of
+	pattern - 2-character string defining contrast
+			  pattern of the pizzas
+			  first character: 
+			  'x' - x-shaped constrast pattern
+			  '+' - +-shaped constrast pattern
+			  'm' - mask type contrast pattern,
+			        each pizza is different
+    window  - psychopy window to draw the stimulus in
+    opacity - we use opactiy to manipulate contrast
+	'''
 	# how CircStim should work:
 	#   - contrast should be available to change
 	#   - r = radius (what units?)
@@ -20,9 +42,15 @@ class CircStim:
 	#   - n = (minimum 8), divisible by 8; number of angles of the circle
 	#     OR n = 1 (positive integer) - multiplied by 8 gives n in the sense above
 	#   - df = DataFrame; trial = N; [?]
-	r = 1
-	n = 4
+	
+	# defaults
+	r       = 1
+	n       = 4
 	pattern = '+l'
+	opacity = 1.0
+
+	rgb     = {'white' : (1, 1, 1),
+			   'black' : (0, 0, 0)}
 
 	def __init__(self, **kwargs):
 		# set passed attribures
@@ -32,6 +60,7 @@ class CircStim:
 		self.get_circle_points()
 		self.get_pizza_parts()
 		self.apply_pattern()
+		self.apply_contrast()
 
 
 	def get_circle_points(self):
@@ -43,6 +72,13 @@ class CircStim:
 		# last pizza part seems to be obsolete...
 		self.pizza = [cat([self.points[i : i + self.n + 1], array([[0.0, 0.0]]) ]) 
 						for i in range(0, len(self.points), self.n)]
+
+	def apply_contrast(self):
+		w = 0.5 + self.opacity * 0.5
+		b = 0.5 - self.opacity * 0.5
+
+		self.rgb['white'] = (w, w, w)
+		self.rgb['black'] = (b, b, b)
 
 	def apply_pattern(self):
 		# group pizzas
@@ -92,6 +128,8 @@ class CircStim:
 		plt.axis('equal')
 		plt.xlim((-2, 2))
 		plt.ylim((-2, 2))
+		plt.xticks((), ())
+		plt.yticks((), ())
 
 		plt.show()
 
@@ -107,6 +145,7 @@ class CircStim:
 		# plot
 		path  = Path(vert, pth)
 		fccol = self.pizza_fill[0] if n in self.pizza_group[0] else self.pizza_fill[1]
-		patch = patches.PathPatch(path, facecolor = fccol, lw = 0)
+		col = self.rgb[fccol]
+		patch = patches.PathPatch(path, facecolor = col, lw = 0.5, edgecolor = col)
 		ax.add_patch(patch)
 
