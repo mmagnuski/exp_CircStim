@@ -1,8 +1,10 @@
-# Class responsible for presentation of circle targets and masks
-from numpy      import pi, sin, cos, linspace, array
-from numpy      import concatenate as cat
-from matplotlib import pyplot      as plt
-from psychopy   import visual
+# IMPORTS
+from numpy           import pi, sin, cos, linspace, array, vstack
+from numpy           import concatenate as cat
+from matplotlib      import pyplot      as plt
+from matplotlib      import patches
+from matplotlib.path import Path
+from psychopy        import visual
 
 # CHECK slider class - if available in psychopy
 
@@ -29,6 +31,7 @@ class CircStim:
 
 		self.get_circle_points()
 		self.get_pizza_parts()
+		self.apply_pattern()
 
 
 	def get_circle_points(self):
@@ -37,12 +40,13 @@ class CircStim:
 		self.points = self.r1points * self.r # set radius
 		
 	def get_pizza_parts(self):
+		# last pizza part seems to be obsolete...
 		self.pizza = [cat([self.points[i : i + self.n + 1], array([[0.0, 0.0]]) ]) 
 						for i in range(0, len(self.points), self.n)]
 
 	def apply_pattern(self):
 		# group pizzas
-		self.pizza_pattern = []
+		self.pizza_group = []
 		if 'm' in self.pattern:
 			self.pizza_group.append(list(range(0,8,2)))
 			self.pizza_group.append(list(range(1,8,2)))
@@ -76,4 +80,33 @@ class CircStim:
 	def draw(self):
 		for shp in self.shapes:
 			shp.draw()
+
+	def plot(self):
+
+		figure = plt.figure()
+		ax     = figure.add_subplot(1, 1, 1, axisbg = 'grey')
+
+		for n in range(len(self.pizza)-1):
+			self.plot_pizza(ax, n)
+
+		plt.axis('equal')
+		plt.xlim((-2, 2))
+		plt.ylim((-2, 2))
+
+		plt.show()
+
+	def plot_pizza(self, ax, n):
+
+		# vertices:
+		vert = self.pizza[n]
+		vert = vstack((vert, vert[0]))
+
+		# path:
+		pth = [Path.MOVETO] + [Path.LINETO] * (self.n + 1) + [Path.CLOSEPOLY]
+
+		# plot
+		path  = Path(vert, pth)
+		fccol = self.pizza_fill[0] if n in self.pizza_group[0] else self.pizza_fill[1]
+		patch = patches.PathPatch(path, facecolor = fccol, lw = 0)
+		ax.add_patch(patch)
 
