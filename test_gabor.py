@@ -10,7 +10,7 @@
 # [x] test if responses are presented ok in instructions (!)
 # [x] add keypresses (or NaN, 'noResp' ?) to database
 # [x] add clock time to database
-# [ ] continue dataframe
+# [x] continue dataframe
 # [ ] test continue_dataframe for overwrite
 # [ ] add simple instructions     (!)
 # [ ] add simple training         (!)
