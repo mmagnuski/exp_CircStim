@@ -103,6 +103,7 @@ class CircStim:
 				self.shapes[p] = visual.ShapeStim(self.window, 
 					                              lineWidth  = 0, 
 					                              fillColor  = self.pizza_fill[i], 
+					                              lineColor  = self.pizza_fill[i], 
 					                              vertices   = self.pizza[p], 
 					                              closeShape = True, 
 					                              pos        = (0, 0), 
