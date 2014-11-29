@@ -311,4 +311,5 @@ for i in range(startTrial, exp['numTrials'] + 1):
 		db.to_excel( exp['participant'] + '.xls')
 		present_break(i)
 
-	core.wait(1) # change to variable intertrial interval
+	win.flip()
+	core.wait(0.5) # change to variable intertrial interval
