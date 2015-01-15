@@ -5,18 +5,18 @@
 # (gabor brightness)
 
 # TODOs:
-# [x] add fixation cross          (!)
-# [x] variable wait time on fixation (0.75 - 2.5)
-# [x] test if responses are presented ok in instructions (!)
-# [x] add keypresses (or NaN, 'noResp' ?) to database
-# [x] add clock time to database
-# [x] continue dataframe
+# [ ] test RT measurement on some platforms (gives
+#         the same value all the time, timestamping
+#         may not work...)
 # [ ] test continue_dataframe for overwrite
+# [ ] add weibull fitting on fixed frame setup (1-1 frms?)
 # [ ] add simple instructions     (!)
 # [ ] add simple training         (!)
-# [ ] present some scatter feedback
-# [ ] check interpolate = True in visual.ImageStim
-# [ ] variable inter-trial time?
+#     -> +feedback
+#     -> (before) +slowdown +full-contrast?
+# not necessary:
+# [ ] ? present some scatter feedback
+# [ ] ? check interpolate = True in visual.ImageStim
 
 # imports
 print 'importing psychopy...'
@@ -89,7 +89,7 @@ if not ifcnt:
 				for k in exp['opacity']     \
 				for l in exp['maskTime']    \
 				for m in exp['orientation'] \
-			] \
+			if i + j < 5] \
 		* perComb
 
 	# turn to array and shuffle rows
