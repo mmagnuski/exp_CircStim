@@ -1,8 +1,74 @@
-from psychopy import gui
-import numpy as np
+from psychopy       import gui
+from scipy.optimize import minimize
+import numpy  as np
 import pandas as pd
 import os
 import re
+
+
+# example
+# >>> x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+# >>> res = minimize(rosen, x0, method='Nelder-Mead')
+# >>> res.x
+# [ 1.  1.  1.  1.  1.]
+
+# TODOs:
+# [ ] - continue_dataframe should test for overwrite
+#
+# Weibull class:
+# [ ] - refactor for ease of use 
+#       -> do not have to pass additional args 
+#          if they are in the model 
+#       -> but allow to pass these args if needed
+# [ ] - ! ensure that orig_y and y are copies !
+# [ ] - predict
+# [ ] - inverse predict?
+# [ ] - method add_data
+# [ ] - think about adding params to to predictors for both slope and position
+
+
+class Weibull:
+	'''
+	Weibull is a simple class for fitting and
+	evaluating Weibull function.
+
+	example:
+	w = Weibull(stim_intensity, if_resp_correct)
+	initparams = [1., 1.]
+	w.fit(initparams)
+
+	'''
+
+	def __init__(self, x, y):
+		self.x = x
+		# y is 0 or 1 - this is problematic for log
+		self.orig_y = y # CHECK ensure that this is a copy!
+		self.y = self.drag(y)
+
+	def _fun(self, params, corr_at_thresh = 0.8, chance_level = 0.5):
+		# unpack params
+		x = self.x
+		b, t = params
+		
+		k = ( -np.log((1.0 - corr_at_thresh)/(1.0 - chance_level)) ) \
+			** (1.0/b)
+
+		expo = ((k * x)/t) ** b
+		y = 1 - (1 - chance_level) * np.exp(-expo)
+		return y
+
+	def drag(self, y):
+		return y * .99 + .005
+
+	def loglik(self, params):
+		y_pred = self._fun(params)
+		# return negative log-likelihood
+		return np.sum( np.log(y_pred)*self.orig_y + np.log(1-y_pred)*(1-self.orig_y) ) * -1.
+
+	def fit(self, initparams):
+		self.params = minimize(self.loglik, initparams, method='Nelder-Mead')['x']
+
+
 
 
 def getFrameRate(win, frames = 25):
