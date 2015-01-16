@@ -33,10 +33,11 @@ class Weibull:
 	evaluating Weibull function.
 
 	example:
+	--------
 	w = Weibull(stim_intensity, if_resp_correct)
 	initparams = [1., 1.]
 	w.fit(initparams)
-
+	final_params = w.params
 	'''
 
 	def __init__(self, x, y):
