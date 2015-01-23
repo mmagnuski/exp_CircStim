@@ -1,16 +1,12 @@
 from psychopy       import gui
+from psychopy       import event
+from matplotlib     import pyplot   as plt
 from scipy.optimize import minimize
 import numpy  as np
 import pandas as pd
 import os
 import re
 
-
-# example
-# >>> x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
-# >>> res = minimize(rosen, x0, method='Nelder-Mead')
-# >>> res.x
-# [ 1.  1.  1.  1.  1.]
 
 # TODOs:
 # [ ] - continue_dataframe should test for overwrite
@@ -21,10 +17,9 @@ import re
 #          if they are in the model 
 #       -> but allow to pass these args if needed
 # [ ] - ! ensure that orig_y and y are copies !
-# [ ] - predict
-# [ ] - inverse predict?
-# [ ] - method add_data
-# [ ] - think about adding params to to predictors for both slope and position
+# [ ] - predict (now performed by _fun but could change names)
+# [ ] - method add_data?
+# [ ] - ! think about adding params to to predictors for both slope and position
 
 
 class Weibull:
@@ -46,9 +41,8 @@ class Weibull:
 		self.orig_y = y # CHECK ensure that this is a copy!
 		self.y = self.drag(y)
 
-	def _fun(self, params, corr_at_thresh = 0.8, chance_level = 0.5):
+	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
 		# unpack params
-		x = self.x
 		b, t = params
 		
 		k = ( -np.log((1.0 - corr_at_thresh)/(1.0 - chance_level)) ) \
@@ -57,20 +51,74 @@ class Weibull:
 		expo = ((k * x)/t) ** b
 		y = 1 - (1 - chance_level) * np.exp(-expo)
 		return y
+	
+	def fun(self, params):
+		return self._fun(params, self.x)
 
 	def drag(self, y):
 		return y * .99 + .005
 
 	def loglik(self, params):
-		y_pred = self._fun(params)
+		y_pred = self.fun(params)
 		# return negative log-likelihood
 		return np.sum( np.log(y_pred)*self.orig_y + np.log(1-y_pred)*(1-self.orig_y) ) * -1.
 
 	def fit(self, initparams):
 		self.params = minimize(self.loglik, initparams, method='Nelder-Mead')['x']
 
+	def inverse(self, corrinput):
+		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr))**2
+		# optimize with respect to correctness
+		return minimize(invfun, 1.0, method='Nelder-Mead')['x'][0]
+	
+	def _dist2corr(self, corr):
+		return map(self.inverse, corr)
+	
+	def plot(self, pth):
+		# get predicted data
+		numpnts = 1000
+		x = np.linspace(0., 1., num = numpnts)
+		y = self._fun(self.params, x)
+
+		# add noise to data to increase visibility
+		l = len(self.x)
+		yrnd = np.random.uniform(-0.05, 0.05, l)
+
+		# plot
+		plt.hold(True)
+		plt.grid()
+		plt.plot(x, y, zorder = 1)
+		plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, c=[0.3, 0.3, 0.3])
+
+		# aesthetics
+		plt.xlim([0.0, 1.0])
+		plt.ylim([-0.1, 1.1])
+		plt.xlabel('stimulus intensity')
+		plt.ylabel('correctness')
+
+		# save figure
+		tempfname = os.path.join(pth, 'weibull_fit_temp.png')
+		plt.savefig(tempfname, dpi = 350)
+		plt.close()
+		return tempfname
 
 
+def plot_Feedback(stim, plotter, pth):
+    # get file names from 
+    imfls = plotter.plot(pth)
+    if not isinstance(imfls, type([])):
+    	imfls = [imfls]
+
+    for im in imfls:
+        stim['centerImage'].setImage(im)
+        stim['centerImage'].draw()
+        stim['window'].update()
+
+        k = event.getKeys()
+        resp = False
+
+        while not resp:
+	        resp = event.getKeys()
 
 def getFrameRate(win, frames = 25):
 	# get frame rate
