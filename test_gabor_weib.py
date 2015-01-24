@@ -322,7 +322,19 @@ def set_opacity_if_fit_fails(corr, exp):
 		exp['opacity'][0] *= 2
 		exp['opacity'][1] = np.min([exp['opacity'][1]*2, 1.0])
 
+def fit_weibull(db, i):
+	if i < 40:
+		idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
+	else:
+		idx = np.array(np.linspace(i-40+1, i, num = 40), dtype = 'int')
+	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
+	opacit = db.loc[idx, 'opacity'].values.astype('float')
 
+	# fit on non-nan
+	notnan = ~(np.isnan(ifcorr))
+	w = Weibull(opacit[notnan], ifcorr[notnan])
+	w.fit([1.0, 1.0])
+	return w
 
 # show response rules:
 show_resp_rules()
@@ -336,34 +348,25 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	if (i) % exp['break after'] == 0:
 		# save data before every break
 		db.to_excel( exp['participant'] + '.xls')
+		
 		# if break was within first 100 trials,
 		# fit Weibull function
-		idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
-		ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
-		opacit = db.loc[idx, 'opacity'].values.astype('float')
+		if i < 101:
+			w = fit_weibull(db, i)
+			print 'Weibull params: ', w.params
+			
+			newopac = w._dist2corr([0.6, 0.85])
+			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0:
+				set_opacity_if_fit_fails(w.orig_y, exp)
+			else:
+				exp['opacity'] = newopac
 
-		# ADD if fit fails - check overall correctness
-		notnan = ~(np.isnan(ifcorr))
-		w = Weibull(opacit[notnan], ifcorr[notnan])
-		
-		w.fit([1.0, 1.0])
-		print 'Weibull params: ', w.params
-		fitSuccess = True
-		newopac = w._dist2corr([0.6, 0.85])
-		if newopac[1] < 0.005 or newopac[1] <= newopac[0]:
-			set_opacity_if_fit_fails(ifcorr, exp)
-		else:
-			exp['opacity'] = newopac
+			# DEBUG
+			print 'opacity limits set to: ', exp['opacity']
 
-		print '\n'
-		print 'fitSuccess: ', fitSuccess
-		
-		# DEBUG
-		print 'opacity limits set to: ', exp['opacity']
-
-		# show weibull fit
-		datapth = os.path.join(exp['path'], r'data')
-		plot_Feedback(stim, w, datapth)
+			# show weibull fit
+			datapth = os.path.join(exp['path'], r'data')
+			plot_Feedback(stim, w, datapth)
 
 		# break and refresh keyboard mapping
 		present_break(i)

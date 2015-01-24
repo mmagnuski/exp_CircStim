@@ -2,11 +2,11 @@ from psychopy       import gui
 from psychopy       import event
 from matplotlib     import pyplot   as plt
 from scipy.optimize import minimize
+from PIL            import Image
 import numpy  as np
 import pandas as pd
 import os
 import re
-
 
 # TODOs:
 # [ ] - continue_dataframe should test for overwrite
@@ -18,7 +18,6 @@ import re
 #       -> but allow to pass these args if needed
 # [ ] - ! ensure that orig_y and y are copies !
 # [ ] - predict (now performed by _fun but could change names)
-# [ ] - method add_data?
 # [ ] - ! think about adding params to to predictors for both slope and position
 
 
@@ -91,14 +90,16 @@ class Weibull:
 		plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, c=[0.3, 0.3, 0.3])
 
 		# aesthetics
-		plt.xlim([0.0, 1.0])
+		maxval = np.max(self.x)
+		uplim = np.round(maxval + 0.5, decimals = 1)
+		plt.xlim([0.0, uplim])
 		plt.ylim([-0.1, 1.1])
 		plt.xlabel('stimulus intensity')
 		plt.ylabel('correctness')
 
 		# save figure
 		tempfname = os.path.join(pth, 'weibull_fit_temp.png')
-		plt.savefig(tempfname, dpi = 350)
+		plt.savefig(tempfname, dpi = 100)
 		plt.close()
 		return tempfname
 
@@ -109,16 +110,23 @@ def plot_Feedback(stim, plotter, pth):
     if not isinstance(imfls, type([])):
     	imfls = [imfls]
 
-    for im in imfls:
-        stim['centerImage'].setImage(im)
-        stim['centerImage'].draw()
-        stim['window'].update()
+	for im in imfls:
+		# check image size:
+		img = Image.open(im)
+		imgsize = np.array(img.size)
+		del img
 
-        k = event.getKeys()
-        resp = False
+		# set image
+		stim['centerImage'].size = np.round(imgsize * 0.8)
+		stim['centerImage'].setImage(im)
+		stim['centerImage'].draw()
+		stim['window'].update()
 
-        while not resp:
-	        resp = event.getKeys()
+		k = event.getKeys()
+		resp = False
+
+		while not resp:
+			resp = event.getKeys()
 
 def getFrameRate(win, frames = 25):
 	# get frame rate

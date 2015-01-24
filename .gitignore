@@ -1,2 +1,5 @@
 # ignore .pyc .pyo etc.
 *.py[co]
+# ignore images and xls:
+*.png
+*.xls
