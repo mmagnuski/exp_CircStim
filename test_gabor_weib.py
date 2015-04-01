@@ -62,6 +62,9 @@ resp[135] = exp['use keys'][1 - choose_resp]
 exp['keymap'] = resp
 exp['choose_resp'] = choose_resp
 
+# port settings
+portdict['send'] = exp['use trigger']
+# more portdict settings...
 print 'keymap: ', exp['keymap']
 
 # create a window
@@ -186,9 +189,12 @@ fix.append(whiteshape(
 stim['fix'] = fix
 del fix
 
-# change the procedure for presenting 
-# stimuli so that first frame could send
-# trigger and record time
+def onflip_work(portdict, code=1, clock=None):
+	if portdict['send']:
+		pass
+
+	if clock:
+		clock.reset()	
 
 def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 
