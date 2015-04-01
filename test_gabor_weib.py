@@ -3,7 +3,7 @@
 # add description
 
 # TODOs:
-# [ ] test RT measurement on some platforms (timestamping
+# [x] test RT measurement on some platforms (timestamping
 #         may not work...)
 # [ ] reset timer on stim presentation with callOnFlip
 # [ ] send LPT triggers with callOnFlip
@@ -37,6 +37,7 @@ import pandas as pd
 
 # experiment settings
 exp = {}
+exp['clock']       = core.Clock()
 exp['participant'] = getUserName(intUser = False)
 exp['debug']       = True
 exp['use trigger'] = False
@@ -213,7 +214,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 		win.flip()
 
 	# get time (should be taken on first frame)
-	t1 = core.getTime()
+	t1 = exp['clock'].getTime()
 	for f in np.arange(db.loc[tr]['targetTime']):
 		stim['target'].draw()
 		win.flip()
@@ -226,19 +227,19 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 	for f in np.arange(db.loc[tr]['maskTime']):
 		for m in stim['mask']:
 			m.draw()
-		win.flip()	
+		win.flip()
 
 	# RESPONSE
 	# --------
 	# check if response
 	k = event.getKeys(keyList = exp['use keys'] + ['q'], 
-					  timeStamped = True)
+					  timeStamped = exp['clock'])
 	
 	# wait for response (timeout)
 	if not k:
 		k = event.waitKeys(maxWait = exp['respWait'], 
 					       keyList = exp['use keys'] + ['q'], 
-					       timeStamped = True)
+					       timeStamped = exp['clock'])
 	
 	# calculate RT and ifcorrect
 	if k:
