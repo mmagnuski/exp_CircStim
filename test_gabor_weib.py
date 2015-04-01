@@ -65,6 +65,8 @@ exp['choose_resp'] = choose_resp
 # port settings
 portdict['send'] = exp['use trigger']
 # more portdict settings...
+
+# change below to logging:
 print 'keymap: ', exp['keymap']
 
 # create a window
