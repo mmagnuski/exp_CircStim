@@ -5,6 +5,11 @@
 # TODOs:
 # [ ] test RT measurement on some platforms (timestamping
 #         may not work...)
+# [ ] reset timer on stim presentation with callOnFlip
+# [ ] send LPT triggers with callOnFlip
+# [ ] add logging to a file - useful in inspecting how fit
+#     and overcoming fit failures works
+# [ ] modularize and organize code
 # [ ] use '\data' folder to save data
 # [ ] test continue_dataframe for overwrite
 # [x] add weibull fitting on fixed frame setup (1-1 frms)
