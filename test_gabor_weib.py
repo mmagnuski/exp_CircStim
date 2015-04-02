@@ -29,10 +29,10 @@ print 'importing psychopy...'
 from psychopy import visual, core, event
 from exputils import getFrameRate, ms2frames, getUserName, continue_dataframe, Weibull, plot_Feedback
 from random   import randint, uniform #, choice
+from ctypes   import windll
 import os
 import numpy  as np
 import pandas as pd
-
 
 
 # experiment settings
@@ -41,6 +41,7 @@ exp['clock']       = core.Clock()
 exp['participant'] = getUserName(intUser = False)
 exp['debug']       = True
 exp['use trigger'] = False
+exp['port address'] = None
 exp['break after'] = 15 # how often subjects have a break
 
 exp['targetTime']  = [1]
@@ -65,6 +66,7 @@ exp['choose_resp'] = choose_resp
 # port settings
 portdict = {}
 portdict['send'] = exp['use trigger']
+portdict['port address'] = exp['port address']
 portdict['codes'] = {'fix' : 1, 'mask' : 2}
 portdict['codes'].update({'target_'+str(ori) : 4+i \
 	for i,ori in enumerate(exp['orientation'])})
@@ -199,8 +201,13 @@ def onflip_work(portdict, code='', clock=None):
 	if clock:
 		clock.reset()
 	if portdict['send'] and code:
-		pass
-
+		windll.inpout32.Out32(portdict['port address'], 
+			portdict['codes'][code])
+		
+# we do not need to clear port on the new amplifier
+# so this short def is 'just-in-case'
+def clear_port(portdict):
+	windll.inpout32.Out32(portdict['port address'], 0)
 
 def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 
@@ -215,18 +222,21 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 	# set target properties (takes less than 1 ms)
 	stim['target'].ori = db.loc[tr]['orientation']
 	stim['target'].opacity = db.loc[tr]['opacity']
+	target_code = 'target_' + db.loc[tr]['orientation']
 
 	# get trial start time (!)
 	db.loc[tr, 'time'] = core.getTime()
 
 	# present fix:
+	win.callOnFlip(onflip_work, portdict, code='fix')
 	for f in np.arange(db.loc[tr]['fixTime']):
 		for fx in stim['fix']:
 			fx.draw()
 		win.flip()
 
-	# get time (should be taken on first frame)
-	t1 = exp['clock'].getTime()
+	# present target
+	win.callOnFlip(onflip_work, portdict, code=target_code,
+		clock=exp['clock'])
 	for f in np.arange(db.loc[tr]['targetTime']):
 		stim['target'].draw()
 		win.flip()
@@ -236,6 +246,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 		win.flip()
 
 	# mask
+	win.callOnFlip(onflip_work, portdict, code='mask')
 	for f in np.arange(db.loc[tr]['maskTime']):
 		for m in stim['mask']:
 			m.draw()
@@ -255,8 +266,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 	
 	# calculate RT and ifcorrect
 	if k:
-		key = k[0][0]
-		t2  = k[0][1]
+		key, RT = k[0]
 
 		# if debug - test for quit
 		if exp['debug']:
@@ -265,7 +275,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 
 		# performance
 		db.loc[tr, 'response']  = key
-		db.loc[tr, 'RT']        = t2 - t1
+		db.loc[tr, 'RT']        = RT
 		db.loc[tr, 'ifcorrect'] = int(exp['keymap']\
 									  [db.loc[tr]['orientation']] == key)
 	else:
