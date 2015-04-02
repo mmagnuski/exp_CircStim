@@ -104,7 +104,7 @@ class Weibull:
 		return tempfname
 
 
-def plot_Feedback(stim, plotter, pth):
+def plot_Feedback(stim, plotter, pth, resize = 1.0):
     # get file names from 
     imfls = plotter.plot(pth)
     if not isinstance(imfls, type([])):
@@ -117,7 +117,7 @@ def plot_Feedback(stim, plotter, pth):
 		del img
 
 		# set image
-		stim['centerImage'].size = np.round(imgsize * 0.8)
+		stim['centerImage'].size = np.round(imgsize * resize)
 		stim['centerImage'].setImage(im)
 		stim['centerImage'].draw()
 		stim['window'].update()
