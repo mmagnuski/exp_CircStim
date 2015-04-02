@@ -5,8 +5,8 @@
 # TODOs:
 # [x] test RT measurement on some platforms (timestamping
 #         may not work...)
-# [ ] reset timer on stim presentation with callOnFlip
-# [ ] send LPT triggers with callOnFlip
+# [x] reset timer on stim presentation with callOnFlip
+# [x] send LPT triggers with callOnFlip
 # [ ] add logging to a file - useful in inspecting how fit
 #     and overcoming fit failures works
 # [ ] modularize and organize code
