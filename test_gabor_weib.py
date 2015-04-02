@@ -337,7 +337,7 @@ def set_opacity_if_fit_fails(corr, exp):
 		exp['opacity'][0] *= 0.5
 		exp['opacity'][1] *= 0.5 
 	elif mean_corr < 0.6:
-		exp['opacity'][0] *= 2
+		exp['opacity'][0] = np.min([exp['opacity'][1]*2, 0.8])
 		exp['opacity'][1] = np.min([exp['opacity'][1]*2, 1.0])
 
 def fit_weibull(db, i):
