@@ -45,11 +45,12 @@ exp['port address'] = None
 exp['break after'] = 15 # how often subjects have a break
 
 exp['targetTime']  = [1]
-exp['SMI']         = [1] # Stimulus Mask Interval
+exp['SMI']         = [2] # Stimulus Mask Interval
 exp['fixTimeLim']  = [0.75, 2.5]
 exp['maskTime']    = [20]
-exp['opacity']     = [0.05, 0.4]
+exp['opacity']     = [0.05, 0.8]
 exp['orientation'] = [0, 45, 90, 135]
+exp['corrLims']    = [0.55, 0.9]
 
 exp['use keys']    = ['f', 'j']
 exp['respWait']    = 1.5
@@ -345,15 +346,17 @@ def set_opacity_if_fit_fails(corr, exp):
 	if mean_corr > 0.8:
 		exp['opacity'][0] *= 0.5
 		exp['opacity'][1] *= 0.5 
+		exp['opacity'][0] = np.max([exp['opacity'][0], 0.01])
 	elif mean_corr < 0.6:
 		exp['opacity'][0] = np.min([exp['opacity'][1]*2, 0.8])
 		exp['opacity'][1] = np.min([exp['opacity'][1]*2, 1.0])
 
 def fit_weibull(db, i):
-	if i < 40:
-		idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
-	else:
-		idx = np.array(np.linspace(i-40+1, i, num = 40), dtype = 'int')
+#	if i < 40:
+#		idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
+#	else:
+#		idx = np.array(np.linspace(i-40+1, i, num = 40), dtype = 'int')
+	idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
 	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
 	opacit = db.loc[idx, 'opacity'].values.astype('float')
 
@@ -382,11 +385,19 @@ for i in range(startTrial, exp['numTrials'] + 1):
 			w = fit_weibull(db, i)
 			print 'Weibull params: ', w.params
 			
-			newopac = w._dist2corr([0.6, 0.85])
-			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0:
+			newopac = w._dist2corr(exp['corrLims'])
+			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 or newopac[1] < 0.01 or newopac[0] > 1.0:
 				set_opacity_if_fit_fails(w.orig_y, exp)
 			else:
 				exp['opacity'] = newopac
+            
+			if exp['opacity'][1] > 1.0:
+				exp['opacity'][1] = 1.0
+			if exp['opacity'][0] < 0.01:
+				exp['opacity'][0] = 0.01
+			if exp['opacity'][0] > exp['opacity'][1]:
+				exp['opacity'][0] = exp['opacity'][1]/2
+                
 
 			# DEBUG
 			print 'opacity limits set to: ', exp['opacity']
