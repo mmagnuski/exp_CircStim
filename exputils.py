@@ -99,7 +99,7 @@ class Weibull:
 
 		# save figure
 		tempfname = os.path.join(pth, 'weibull_fit_temp.png')
-		plt.savefig(tempfname, dpi = 100)
+		plt.savefig(tempfname, dpi = 120)
 		plt.close()
 		return tempfname
 
