@@ -269,8 +269,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 		key, RT = k[0]
 
 		# if debug - test for quit
-		if exp['debug']:
-			if key == 'q':
+		if exp['debug'] and key == 'q':
 				core.quit()
 
 		# performance
