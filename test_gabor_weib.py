@@ -7,8 +7,9 @@
 #         may not work...)
 # [x] reset timer on stim presentation with callOnFlip
 # [x] send LPT triggers with callOnFlip
-# [ ] add logging to a file - useful in inspecting how fit
-#     and overcoming fit failures works
+# [ ] remove print statements and add logging to a file - 
+#     useful in inspecting how fit and overcoming fit 
+#     failures works
 # [ ] modularize and organize code
 # [ ] use '\data' folder to save data
 # [ ] test continue_dataframe for overwrite
@@ -386,7 +387,9 @@ for i in range(startTrial, exp['numTrials'] + 1):
 			print 'Weibull params: ', w.params
 			
 			newopac = w._dist2corr(exp['corrLims'])
-			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 or newopac[1] < 0.01 or newopac[0] > 1.0:
+			# TODO this needs checking, removing duplicates and testing
+			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 
+				or newopac[1] < 0.01 or newopac[0] > 1.0:
 				set_opacity_if_fit_fails(w.orig_y, exp)
 			else:
 				exp['opacity'] = newopac
@@ -397,7 +400,6 @@ for i in range(startTrial, exp['numTrials'] + 1):
 				exp['opacity'][0] = 0.01
 			if exp['opacity'][0] > exp['opacity'][1]:
 				exp['opacity'][0] = exp['opacity'][1]/2
-                
 
 			# DEBUG
 			print 'opacity limits set to: ', exp['opacity']
