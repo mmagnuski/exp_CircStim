@@ -63,8 +63,12 @@ exp['keymap'] = resp
 exp['choose_resp'] = choose_resp
 
 # port settings
+portdict = {}
 portdict['send'] = exp['use trigger']
-# more portdict settings...
+portdict['codes'] = {'fix' : 1, 'mask' : 2}
+portdict['codes'].update({'target_'+str(ori) : 4+i \
+	for i,ori in enumerate(exp['orientation'])})
+
 
 # change below to logging:
 print 'keymap: ', exp['keymap']
@@ -191,12 +195,12 @@ fix.append(whiteshape(
 stim['fix'] = fix
 del fix
 
-def onflip_work(portdict, code=1, clock=None):
-	if portdict['send']:
+def onflip_work(portdict, code='', clock=None):
+	if clock:
+		clock.reset()
+	if portdict['send'] and code:
 		pass
 
-	if clock:
-		clock.reset()	
 
 def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 
