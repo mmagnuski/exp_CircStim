@@ -203,7 +203,7 @@ def onflip_work(portdict, code='', clock=None):
 	if portdict['send'] and code:
 		windll.inpout32.Out32(portdict['port address'], 
 			portdict['codes'][code])
-		
+
 # we do not need to clear port on the new amplifier
 # so this short def is 'just-in-case'
 def clear_port(portdict):
@@ -222,7 +222,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 	# set target properties (takes less than 1 ms)
 	stim['target'].ori = db.loc[tr]['orientation']
 	stim['target'].opacity = db.loc[tr]['opacity']
-	target_code = 'target_' + db.loc[tr]['orientation']
+	target_code = 'target_' + str(db.loc[tr]['orientation'])
 
 	# get trial start time (!)
 	db.loc[tr, 'time'] = core.getTime()
