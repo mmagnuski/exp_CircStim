@@ -37,11 +37,10 @@ import pandas as pd
 
 # experiment settings
 exp = {}
-exp['clock']       = core.Clock()
-exp['participant'] = getUserName(intUser = False)
 exp['debug']       = True
+exp['clock']       = core.Clock()
 exp['use trigger'] = False
-exp['port address'] = None
+exp['port address'] = None # string, for example '0xD05'
 exp['break after'] = 15 # how often subjects have a break
 
 exp['targetTime']  = [1]
@@ -75,6 +74,7 @@ portdict['codes'].update({'target_'+str(ori) : 4+i \
 
 # change below to logging:
 print 'keymap: ', exp['keymap']
+exp['participant'] = getUserName(intUser = False)
 
 # create a window
 # ---------------
