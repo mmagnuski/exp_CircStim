@@ -67,10 +67,13 @@ exp['choose_resp'] = choose_resp
 # port settings
 portdict = {}
 portdict['send'] = exp['use trigger']
-portdict['port address'] = int(exp['port address'], base=16)
+portdict['port address'] = int(exp['port address'], base=16) 
+						   if exp['prot address'] and portdict['send']
+						   else exp['port address']
 portdict['codes'] = {'fix' : 1, 'mask' : 2}
 portdict['codes'].update({'target_'+str(ori) : 4+i \
-	for i,ori in enumerate(exp['orientation'])})
+						   for i,ori in enumerate(exp['orientation'])
+						   })
 
 
 # change below to logging:
