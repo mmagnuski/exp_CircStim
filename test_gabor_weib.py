@@ -3,26 +3,25 @@
 # add description
 
 # TODOs:
+# [ ] add simple instructions     (!)
+# [ ] use '\data' folder to save data
+# [ ] add simple training         (!)
+#     -> +feedback
+#     -> (before) +slowdown +full-contrast?
+# [ ] remove print statements and add logging to a file - 
+#     useful in inspecting how fit and overcoming fit 
+#     failures works
+# [ ] test continue_dataframe for overwrite
+# [ ] modularize and organize code
 # [x] test RT measurement on some platforms (timestamping
 #         may not work...)
 # [x] reset timer on stim presentation with callOnFlip
 # [x] send LPT triggers with callOnFlip
-# [ ] remove print statements and add logging to a file - 
-#     useful in inspecting how fit and overcoming fit 
-#     failures works
-# [ ] modularize and organize code
-# [ ] use '\data' folder to save data
-# [ ] test continue_dataframe for overwrite
 # [x] add weibull fitting on fixed frame setup (1-1 frms)
-# [ ] add simple instructions     (!)
-# [ ] add simple training         (!)
-#     -> +feedback
-#     -> (before) +slowdown +full-contrast?
 # 
 # not necessary:
-# [ ] ? present some scatter feedback
-# [ ] load matplotlib and seaborn (here or in stimutils)
 # [ ] load seaborn conditionally
+# [ ] ? present some scatter feedback
 # [ ] ? check interpolate = True in visual.ImageStim
 
 # imports
