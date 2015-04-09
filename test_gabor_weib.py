@@ -155,7 +155,8 @@ def onflip_work(portdict, code='', clock=None):
 def clear_port(portdict):
 	windll.inpout32.Out32(portdict['port address'], 0)
 
-def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
+def present_trial(tr, exp = exp, stim = stim, db = db, 
+					  win = stim['window']):
 
 	# PREPARE
 	# -------
@@ -227,7 +228,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db, win = win):
 		db.loc[tr, 'response']  = 'NoResp'
 		db.loc[tr, 'ifcorrect'] = 0
 
-def show_resp_rules(exp = exp, win = win):
+def show_resp_rules(exp = exp, win = stim['window']):
 
 	# create diagonal on one side and cardinal on the other
 	ch    = exp['choose_resp']
@@ -273,7 +274,7 @@ def show_resp_rules(exp = exp, win = win):
 	k = event.waitKeys(keyList = ['space'])
 
 
-def present_break(t, exp = exp, win = win):
+def present_break(t, exp = exp, win = stim['window']):
 	tex  = u'Ukończono  {0} / {1}  powtórzeń.\nMożesz teraz ' + \
 		   u'chwilę odetchnąc.\nNaciśnij spację aby kontynuowac...'
 	tex  = tex.format(t, exp['numTrials'])
@@ -317,7 +318,7 @@ show_resp_rules()
 # show trials:
 for i in range(startTrial, exp['numTrials'] + 1):
 	present_trial(i)
-	win.flip()
+	stim['window'].flip()
 
 	# present break 
 	if (i) % exp['break after'] == 0:
@@ -356,8 +357,8 @@ for i in range(startTrial, exp['numTrials'] + 1):
 		present_break(i)
 		show_resp_rules()
 
-	win.flip()
-	core.wait(0.5) # change to variable intertrial interval?
+	stim['window'].flip()
+	core.wait(0.5) # pre-fixation time is always the same
 
 db.to_excel( exp['participant'] + '.xls')
 core.quit()
