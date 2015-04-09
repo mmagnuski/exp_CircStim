@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from psychopy import core, visual, event
+from psychopy import core, visual, event, monitors
 from ctypes    import windll
 from settings import exp, db, startTrial
 from exputils  import getFrameRate
 import numpy  as np
 
 
+# import monitor settings
+monitorName = "testMonitor"
+monitors = monitors.getAllMonitors()
+if "BENQ-XL2411" in monitors:
+	monitorName = "BENQ-XL2411"
+
 # create a window
 # ---------------
-win = visual.Window([800,600], monitor="testMonitor", 
+win = visual.Window(monitor=monitorName, 
     units="deg", color = [-0.2, -0.2, -0.2], fullscr=True)
 win.setMouseVisible(False)
 
