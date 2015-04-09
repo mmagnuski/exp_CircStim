@@ -3,3 +3,5 @@
 # ignore images and xls:
 *.png
 *.xls
+# ignore whatever else is in data dir:
+data\*
