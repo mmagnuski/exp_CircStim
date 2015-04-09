@@ -9,7 +9,7 @@ import numpy  as np
 
 # create a window
 # ---------------
-win = visual.Window([800,600],monitor="testMonitor", 
+win = visual.Window([800,600], monitor="testMonitor", 
     units="deg", color = [-0.2, -0.2, -0.2], fullscr=True)
 win.setMouseVisible(False)
 
