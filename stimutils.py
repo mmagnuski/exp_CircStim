@@ -12,8 +12,6 @@ import numpy  as np
 win = visual.Window([800,600],monitor="testMonitor", 
     units="deg", color = [-0.2, -0.2, -0.2], fullscr=True)
 win.setMouseVisible(False)
-# get frame rate:
-exp['frm'] = getFrameRate(stim['window'])
 
 
 # ==def for gabor creation==
@@ -74,6 +72,10 @@ stim['fix'] = fix()
 
 # stimuli presentation etc.
 # -------------------------
+
+# get frame rate 
+# (this is now done in settings, maybe no need to repeat?):
+# exp['frm'] = getFrameRate(stim['window'])
 
 # def for onflip clock reset and port trigger
 def onflip_work(portdict, code='', clock=None):
