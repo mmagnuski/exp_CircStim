@@ -14,7 +14,7 @@
 #     useful in inspecting how fit and overcoming fit 
 #     failures works
 # [ ] test continue_dataframe for overwrite
-# [ ] modularize and organize code
+# [x] modularize and organize code
 # [x] use '\data' folder to save data
 # [x] test RT measurement on some platforms (timestamping
 #         may not work...)
