@@ -7,8 +7,6 @@ import numpy  as np
 # ---------------
 win = visual.Window([800,600],monitor="testMonitor", 
     units="deg", color = [-0.2, -0.2, -0.2], fullscr=True)
-# get fame rate
-frm = getFrameRate(win)
 win.setMouseVisible(False)
 
 

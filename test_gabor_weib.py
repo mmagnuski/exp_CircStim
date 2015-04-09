@@ -86,6 +86,10 @@ pth   = os.path.dirname(os.path.abspath(__file__))
 ifcnt = continue_dataframe(pth, exp['participant'] + '.xls')
 exp['path'] = pth
 
+# get frame rate:
+# get fame rate
+frm = getFrameRate(stim['window'])
+
 if not ifcnt:
 	# create DataFrame
 	# ----------------
