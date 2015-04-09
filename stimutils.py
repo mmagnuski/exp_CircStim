@@ -109,14 +109,14 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	db.loc[tr, 'time'] = core.getTime()
 
 	# present fix:
-	win.callOnFlip(onflip_work, portdict, code='fix')
+	win.callOnFlip(onflip_work, exp['port'], code='fix')
 	for f in np.arange(db.loc[tr]['fixTime']):
 		for fx in stim['fix']:
 			fx.draw()
 		win.flip()
 
 	# present target
-	win.callOnFlip(onflip_work, portdict, code=target_code,
+	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 		clock=exp['clock'])
 	for f in np.arange(db.loc[tr]['targetTime']):
 		stim['target'].draw()
@@ -127,7 +127,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		win.flip()
 
 	# mask
-	win.callOnFlip(onflip_work, portdict, code='mask')
+	win.callOnFlip(onflip_work, exp['port'], code='mask')
 	for f in np.arange(db.loc[tr]['maskTime']):
 		for m in stim['mask']:
 			m.draw()
