@@ -1,4 +1,6 @@
-from psychopy import visual
+# -*- coding: utf-8 -*-
+
+from psychopy import core, visual, event
 from ctypes    import windll
 from settings import exp, db, startTrial
 from exputils  import getFrameRate

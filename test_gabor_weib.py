@@ -31,8 +31,7 @@
 print 'importing psychopy...'
 from psychopy  import visual, core, event
 from exputils  import Weibull, plot_Feedback
-from random    import randint, uniform #, choice
-from stimutlis import exp, db, startTrial, present_trial, \
+from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules
 import os
 import numpy  as np
