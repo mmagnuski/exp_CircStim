@@ -167,7 +167,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 # -----------------
 
 # this should go to instructions module
-def show_resp_rule(exp = exp, win = stim['window']):
+def show_resp_rules(exp = exp, win = stim['window']):
 
 	# create diagonal on one side and cardinal on the other
 	ch    = exp['choose_resp']
