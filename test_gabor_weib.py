@@ -30,7 +30,6 @@ from psychopy  import visual, core, event
 from exputils  import getFrameRate, ms2frames, getUserName, continue_dataframe, Weibull, plot_Feedback
 from random    import randint, uniform #, choice
 from ctypes    import windll
-from stimutils import stim, gabor
 import os
 import numpy  as np
 import pandas as pd
@@ -43,6 +42,8 @@ exp['clock']       = core.Clock()
 exp['use trigger'] = True
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['break after'] = 15 # how often subjects have a break
+
+exp['participant'] = getUserName(intUser = False)
 
 exp['targetTime']  = [1]
 exp['SMI']         = [2] # Stimulus Mask Interval
@@ -78,7 +79,6 @@ portdict['codes'].update({'target_'+str(ori) : 4+i \
 
 # change below to logging:
 print 'keymap: ', exp['keymap']
-exp['participant'] = getUserName(intUser = False)
 
 
 # get path
@@ -90,7 +90,7 @@ if not os.path.isdir(exp['data']):
 	os.mkdir(exp['data'])
 
 # get frame rate:
-# get fame rate
+from stimutils import stim, gabor
 frm = getFrameRate(stim['window'])
 
 # check if continue with previous dataframe:
