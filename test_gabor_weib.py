@@ -30,7 +30,7 @@ from psychopy  import visual, core, event
 from exputils  import getFrameRate, ms2frames, getUserName, continue_dataframe, Weibull, plot_Feedback
 from random    import randint, uniform #, choice
 from ctypes    import windll
-from stimutils import stim
+from stimutils import stim, gabor
 import os
 import numpy  as np
 import pandas as pd
