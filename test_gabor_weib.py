@@ -36,6 +36,7 @@ import pandas as pd
 
 
 # experiment settings
+# -------------------
 exp = {}
 exp['debug']       = True
 exp['clock']       = core.Clock()
@@ -56,6 +57,8 @@ exp['corrLims']    = [0.55, 0.9]
 exp['use keys']    = ['f', 'j']
 exp['respWait']    = 1.5
 
+# response mapping
+# ----------------
 resp = {}
 choose_resp = randint(0, 1)
 resp[0]   = exp['use keys'][choose_resp]
@@ -66,6 +69,7 @@ exp['keymap'] = resp
 exp['choose_resp'] = choose_resp
 
 # port settings
+# -------------
 portdict = {}
 portdict['send'] = exp['use trigger']
 portdict['port address'] = int(exp['port address'], base=16) \
@@ -160,14 +164,15 @@ def onflip_work(portdict, code='', clock=None):
 		windll.inpout32.Out32(portdict['port address'], 
 			portdict['codes'][code])
 
+
 # we do not need to clear port on the new amplifier
 # so this short def is 'just-in-case'
 def clear_port(portdict):
 	windll.inpout32.Out32(portdict['port address'], 0)
 
+
 def present_trial(tr, exp = exp, stim = stim, db = db, 
 					  win = stim['window']):
-
 	# PREPARE
 	# -------
 	db.loc[tr, 'opacity'] = np.round(
@@ -238,6 +243,8 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		db.loc[tr, 'response']  = 'NoResp'
 		db.loc[tr, 'ifcorrect'] = 0
 
+
+# this should go to instructions module
 def show_resp_rules(exp = exp, win = stim['window']):
 
 	# create diagonal on one side and cardinal on the other
@@ -306,6 +313,7 @@ def set_opacity_if_fit_fails(corr, exp):
 	elif mean_corr < 0.6:
 		exp['opacity'][0] = np.min([exp['opacity'][1]*2, 0.8])
 		exp['opacity'][1] = np.min([exp['opacity'][1]*2, 1.0])
+
 
 def fit_weibull(db, i):
 #	if i < 40:
