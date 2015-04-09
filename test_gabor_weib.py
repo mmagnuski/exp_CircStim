@@ -40,8 +40,8 @@ import pandas as pd
 exp = {}
 exp['debug']       = True
 exp['clock']       = core.Clock()
-exp['use trigger'] = False
-exp['port address'] = None # string, for example '0xD05'
+exp['use trigger'] = True
+exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['break after'] = 15 # how often subjects have a break
 
 exp['targetTime']  = [1]
