@@ -3,10 +3,13 @@
 # add description
 
 # TODOs:
-# [ ] add simple instructions     (!)
-# [ ] add simple training         (!)
+# [ ] add instructions     (!)
+# [ ] add training         (!)
+#     -> +slowdown +full-contrast?
 #     -> +feedback
-#     -> (before) +slowdown +full-contrast?
+# [ ] add markers to:
+#     -> start (and end?) of each break
+#     -> 
 # [ ] remove print statements and add logging to a file - 
 #     useful in inspecting how fit and overcoming fit 
 #     failures works
@@ -82,6 +85,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 		# save data before every break
 		db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
 		
+		# TODO: close this into a def
 		# if break was within first 100 trials,
 		# fit Weibull function
 		if i < 101:
