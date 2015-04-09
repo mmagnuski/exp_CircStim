@@ -4,7 +4,6 @@
 
 # TODOs:
 # [ ] add simple instructions     (!)
-# [ ] use '\data' folder to save data
 # [ ] add simple training         (!)
 #     -> +feedback
 #     -> (before) +slowdown +full-contrast?
@@ -13,6 +12,7 @@
 #     failures works
 # [ ] test continue_dataframe for overwrite
 # [ ] modularize and organize code
+# [x] use '\data' folder to save data
 # [x] test RT measurement on some platforms (timestamping
 #         may not work...)
 # [x] reset timer on stim presentation with callOnFlip
@@ -83,12 +83,18 @@ exp['participant'] = getUserName(intUser = False)
 
 # get path
 pth   = os.path.dirname(os.path.abspath(__file__))
-ifcnt = continue_dataframe(pth, exp['participant'] + '.xls')
 exp['path'] = pth
+# ensure 'data' directory is available:
+exp['data'] = os.path.join(pth, 'data')
+if not os.path.isdir(exp['data']):
+	os.mkdir(exp['data'])
 
 # get frame rate:
 # get fame rate
 frm = getFrameRate(stim['window'])
+
+# check if continue with previous dataframe:
+ifcnt = continue_dataframe(exp['data'], exp['participant'] + '.xls')
 
 if not ifcnt:
 	# create DataFrame
@@ -327,7 +333,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	# present break 
 	if (i) % exp['break after'] == 0:
 		# save data before every break
-		db.to_excel( exp['participant'] + '.xls')
+		db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
 		
 		# if break was within first 100 trials,
 		# fit Weibull function
@@ -354,8 +360,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 			print 'opacity limits set to: ', exp['opacity']
 
 			# show weibull fit
-			datapth = os.path.join(exp['path'], r'data')
-			plot_Feedback(stim, w, datapth)
+			plot_Feedback(stim, w, exp['data'])
 
 		# break and refresh keyboard mapping
 		present_break(i)
@@ -364,5 +369,5 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	stim['window'].flip()
 	core.wait(0.5) # pre-fixation time is always the same
 
-db.to_excel( exp['participant'] + '.xls')
+db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
 core.quit()
