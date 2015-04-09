@@ -67,8 +67,8 @@ exp['choose_resp'] = choose_resp
 # port settings
 portdict = {}
 portdict['send'] = exp['use trigger']
-portdict['port address'] = int(exp['port address'], base=16) 
-						   if exp['prot address'] and portdict['send']
+portdict['port address'] = int(exp['port address'], base=16) \
+						   if exp['port address'] and portdict['send'] \
 						   else exp['port address']
 portdict['codes'] = {'fix' : 1, 'mask' : 2}
 portdict['codes'].update({'target_'+str(ori) : 4+i \
@@ -337,7 +337,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 			
 			newopac = w._dist2corr(exp['corrLims'])
 			# TODO this needs checking, removing duplicates and testing
-			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 
+			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 \
 				or newopac[1] < 0.01 or newopac[0] > 1.0:
 				set_opacity_if_fit_fails(w.orig_y, exp)
 			else:
