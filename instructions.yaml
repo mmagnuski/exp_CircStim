@@ -1,0 +1,23 @@
+---
+# Test page 1
+- item     : text
+  value    : 
+    text   : >
+      Taki pojawia się na ekranie tekst.
+      Coś jeszcze może się pojawić.
+      A nawet coś innego.
+    pos    : [0, 0.5]
+  position : [0, 0]
+- item     : gabor
+  value    : 
+    ori    : 45
+    pos    : [0, -0.7]
+
+---
+# Test page 2
+- item     : text
+  value    : 
+    text   : >
+      Kolejne instrukcje...
+      Szczęśliwe bardzo instrukcje...
+    pos    : [-0.3, 0.4]
