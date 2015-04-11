@@ -70,29 +70,23 @@ def fit_weibull(db, i):
 # ----------------
 
 # INSTRUCTIONS!
-train_db = db
-val = train_db.loc[1:14, 'orientation'].values
-print train_db.loc[1:14, 'orientation']
-np.random.shuffle(val)
-
-print type(val)
-print val
-ind = range(1, 15)
-train_db.loc[ind, 'orientation'] = pd.Series(val)
-
-slow = exp
-slow['targetTime'] = exp['targetTime'] * 120
-slow['SMI'] = exp['SMI'] * 120
-slow['opacity'] = [1.0, 1.0]
-print slow
-
-for i in ind:
-	present_trial(i, exp=slow, db=train_db)
 
 # show response rules:
 show_resp_rules()
 
 # trial loop:
+slow = exp.copy()
+slow['opacity'] = [0.7, 1.0]
+train_db = give_training_db(db, slowdown=5)
+
+i = 1
+training_correctness = 0
+while training_correctness < exp['train corr'][0] and i > 14
+	present_trial(i, exp=slow, db=train_db)
+	# TODO add feedback (takes i and db [and stim])
+	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
+	i += 1
+
 for i in range(startTrial, exp['numTrials'] + 1):
 	present_trial(i)
 	stim['window'].flip()

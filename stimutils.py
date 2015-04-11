@@ -232,3 +232,18 @@ def present_break(t, exp = exp, win = stim['window']):
 
 	# wait for space key:
 	k = event.waitKeys(keyList = ['space', 'escape', 'return'])
+
+
+def give_training_db(db, exp=exp, slowdown=8):
+	# copy the dataframe
+	train_db = db.copy()
+	# shuffle orientations
+	val = train_db.loc[:, 'orientation'].values
+	np.random.shuffle(val)
+	train_db.loc[:, 'orientation'] = val
+
+	# change targetTime, SMI (and maybe maskTime?)
+	train_db.loc[:, 'targetTime'] = exp['targetTime'][0] * slowdown
+	train_db.loc[:, 'SMI'] = exp['SMI'][0] * slowdown
+	return train_db
+

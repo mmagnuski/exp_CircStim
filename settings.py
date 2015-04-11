@@ -23,6 +23,7 @@ exp['fixTimeLim']  = [0.75, 2.5]
 exp['maskTime']    = [20]
 exp['opacity']     = [0.05, 0.8]
 exp['orientation'] = [0, 45, 90, 135]
+exp['train corr']  = [0.85, 0.75] # [slow, normal]
 exp['corrLims']    = [0.55, 0.9]
 
 exp['use keys']    = ['f', 'j']
