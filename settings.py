@@ -77,17 +77,18 @@ ifcnt = continue_dataframe(exp['data'], exp['participant'] + '.xls')
 if not ifcnt:
 	# create DataFrame
 	# ----------------
+
 	# define column names:
 	colNames = ['time', 'fixTime', 'targetTime', 'SMI', \
 				'maskTime', 'opacity', 'orientation', \
 				'response', 'ifcorrect', 'RT']
-	# CHANGE - dtypes are not being used
-	dtypes   = ['float', 'float', 'int', 'int', \
-				'int', 'float', 'int', 'str', 'int', 'float']
+
 	# combined columns
 	cmb = ['targetTime', 'SMI', 'maskTime', 'orientation']
+
 	# how many times each combination should be presented
 	perComb = 140;
+	
 	# generate trial combinations
 	lst = [
 			[i, j, l, m ] \

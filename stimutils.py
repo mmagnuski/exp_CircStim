@@ -152,6 +152,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		k = event.waitKeys(maxWait = exp['respWait'], 
 					       keyList = exp['use keys'] + ['q'], 
 					       timeStamped = exp['clock'])
+		# TODO - send response marker?
 	
 	# calculate RT and ifcorrect
 	if k:

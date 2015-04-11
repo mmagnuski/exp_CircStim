@@ -14,13 +14,6 @@
 #     useful in inspecting how fit and overcoming fit 
 #     failures works
 # [ ] test continue_dataframe for overwrite
-# [x] modularize and organize code
-# [x] use '\data' folder to save data
-# [x] test RT measurement on some platforms (timestamping
-#         may not work...)
-# [x] reset timer on stim presentation with callOnFlip
-# [x] send LPT triggers with callOnFlip
-# [x] add weibull fitting on fixed frame setup (1-1 frms)
 # 
 # not necessary:
 # [ ] load seaborn conditionally
@@ -66,15 +59,17 @@ def fit_weibull(db, i):
 	return w
 
 
-# start experiment
-# ----------------
+# EXPERIMENT
+# ==========
 
 # INSTRUCTIONS!
 
 # show response rules:
 show_resp_rules()
 
-# trial loop:
+# SLOW TRAINING
+# -------------
+
 slow = exp.copy()
 slow['opacity'] = [0.7, 1.0]
 train_db = give_training_db(db, slowdown=5)
@@ -87,6 +82,9 @@ while training_correctness < exp['train corr'][0] and i > 14
 	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
 	i += 1
 
+
+# MAIN EXPERIMENT
+# ---------------
 for i in range(startTrial, exp['numTrials'] + 1):
 	present_trial(i)
 	stim['window'].flip()
