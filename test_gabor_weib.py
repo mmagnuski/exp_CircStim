@@ -70,6 +70,7 @@ show_resp_rules()
 # SLOW TRAINING
 # -------------
 
+# set things up
 slow = exp.copy()
 slow['opacity'] = [0.7, 1.0]
 train_db = give_training_db(db, slowdown=5)
@@ -82,6 +83,7 @@ while training_correctness < exp['train corr'][0] or i < 14:
 	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
 	i += 1
 
+# TODO - info that main experiment is about to begin
 
 # MAIN EXPERIMENT
 # ---------------
