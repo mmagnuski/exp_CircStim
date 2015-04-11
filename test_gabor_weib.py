@@ -25,7 +25,7 @@ print 'importing psychopy...'
 from psychopy  import visual, core, event
 from exputils  import Weibull, plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \
-					  present_break, show_resp_rules
+					  present_break, show_resp_rules, give_training_db
 import os
 import numpy  as np
 import pandas as pd
@@ -76,7 +76,7 @@ train_db = give_training_db(db, slowdown=5)
 
 i = 1
 training_correctness = 0
-while training_correctness < exp['train corr'][0] and i > 14
+while training_correctness < exp['train corr'][0] or i < 14:
 	present_trial(i, exp=slow, db=train_db)
 	# TODO add feedback (takes i and db [and stim])
 	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
