@@ -276,7 +276,7 @@ class Instructions:
 		self.nextpage = start
 		while self.nextpage < stop:
 			# create page elements
-			self.create_page(self.nextpage)
+			self.create_page()
 			# draw page elements
 			for it in self.pageitems:
 				it.draw()
@@ -293,8 +293,10 @@ class Instructions:
 				self.nextpage -= 1
 				self.nextpage = max(0, self.nextpage)
 
-	def create_page(self, page_num=self.nextpage):
-		self.pageitems = [self.parse_item(i) for i in self.page(page_num)]
+	def create_page(self, page_num=None):
+		if not isinstance(page_num, int):
+			page_num = self.nextpage
+		self.pageitems = [self.parse_item(i) for i in self.pages[page_num]]
 
 	def parse_item(self, item):
 		# currently: gabor or text:
