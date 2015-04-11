@@ -250,15 +250,12 @@ def give_training_db(db, exp=exp, slowdown=8):
 	return train_db
 
 
-def txt(win=win, **kwargs):
-	return visual.TextStim(win, **kwargs)
-
-
 class Instructions:
 
 	nextpage = 0
-	navigation = {'leftarrow': 'prev',
-				  'rightarrow': 'next'}
+	navigation = {'left': 'prev',
+				  'right': 'next',
+				  'space': 'next'}
 
 	def __init__(self, fname, win=win):
 		self.win = win
@@ -286,7 +283,7 @@ class Instructions:
 			self.win.flip()
 
 			# wait for response
-			k = event.waitKeys(self.navigation.keys())
+			k = event.waitKeys(keyList=self.navigation.keys())[0]
 			action = self.navigation[k]
 
 			# go next/prev according to the response
