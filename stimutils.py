@@ -21,7 +21,13 @@ win = visual.Window(monitor=monitorName,
 win.setMouseVisible(False)
 
 
-# ==def for gabor creation==
+# STIMULI
+# -------
+
+def txt(win=win, **kwargs):
+	return visual.TextStim(win, **kwargs)
+
+# gabor creation
 def gabor(win = win, ori = 0, opa = 1.0, 
 		  pos  = [0, 0], size = 7, 
 		  units = 'deg', sf = 1.5):
@@ -63,6 +69,7 @@ stim = {}
 stim['window'] = win
 stim['target'] = gabor()
 # CHANGE - window size, so that it is accurate...
+
 stim['centerImage'] = visual.ImageStim(win, image=None,  
             pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
 
@@ -77,12 +84,8 @@ for o in mask_ori:
 stim['fix'] = fix()
 
 
-# stimuli presentation etc.
-# -------------------------
-
-# get frame rate 
-# (this is now done in settings, maybe no need to repeat?):
-# exp['frm'] = getFrameRate(stim['window'])
+# TRIGGERS
+# --------
 
 # def for onflip clock reset and port trigger
 def onflip_work(portdict, code='', clock=None):
@@ -98,6 +101,9 @@ def onflip_work(portdict, code='', clock=None):
 def clear_port(portdict):
 	windll.inpout32.Out32(portdict['port address'], 0)
 
+
+# PRESENTATION
+# ------------
 
 def present_trial(tr, exp = exp, stim = stim, db = db, 
 					  win = stim['window']):
@@ -142,19 +148,25 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 			m.draw()
 		win.flip()
 
+
 	# RESPONSE
 	# --------
+
+	# which keys we wait for:
+	keys = exp['use keys']
+	if exp['debug']: keys += ['q']
+
 	# check if response
-	k = event.getKeys(keyList = exp['use keys'] + ['q'], 
+	k = event.getKeys(keyList = keys, 
 					  timeStamped = exp['clock'])
-	
+
 	# wait for response (timeout)
 	if not k:
 		k = event.waitKeys(maxWait = exp['respWait'], 
-					       keyList = exp['use keys'] + ['q'], 
+					       keyList = keys, 
 					       timeStamped = exp['clock'])
 		# TODO - send response marker?
-	
+
 	# calculate RT and ifcorrect
 	if k:
 		key, RT = k[0]
