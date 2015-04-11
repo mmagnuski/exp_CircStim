@@ -5,6 +5,7 @@ from ctypes    import windll
 from settings import exp, db, startTrial
 from exputils  import getFrameRate
 import numpy  as np
+import yaml
 
 
 # import monitor settings
@@ -248,3 +249,66 @@ def give_training_db(db, exp=exp, slowdown=8):
 	train_db.loc[:, 'SMI'] = exp['SMI'][0] * slowdown
 	return train_db
 
+
+def txt(win=win, **kwargs):
+	return visual.TextStim(win, **kwargs)
+
+
+class Instructions:
+
+	nextpage = 0
+	navigation = {'leftarrow': 'prev',
+				  'rightarrow': 'next'}
+
+	def __init__(self, fname, win=win):
+		self.win = win
+
+		# get instructions from file:
+		with open(fname, 'r') as f:
+		    instr = yaml.load_all(f)
+		    self.pages = list(instr)
+		self.stop_at_page = len(self.pages)
+
+	def present(self, start=None, stop=None):
+		if not isinstance(start, int):
+			start = self.nextpage
+		if not isinstance(stop, int):
+			stop = len(self.pages)
+
+		# show pages:
+		self.nextpage = start
+		while self.nextpage < stop:
+			# create page elements
+			self.create_page(self.nextpage)
+			# draw page elements
+			for it in self.pageitems:
+				it.draw()
+			self.win.flip()
+
+			# wait for response
+			k = event.waitKeys(self.navigation.keys())
+			action = self.navigation[k]
+
+			# go next/prev according to the response
+			if action == 'next':
+				self.nextpage += 1
+			else:
+				self.nextpage -= 1
+				self.nextpage = max(0, self.nextpage)
+
+	def create_page(self, page_num=self.nextpage):
+		self.pageitems = [self.parse_item(i) for i in self.page(page_num)]
+
+	def parse_item(self, item):
+		# currently: gabor or text:
+		mapdict = {'gabor': self.create_gabor,
+			'text': self.create_text}
+		fun = mapdict.get(item['item'], [])
+		if fun:
+			return fun(item)
+
+	def create_gabor(self, item):
+		return gabor(**item['value'])
+
+	def create_text(self, item):
+		return txt(**item['value'])
