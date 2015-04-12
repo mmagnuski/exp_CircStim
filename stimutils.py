@@ -303,8 +303,7 @@ class Instructions:
 			if action == 'next':
 				self.nextpage += 1
 			else:
-				self.nextpage -= 1
-				self.nextpage = max(0, self.nextpage)
+				self.nextpage = max(0, self.nextpage - 1)
 
 	def create_page(self, page_num=None):
 		if not isinstance(page_num, int):
