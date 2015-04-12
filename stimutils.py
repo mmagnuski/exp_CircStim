@@ -264,7 +264,8 @@ def give_training_db(db, exp=exp, slowdown=8):
 
 class Instructions:
 
-	nextpage = 0
+	nextpage   = 0
+	mapdict    = {'gabor': gabor, 'text': txt}
 	navigation = {'left': 'prev',
 				  'right': 'next',
 				  'space': 'next'}
@@ -312,14 +313,7 @@ class Instructions:
 
 	def parse_item(self, item):
 		# currently: gabor or text:
-		mapdict = {'gabor': self.create_gabor,
-			'text': self.create_text}
-		fun = mapdict.get(item['item'], [])
+		fun = self.mapdict.get(item['item'], [])
+
 		if fun:
-			return fun(item)
-
-	def create_gabor(self, item):
-		return gabor(**item['value'])
-
-	def create_text(self, item):
-		return txt(**item['value'])
+			return fun(**item['value'])
