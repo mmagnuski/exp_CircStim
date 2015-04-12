@@ -25,7 +25,7 @@ win.setMouseVisible(False)
 # -------
 
 def txt(win=win, **kwargs):
-	return visual.TextStim(win, **kwargs)
+	return visual.TextStim(win, units='norm', **kwargs)
 
 # gabor creation
 def gabor(win = win, ori = 0, opa = 1.0, 
