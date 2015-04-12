@@ -1,5 +1,5 @@
 from stimutils import Instructions 
 
 # testing instructions
-instr = Instructions('instructions.yaml')
+instr = Instructions('instructions.yml')
 instr.present()
