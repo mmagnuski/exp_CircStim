@@ -17,11 +17,8 @@
 # 
 # not necessary:
 # [ ] load seaborn conditionally
-# [ ] ? present some scatter feedback
-# [ ] ? check interpolate = True in visual.ImageStim
 
 # imports
-print 'importing psychopy...'
 from psychopy  import visual, core, event
 from exputils  import Weibull, plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \

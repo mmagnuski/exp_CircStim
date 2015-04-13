@@ -314,5 +314,4 @@ class Instructions:
 		# currently: gabor or text:
 		fun = self.mapdict.get(item['item'], [])
 
-		if fun:
-			return fun(**item['value'])
+		if fun: return fun(**item['value'])
