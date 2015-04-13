@@ -27,8 +27,14 @@ from exputils  import Weibull, plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules, give_training_db
 import os
+import logging
 import numpy  as np
 import pandas as pd
+
+
+# setup logging:
+logfile = os.path.join(exp['data'], exp['participant'] + '.log')
+logging.basicConfig(filename=logfile, level=logging.INFO)
 
 
 # some remaining defs:
@@ -101,16 +107,23 @@ for i in range(startTrial, exp['numTrials'] + 1):
 		# fit Weibull function
 		if i < 101:
 			w = fit_weibull(db, i)
-			print 'Weibull params: ', w.params
-			
 			newopac = w._dist2corr(exp['corrLims'])
+
+			# log weibul fit and contrast
+			logging.info( 'Weibull params:  {} {}'.format( *w.params ) )
+			logging.info( 'Contrast limits set to:  {0} - {1}'.format(newopac) )
+
 			# TODO this needs checking, removing duplicates and testing
 			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 \
 				or newopac[1] < 0.01 or newopac[0] > 1.0:
+
 				set_opacity_if_fit_fails(w.orig_y, exp)
+				logging.info( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(exp['opacity']) )
 			else:
 				exp['opacity'] = newopac
             
+			# additional contrast checks
+			precheck_opacity = exp['opacity']
 			if exp['opacity'][1] > 1.0:
 				exp['opacity'][1] = 1.0
 			if exp['opacity'][0] < 0.01:
@@ -118,8 +131,8 @@ for i in range(startTrial, exp['numTrials'] + 1):
 			if exp['opacity'][0] > exp['opacity'][1]:
 				exp['opacity'][0] = exp['opacity'][1]/2
 
-			# DEBUG
-			print 'opacity limits set to: ', exp['opacity']
+			if not (exp['opacity'] == precheck_opacity):
+				logging.info('Opacity limits corrected to:  {0} - {1}'.format(exp['opacity']))
 
 			# show weibull fit
 			plot_Feedback(stim, w, exp['data'])
