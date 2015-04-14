@@ -4,16 +4,15 @@
 
 # TODOs:
 # [ ] add instructions     (!)
-# [ ] add training         (!)
-#     -> +slowdown +full-contrast?
-#     -> +feedback
+# [ ] add feedback to training block(s)
 # [ ] add markers to:
 #     -> start (and end?) of each break
 #     -> 
-# [ ] remove print statements and add logging to a file - 
+# [ ] test continue_dataframe for overwrite
+# [x] add slowdown training + full-contrast?
+# [x] remove print statements and add logging to a file - 
 #     useful in inspecting how fit and overcoming fit 
 #     failures works
-# [ ] test continue_dataframe for overwrite
 # 
 # not necessary:
 # [ ] load seaborn conditionally
