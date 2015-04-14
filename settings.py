@@ -62,6 +62,8 @@ exp['data'] = os.path.join(pth, 'data')
 if not os.path.isdir(exp['data']):
 	os.mkdir(exp['data'])
 
+# setup logging:
+exp['logfile'] = os.path.join(exp['data'], exp['participant'] + '.log')
 
 # check frame rate:
 win = visual.Window(monitor="testMonitor")

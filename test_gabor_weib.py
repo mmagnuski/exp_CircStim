@@ -19,7 +19,7 @@
 # [ ] load seaborn conditionally
 
 # imports
-from psychopy  import visual, core, event
+from psychopy  import visual, core, event, logging
 from exputils  import Weibull, plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules, give_training_db
@@ -29,10 +29,8 @@ import numpy  as np
 import pandas as pd
 
 
-# setup logging:
-logfile = os.path.join(exp['data'], exp['participant'] + '.log')
-logging.basicConfig(filename=logfile, level=logging.INFO)
-
+# set loggingly logging to logfile
+lg = logging.LogFile(f=exp['logfile'], level=logging.INFO, filemode='w')
 
 # some remaining defs:
 def set_opacity_if_fit_fails(corr, exp):
@@ -130,6 +128,9 @@ for i in range(startTrial, exp['numTrials'] + 1):
 
 			if not (exp['opacity'] == precheck_opacity):
 				logging.info('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
+
+			# log messages
+			logging.flush()
 
 			# show weibull fit
 			plot_Feedback(stim, w, exp['data'])
