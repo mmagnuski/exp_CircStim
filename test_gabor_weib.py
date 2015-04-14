@@ -96,7 +96,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	if (i) % exp['break after'] == 0:
 		# save data before every break
 		db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
-		
+
 		# TODO: close this into a def
 		# if break was within first 100 trials,
 		# fit Weibull function
@@ -116,7 +116,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 				logging.info( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(*exp['opacity']) )
 			else:
 				exp['opacity'] = newopac
-            
+
 			# additional contrast checks
 			precheck_opacity = exp['opacity']
 			if exp['opacity'][1] > 1.0:

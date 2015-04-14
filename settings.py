@@ -70,6 +70,7 @@ win = visual.Window(monitor="testMonitor")
 exp['frm'] = getFrameRate(win)
 win.close()
 
+
 # LOADING or CREATING EXPERIMENT DATAFRAME
 # ----------------------------------------
 
