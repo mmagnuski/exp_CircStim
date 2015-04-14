@@ -108,14 +108,14 @@ for i in range(startTrial, exp['numTrials'] + 1):
 
 			# log weibul fit and contrast
 			logging.info( 'Weibull params:  {} {}'.format( *w.params ) )
-			logging.info( 'Contrast limits set to:  {0} - {1}'.format(newopac) )
+			logging.info( 'Contrast limits set to:  {0} - {1}'.format(*newopac) )
 
 			# TODO this needs checking, removing duplicates and testing
 			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 \
 				or newopac[1] < 0.01 or newopac[0] > 1.0:
 
 				set_opacity_if_fit_fails(w.orig_y, exp)
-				logging.info( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(exp['opacity']) )
+				logging.info( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(*exp['opacity']) )
 			else:
 				exp['opacity'] = newopac
             
@@ -129,7 +129,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 				exp['opacity'][0] = exp['opacity'][1]/2
 
 			if not (exp['opacity'] == precheck_opacity):
-				logging.info('Opacity limits corrected to:  {0} - {1}'.format(exp['opacity']))
+				logging.info('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
 
 			# show weibull fit
 			plot_Feedback(stim, w, exp['data'])
