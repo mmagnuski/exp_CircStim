@@ -25,7 +25,6 @@ from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules, \
 					  present_feedback, give_training_db
 import os
-import logging
 import numpy  as np
 import pandas as pd
 
