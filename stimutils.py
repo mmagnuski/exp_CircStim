@@ -83,6 +83,10 @@ for o in mask_ori:
 
 stim['fix'] = fix()
 
+# feedback circle:
+stim['feedback'] = visual.Circle(stim['window'], radius=2.5,
+	edges=32, units='deg')
+
 
 # TRIGGERS
 # --------
@@ -184,6 +188,16 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		db.loc[tr, 'response']  = 'NoResp'
 		db.loc[tr, 'ifcorrect'] = 0
 
+
+def present_feedback(i, db=db, stim=stim):
+	if db.loc[i, 'ifcorrect'] == 1:
+		stim['feedback'].setFillColor([0.1, 0.9, 0.1])
+	else:
+		stim['feedback'].setFillColor([0.9, 0.1, 0.1])
+
+	for f in range(0, exp['fdb time'][0]):
+		stim['feedback'].draw()
+		stim['window'].flip()
 
 # instructions etc.
 # -----------------

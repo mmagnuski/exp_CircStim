@@ -4,11 +4,11 @@
 
 # TODOs:
 # [ ] add instructions     (!)
-# [ ] add feedback to training block(s)
 # [ ] add markers to:
 #     -> start (and end?) of each break
 #     -> 
 # [ ] test continue_dataframe for overwrite
+# [x] add feedback to training block(s)
 # [x] add slowdown training + full-contrast?
 # [x] remove print statements and add logging to a file - 
 #     useful in inspecting how fit and overcoming fit 
@@ -21,7 +21,8 @@
 from psychopy  import visual, core, event, logging
 from exputils  import Weibull, plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \
-					  present_break, show_resp_rules, give_training_db
+					  present_break, show_resp_rules, \
+					  present_feedback, give_training_db
 import os
 import logging
 import numpy  as np
@@ -79,7 +80,10 @@ i = 1
 training_correctness = 0
 while training_correctness < exp['train corr'][0] or i < 14:
 	present_trial(i, exp=slow, db=train_db)
-	# TODO add feedback (takes i and db [and stim])
+
+	# feedback:
+	present_feedback(i, db=train_db)
+
 	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
 	i += 1
 
