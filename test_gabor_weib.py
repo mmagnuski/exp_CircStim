@@ -19,6 +19,7 @@
 
 # imports
 from psychopy  import visual, core, event, logging
+from ctypes    import windll
 from exputils  import Weibull, plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules, \
@@ -86,6 +87,13 @@ while training_correctness < exp['train corr'][0] or i < 14:
 
 	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
 	i += 1
+
+
+# signal that main proc is about to begin
+# ---------------------------------------
+portdict = exp['port']
+windll.inpout32.Out32(portdict['port address'], 255)
+show_resp_rules()
 
 # TODO - info that main experiment is about to begin
 
