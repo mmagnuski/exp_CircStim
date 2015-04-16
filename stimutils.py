@@ -36,6 +36,7 @@ def gabor(win = win, ori = 0, opa = 1.0,
 							  sf      = sf,   ori  = ori,      \
 							  opacity = opa,  units = units)
 
+# TODO should units be set to 'deg' here?
 def whiteshape(v, win = win):
 	return visual.ShapeStim(
 		win, 
