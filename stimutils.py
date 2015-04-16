@@ -30,7 +30,7 @@ def txt(win=win, **kwargs):
 # gabor creation
 def gabor(win = win, ori = 0, opa = 1.0, 
 		  pos  = [0, 0], size = exp['gabor size'],
-		  units = 'deg', sf = 1.5):
+		  units = 'deg', sf = exp['gabor freq']):
 	return visual.GratingStim(win     = win,  mask = "gauss", \
 							  size    = size, pos  = pos, \
 							  sf      = sf,   ori  = ori,      \
