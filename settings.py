@@ -27,6 +27,7 @@ exp['train corr']  = [0.85, 0.75] # [slow, normal]
 exp['fdb time']    = [40] # feedback time in frames
 exp['corrLims']    = [0.55, 0.9]
 
+exp['gabor size']  = 5
 exp['use keys']    = ['f', 'j']
 exp['respWait']    = 1.5
 
