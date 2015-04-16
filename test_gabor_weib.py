@@ -4,6 +4,8 @@
 
 # TODOs:
 # [ ] add instructions     (!)
+# [ ] we need to log age and sex of the participant
+#     (that would go to settings.py)
 # [ ] add markers to:
 #     -> start (and end?) of each break
 #     -> 
@@ -83,15 +85,14 @@ while training_correctness < exp['train corr'][0] or i < 14:
 
 	# feedback:
 	present_feedback(i, db=train_db)
-
+	# check correctness
 	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
 	i += 1
 
 
 # signal that main proc is about to begin
 # ---------------------------------------
-portdict = exp['port']
-windll.inpout32.Out32(portdict['port address'], 255)
+windll.inpout32.Out32(exp['port']['port address'], 255)
 show_resp_rules()
 
 # TODO - info that main experiment is about to begin
