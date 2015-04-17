@@ -129,7 +129,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 				exp['opacity'] = newopac
 
 			# additional contrast checks
-			precheck_opacity = exp['opacity']
+			precheck_opacity = exp['opacity'].copy()
 			if exp['opacity'][1] > 1.0:
 				exp['opacity'][1] = 1.0
 			if exp['opacity'][0] < 0.01:
