@@ -14,6 +14,7 @@ exp['clock']       = core.Clock()
 exp['use trigger'] = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['break after'] = 15 # how often subjects have a break
+exp['fit until']    = 100 # continue fitting until this trial
 
 exp['participant'] = getUserName(intUser = False)
 

@@ -118,7 +118,9 @@ for i in range(startTrial, exp['numTrials'] + 1):
 		# TODO: close this into a def
 		# if break was within first 100 trials,
 		# fit Weibull function
-		if i < 101:
+		if i <= exp['fit until']:
+
+			# fitting psychometric function
 			w = fit_weibull(db, i)
 			newopac = w._dist2corr(exp['corrLims'])
 			exp = correct_Weibull_fit(w, exp, newopac)
