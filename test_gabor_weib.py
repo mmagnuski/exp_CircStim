@@ -22,8 +22,7 @@
 # imports
 from psychopy  import visual, core, event, logging
 from ctypes    import windll
-from weibull   import Weibull
-from exputils  import plot_Feedback
+from exputils  import Weibull, plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules, \
 					  present_feedback, give_training_db
