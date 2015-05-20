@@ -4,17 +4,13 @@
 
 # TODOs:
 # [ ] add instructions     (!)
+# [ ] add stepwise constrast checking
 # [ ] we need to log age and sex of the participant
 #     (that would go to settings.py)
 # [ ] add markers to:
 #     -> start (and end?) of each break
 #     -> 
 # [ ] test continue_dataframe for overwrite
-# [x] add feedback to training block(s)
-# [x] add slowdown training + full-contrast?
-# [x] remove print statements and add logging to a file - 
-#     useful in inspecting how fit and overcoming fit 
-#     failures works
 # 
 # not necessary:
 # [ ] load seaborn conditionally
