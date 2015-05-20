@@ -35,32 +35,38 @@ import pandas as pd
 # set loggingly logging to logfile
 lg = logging.LogFile(f=exp['logfile'], level=logging.INFO, filemode='w')
 
-# some remaining defs:
-def set_opacity_if_fit_fails(corr, exp):
-	mean_corr = np.mean(corr)
-	if mean_corr > 0.8:
-		exp['opacity'][0] *= 0.5
-		exp['opacity'][1] *= 0.5 
-		exp['opacity'][0] = np.max([exp['opacity'][0], 0.01])
-	elif mean_corr < 0.6:
-		exp['opacity'][0] = np.min([exp['opacity'][1]*2, 0.8])
-		exp['opacity'][1] = np.min([exp['opacity'][1]*2, 1.0])
+# a remainging def, could be moved to weibull module, but uses logging
+# and weibull module should not import psychopy
+def correct_Weibull_fit(w, exp, newopac):
+	# log weibul fit and contrast
+	logging.info( 'Weibull params:  {} {}'.format( *w.params ) )
+	logging.info( 'Contrast limits set to:  {0} - {1}'.format(*newopac) )
 
+	# TODO this needs checking, removing duplicates and testing
+	if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 \
+		or newopac[1] < 0.01 or newopac[0] > 1.0:
 
-def fit_weibull(db, i):
-#	if i < 40:
-#		idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
-#	else:
-#		idx = np.array(np.linspace(i-40+1, i, num = 40), dtype = 'int')
-	idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
-	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
-	opacit = db.loc[idx, 'opacity'].values.astype('float')
+		set_opacity_if_fit_fails(w.orig_y, exp)
+		logging.info( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(*exp['opacity']) )
+	else:
+		exp['opacity'] = newopac
 
-	# fit on non-nan
-	notnan = ~(np.isnan(ifcorr))
-	w = Weibull(opacit[notnan], ifcorr[notnan])
-	w.fit([1.0, 1.0])
-	return w
+	# additional contrast checks
+	precheck_opacity = exp['opacity'].copy()
+	if exp['opacity'][1] > 1.0:
+		exp['opacity'][1] = 1.0
+	if exp['opacity'][0] < 0.01:
+		exp['opacity'][0] = 0.01
+	if exp['opacity'][0] > exp['opacity'][1]:
+		exp['opacity'][0] = exp['opacity'][1]/2
+
+	if not (exp['opacity'] == precheck_opacity):
+		logging.info('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
+
+	# log messages
+	logging.flush()
+
+	return exp
 
 
 # EXPERIMENT
@@ -115,34 +121,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 		if i < 101:
 			w = fit_weibull(db, i)
 			newopac = w._dist2corr(exp['corrLims'])
-
-			# log weibul fit and contrast
-			logging.info( 'Weibull params:  {} {}'.format( *w.params ) )
-			logging.info( 'Contrast limits set to:  {0} - {1}'.format(*newopac) )
-
-			# TODO this needs checking, removing duplicates and testing
-			if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 \
-				or newopac[1] < 0.01 or newopac[0] > 1.0:
-
-				set_opacity_if_fit_fails(w.orig_y, exp)
-				logging.info( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(*exp['opacity']) )
-			else:
-				exp['opacity'] = newopac
-
-			# additional contrast checks
-			precheck_opacity = exp['opacity'].copy()
-			if exp['opacity'][1] > 1.0:
-				exp['opacity'][1] = 1.0
-			if exp['opacity'][0] < 0.01:
-				exp['opacity'][0] = 0.01
-			if exp['opacity'][0] > exp['opacity'][1]:
-				exp['opacity'][0] = exp['opacity'][1]/2
-
-			if not (exp['opacity'] == precheck_opacity):
-				logging.info('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
-
-			# log messages
-			logging.flush()
+			exp = correct_Weibull_fit(w, exp, newopac)
 
 			# show weibull fit
 			plot_Feedback(stim, w, exp['data'])
