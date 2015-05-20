@@ -27,6 +27,10 @@ win.setMouseVisible(False)
 def txt(win=win, **kwargs):
 	return visual.TextStim(win, units='norm', **kwargs)
 
+def txt_newlines(win=win, text='', **kwargs):
+	text = text.replace('\\n', '\n')
+	return visual.TextStim(win, text=text, units='norm', **kwargs)
+
 # gabor creation
 def gabor(win = win, ori = 0, opa = 1.0, 
 		  pos  = [0, 0], size = exp['gabor size'],
@@ -280,7 +284,7 @@ def give_training_db(db, exp=exp, slowdown=8):
 class Instructions:
 
 	nextpage   = 0
-	mapdict    = {'gabor': gabor, 'text': txt}
+	mapdict    = {'gabor': gabor, 'text': txt_newlines}
 	navigation = {'left': 'prev',
 				  'right': 'next',
 				  'space': 'next'}
