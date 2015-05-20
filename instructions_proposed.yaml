@@ -1,0 +1,31 @@
+---
+# TODOs:
+# [ ] add info about muscular artifacts
+# [ ] ask participants to try not to blink too much
+
+
+# page 1
+- item     : text
+  value    : 
+    text   : >
+      Witaj,\n
+      dziękujemy że zgodzi[łeś/łaś] się wziąć udział w eksperymencie.\n
+      Eksperyment dotyczy neuronalnych mechanizmów percepcji.\n\n
+      Twoim zadaniem będzie odpowiadanie w jakiej orientacji pojawił się bodziec.\n
+      Przykładowy bodziec możesz zobaczyć pod spodem:
+      ...
+    pos    : [0, 0.5]
+    wrapWidth: 1.5
+- item     : gabor
+  value    : 
+    ori    : 45
+    pos    : [0, -0.7]
+
+---
+# Test page 2
+- item     : text
+  value    : 
+    text   : >
+      Kolejne instrukcje...
+      Szczęśliwe bardzo instrukcje...
+    pos    : [-0.3, 0.4]

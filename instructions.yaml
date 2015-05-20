@@ -3,11 +3,10 @@
 - item     : text
   value    : 
     text   : >
-      Taki pojawia się na ekranie tekst.
+      Taki pojawia się na ekranie tekst.\n
       Coś jeszcze może się pojawić.
       A nawet coś innego.
     pos    : [0, 0.5]
-  position : [0, 0]
 - item     : gabor
   value    : 
     ori    : 45
