@@ -1,16 +1,35 @@
 ---
-# Test page 1
+# TODOs:
+# [ ] add info about muscular artifacts
+# [ ] ask participants to try not to blink too much
+
+
+# page 1
+# ------
 - item     : text
   value    : 
     text   : >
-      Taki pojawia się na ekranie tekst.\n
-      Coś jeszcze może się pojawić.
-      A nawet coś innego.
+      Witaj,\ndziękujemy że zgodzi[łeś/łaś] się wziąć udział w
+      eksperymencie.\nEksperyment dotyczy neuronalnych 
+      mechanizmów percepcji.\nTwoim zadaniem będzie odpowiadanie 
+      w jakiej orientacji pojawił się bodziec.\nPrzykładowy 
+      bodziec możesz zobaczyć poniżej:
     pos    : [0, 0.5]
+    height : 0.07
+    wrapWidth: 1.5
 - item     : gabor
   value    : 
     ori    : 45
-    pos    : [0, -0.7]
+    pos    : [0, -0.5]
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij [forwardbutton]
+      ...
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
 
 ---
 # Test page 2

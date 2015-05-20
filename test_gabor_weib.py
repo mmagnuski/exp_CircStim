@@ -22,7 +22,8 @@ from weibull   import Weibull
 from exputils  import plot_Feedback
 from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules, \
-					  present_feedback, give_training_db
+					  present_feedback, give_training_db, \
+					  Instructions
 import os
 import numpy  as np
 import pandas as pd
@@ -69,6 +70,8 @@ def correct_Weibull_fit(w, exp, newopac):
 # ==========
 
 # INSTRUCTIONS!
+instr = Instructions('instructions.yml')
+instr.present()
 
 # show response rules:
 show_resp_rules()
