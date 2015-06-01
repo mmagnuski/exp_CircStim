@@ -4,6 +4,7 @@
 
 # TODOs:
 # [ ] add instructions     (!)
+# [ ] change logging level to WARNING
 # [ ] add stepwise constrast checking
 # [ ] we need to log age and sex of the participant
 #     (that would go to settings.py)
@@ -16,54 +17,24 @@
 # [ ] load seaborn conditionally
 
 # imports
+# -------
 from psychopy  import visual, core, event, logging
+
+import os
+import numpy  as np
+import pandas as pd
 from ctypes    import windll
-from weibull   import Weibull
 from exputils  import plot_Feedback
+from weibull   import fit_weibull, set_opacity_if_fit_fails \
+					  correct_Weibull_fit
 from stimutils import exp, db, stim, startTrial, present_trial, \
 					  present_break, show_resp_rules, \
 					  present_feedback, give_training_db, \
 					  Instructions
-import os
-import numpy  as np
-import pandas as pd
 
 
 # set loggingly logging to logfile
 lg = logging.LogFile(f=exp['logfile'], level=logging.INFO, filemode='w')
-
-# a remainging def, could be moved to weibull module, but uses logging
-# and weibull module should not import psychopy
-def correct_Weibull_fit(w, exp, newopac):
-	# log weibul fit and contrast
-	logging.info( 'Weibull params:  {} {}'.format( *w.params ) )
-	logging.info( 'Contrast limits set to:  {0} - {1}'.format(*newopac) )
-
-	# TODO this needs checking, removing duplicates and testing
-	if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 \
-		or newopac[1] < 0.01 or newopac[0] > 1.0:
-
-		set_opacity_if_fit_fails(w.orig_y, exp)
-		logging.info( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(*exp['opacity']) )
-	else:
-		exp['opacity'] = newopac
-
-	# additional contrast checks
-	precheck_opacity = exp['opacity'].copy()
-	if exp['opacity'][1] > 1.0:
-		exp['opacity'][1] = 1.0
-	if exp['opacity'][0] < 0.01:
-		exp['opacity'][0] = 0.01
-	if exp['opacity'][0] > exp['opacity'][1]:
-		exp['opacity'][0] = exp['opacity'][1]/2
-
-	if not (exp['opacity'] == precheck_opacity):
-		logging.info('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
-
-	# log messages
-	logging.flush()
-
-	return exp
 
 
 # EXPERIMENT
@@ -122,7 +93,12 @@ for i in range(startTrial, exp['numTrials'] + 1):
 			# fitting psychometric function
 			w = fit_weibull(db, i)
 			newopac = w._dist2corr(exp['corrLims'])
-			exp = correct_Weibull_fit(w, exp, newopac)
+			exp, logs = correct_Weibull_fit(w, exp, newopac)
+
+			# log messages
+			for log in logs:
+				logging.warning(log)
+			logging.flush()
 
 			# show weibull fit
 			plot_Feedback(stim, w, exp['data'])
