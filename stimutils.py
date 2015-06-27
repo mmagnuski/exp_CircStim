@@ -135,8 +135,12 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	stim['target'].opacity = db.loc[tr]['opacity']
 	target_code = 'target_' + str(db.loc[tr]['orientation'])
 
-	# get trial start time (!)
+	# get trial start time
 	db.loc[tr, 'time'] = core.getTime()
+
+
+	# PRESENT
+	# -------
 
 	# present fix:
 	win.callOnFlip(onflip_work, exp['port'], code='fix')
@@ -193,8 +197,8 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		# performance
 		db.loc[tr, 'response']  = key
 		db.loc[tr, 'RT']        = RT
-		db.loc[tr, 'ifcorrect'] = int(exp['keymap']\
-									  [db.loc[tr]['orientation']] == key)
+		target_ori = db.loc[tr]['orientation']
+		db.loc[tr, 'ifcorrect'] = int(exp['keymap'][target_ori] == key)
 	else:
 		db.loc[tr, 'response']  = 'NoResp'
 		db.loc[tr, 'ifcorrect'] = 0
