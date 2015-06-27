@@ -118,12 +118,18 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 					  win = stim['window']):
 	# PREPARE
 	# -------
-	db.loc[tr, 'opacity'] = np.round(
-		np.random.uniform(
-			low = exp['opacity'][0], 
-			high = exp['opacity'][1], 
-			size = 1
-			)[0], decimals = 3)
+
+	# randomize opacity if not set
+	if exp['opacity'][0] == exp['opacity'][1]:
+		db.loc[tr, 'opacity'] = exp['opacity'][0]
+	else:
+		db.loc[tr, 'opacity'] = np.round(
+			np.random.uniform(
+				low = exp['opacity'][0],
+				high = exp['opacity'][1],
+				size = 1
+				)[0], decimals = 3)
+
 	# set target properties (takes less than 1 ms)
 	stim['target'].ori = db.loc[tr]['orientation']
 	stim['target'].opacity = db.loc[tr]['opacity']
