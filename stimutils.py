@@ -214,6 +214,46 @@ def present_feedback(i, db=db, stim=stim):
 		stim['feedback'].draw()
 		stim['window'].flip()
 
+
+# class for stepwise constrast adjustment
+class Stepwise(object):
+	"""Stepwise allows for simple staircase adjustment of
+	a given parameter.
+	example
+	-------
+	To get a Stepwise object
+	s = Stepwise([2, 1], 0.1)"""
+	def __init__(self, corr_ratio=[2,1], start=1.,
+		step=0.1, min=0.1, max=1., start_trial=1):
+		self.trial = start_trial
+		self.corr_ratio = corr_ratio
+		self.param = start
+		self.step = step
+		self.min = min
+		self.max = max
+		self.current_ratio = [0, 0]
+
+	def add(self, resp):
+		ind = 0 if resp else 1
+		self.current_ratio[ind] += 1
+		self.check()
+
+	def next(self):
+		# first check whether param should change
+		self.check()
+		return self.param
+
+	def check(self):
+		if self.current_ratio[0] > self.corr_ratio[0]:
+			self.param += self.step
+			self.current_ratio = [0, 0]
+		elif self.current_ratio[1] > self.corr_ratio[1]:
+			self.param -= self.step
+			self.current_ratio = [0, 0]
+
+		self.param = trim(self.param, self.min, self.max)
+
+
 # instructions etc.
 # -----------------
 
