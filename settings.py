@@ -98,7 +98,7 @@ if not ifcnt:
 
 	# how many times each combination should be presented
 	perComb = 140;
-	
+
 	# generate trial combinations
 	lst = [
 			[i, j, l, m ] \
@@ -126,10 +126,10 @@ if not ifcnt:
 		db[r] = lst[:, i]
 
 	# add fix time in frames
-	db['fixTime'] = ms2frames( 
+	db['fixTime'] = ms2frames(
 		np.random.uniform(
-			low = exp['fixTimeLim'][0], 
-			high = exp['fixTimeLim'][1], 
+			low = exp['fixTimeLim'][0],
+			high = exp['fixTimeLim'][1],
 			size = exp['numTrials']
 			) * 1000,
 		exp['frm']['time']

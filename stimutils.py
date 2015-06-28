@@ -16,7 +16,7 @@ if "BENQ-XL2411" in monitors:
 
 # create a window
 # ---------------
-win = visual.Window(monitor=monitorName, 
+win = visual.Window(monitor=monitorName,
     units="deg", color = [-0.2, -0.2, -0.2], fullscr=True)
 win.setMouseVisible(False)
 
@@ -32,7 +32,7 @@ def txt_newlines(win=win, text='', **kwargs):
 	return visual.TextStim(win, text=text, units='norm', **kwargs)
 
 # gabor creation
-def gabor(win = win, ori = 0, opa = 1.0, 
+def gabor(win = win, ori = 0, opa = 1.0,
 		  pos  = [0, 0], size = exp['gabor size'],
 		  units = 'deg', sf = exp['gabor freq']):
 	return visual.GratingStim(win     = win,  mask = "gauss", \
@@ -43,11 +43,11 @@ def gabor(win = win, ori = 0, opa = 1.0,
 # TODO should units be set to 'deg' here?
 def whiteshape(v, win = win):
 	return visual.ShapeStim(
-		win, 
-		lineWidth  = 0.5, 
-		fillColor  = [1, 1, 1], 
-		lineColor  = [1, 1, 1], 
-		vertices   = v, 
+		win,
+		lineWidth  = 0.5,
+		fillColor  = [1, 1, 1],
+		lineColor  = [1, 1, 1],
+		vertices   = v,
 		closeShape = True
 		)
 
@@ -55,7 +55,7 @@ def whiteshape(v, win = win):
 def fix():
 	v = np.array(
 			[
-				[0.1, -1], 
+				[0.1, -1],
 				[0.1, 1],
 				[-0.1, 1],
 				[-0.1, -1]
@@ -75,7 +75,7 @@ stim['window'] = win
 stim['target'] = gabor()
 # CHANGE - window size, so that it is accurate...
 
-stim['centerImage'] = visual.ImageStim(win, image=None,  
+stim['centerImage'] = visual.ImageStim(win, image=None,
             pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
 
 
@@ -101,7 +101,7 @@ def onflip_work(portdict, code='', clock=None):
 	if clock:
 		clock.reset()
 	if portdict['send'] and code:
-		windll.inpout32.Out32(portdict['port address'], 
+		windll.inpout32.Out32(portdict['port address'],
 			portdict['codes'][code])
 
 
@@ -114,7 +114,7 @@ def clear_port(portdict):
 # PRESENTATION
 # ------------
 
-def present_trial(tr, exp = exp, stim = stim, db = db, 
+def present_trial(tr, exp = exp, stim = stim, db = db,
 					  win = stim['window']):
 	# PREPARE
 	# -------
@@ -176,13 +176,13 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	if exp['debug']: keys += ['q']
 
 	# check if response
-	k = event.getKeys(keyList = keys, 
+	k = event.getKeys(keyList = keys,
 					  timeStamped = exp['clock'])
 
 	# wait for response (timeout)
 	if not k:
-		k = event.waitKeys(maxWait = exp['respWait'], 
-					       keyList = keys, 
+		k = event.waitKeys(maxWait = exp['respWait'],
+					       keyList = keys,
 					       timeStamped = exp['clock'])
 		# TODO - send response marker?
 
@@ -272,17 +272,17 @@ def show_resp_rules(exp = exp, win = stim['window']):
 	positions = np.array(positions) * 10
 
 	for o, p in zip(ornt, positions):
-		stims.append(gabor(ori = o, pos  = p, size = 4, 
+		stims.append(gabor(ori = o, pos  = p, size = 4,
 						   units = 'deg'))
 
 	# add info on correct responses
 	tx = [
-		u'naciśnij  ' + exp['keymap'][ornt[0]], 
+		u'naciśnij  ' + exp['keymap'][ornt[0]],
 		u'naciśnij  ' + exp['keymap'][ornt[2]],
 		u'aby przejść dalej naciśnij spację'
 		]
 	positions = [
-		[-0.5, 0.75], 
+		[-0.5, 0.75],
 		[0.5, 0.75],
 		[0, -0.85]
 		]
@@ -309,7 +309,7 @@ def present_break(t, exp = exp, win = stim['window']):
 		   u'chwilę odetchnąc.\nNaciśnij spację aby kontynuowac...'
 	tex  = tex.format(t, exp['numTrials'])
 	info = visual.TextStim(win, text = tex, pos = [0, 0], units = 'norm')
-	
+
 	info.draw()
 	win.flip()
 

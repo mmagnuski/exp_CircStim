@@ -13,7 +13,7 @@ import re
 
 
 def plot_Feedback(stim, plotter, pth, resize = 1.0):
-    # get file names from 
+    # get file names from
     imfls = plotter.plot(pth)
     if not isinstance(imfls, type([])):
     	imfls = [imfls]
@@ -48,7 +48,7 @@ def getFrameRate(win, frames = 25):
 
 
 def ms2frames(times, frame_time):
-    
+
 	tp = type(times)
 	if tp == type([]):
 	    frms = []
@@ -75,11 +75,11 @@ def fillz(val, num):
     exadds zero to the beginning of val so that length of
     val is equal to num. val can be string, int or float
     '''
-    
+
     # if not string - turn to a string
     if not isinstance(val, basestring):
         val = str(val)
-     
+
     # add zeros
     ln = len(val)
     if ln < num:
@@ -117,11 +117,11 @@ def getUserName(intUser = True):
             user = dialogInfo[0]
     else:
         user = None
-   
+
     return user
 
 def continue_dataframe(pth, fl):
-	
+
 	# test if file exists:
 	flfl = os.path.join(pth, fl)
 	ifex = os.path.isfile(flfl)
@@ -140,11 +140,11 @@ def continue_dataframe(pth, fl):
 			# return dataframe and first trial to resume from:
 			return df, isempt[0] + 1
 		else:
-			# here it should return something special 
+			# here it should return something special
 			# not to everwrite the file (becasue file
 			# absent and file presnt but finished re-
 			# sponses are identical)
-			return False 
+			return False
 
 
 def free_filename(pth, subj, givenew = True):
