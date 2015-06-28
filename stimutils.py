@@ -3,7 +3,7 @@
 from psychopy import core, visual, event, monitors
 from ctypes    import windll
 from settings import exp, db, startTrial
-from exputils  import getFrameRate
+from exputils  import getFrameRate, trim
 import numpy  as np
 import yaml
 
