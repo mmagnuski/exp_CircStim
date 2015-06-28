@@ -76,11 +76,32 @@ show_resp_rules()
 
 # MAIN EXPERIMENT
 # ---------------
+
+step = exp['step until']
+
+# init stepwise contrast adjustment
+if exp['step until'] > 0:
+	s = Stepwise()
+	exp['opacity'] = [1., 1.]
+
+# main loop
 for i in range(startTrial, exp['numTrials'] + 1):
 	present_trial(i)
 	stim['window'].flip()
 
-	# present break 
+	if (i) <= step:
+		s.add(db.loc[i, 'ifcorrect'])
+		contrast = s.next()
+		exp['opacity'] = [contrast, contrast]
+
+	if step > 0 and i == step + 1:
+		# add about 0.2 around the current contrast
+		exp['opacity'] = [trim(contrast - 0.2,
+							   exp['min opac'], 0.95),
+						  trim(contrast + 0.2,
+							   exp['min opac']+0.05, 1.)]
+
+	# present break
 	if (i) % exp['break after'] == 0:
 		# save data before every break
 		db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
