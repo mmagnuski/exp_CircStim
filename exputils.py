@@ -88,6 +88,10 @@ def fillz(val, num):
         return val
 
 
+def trim(val, vmin, vmax):
+    return max([min([val, vmax]), vmin])
+
+
 # get user name:
 def getUserName(intUser = True):
     '''
