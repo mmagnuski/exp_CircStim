@@ -33,7 +33,7 @@ from stimutils import (exp, db, stim, startTrial, present_trial,
 					  Instructions, Stepwise)
 
 
-# set loggingly logging to logfile
+# set logging
 lg = logging.LogFile(f=exp['logfile'], level=logging.INFO, filemode='w')
 
 
@@ -72,6 +72,7 @@ while training_correctness < exp['train corr'][0] or i < 14:
 windll.inpout32.Out32(exp['port']['port address'], 255)
 show_resp_rules()
 
+# ADD some more instructions here
 # TODO - info that main experiment is about to begin
 
 # MAIN EXPERIMENT
