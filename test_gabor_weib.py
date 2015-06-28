@@ -69,11 +69,13 @@ while training_correctness < exp['train corr'][0] or i < 14:
 
 # signal that main proc is about to begin
 # ---------------------------------------
-windll.inpout32.Out32(exp['port']['port address'], 255)
-show_resp_rules()
+if exp['use trigger']
+	windll.inpout32.Out32(exp['port']['port address'], 255)
 
 # ADD some more instructions here
 # TODO - info that main experiment is about to begin
+show_resp_rules()
+
 
 # MAIN EXPERIMENT
 # ---------------
