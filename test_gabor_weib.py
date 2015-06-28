@@ -108,29 +108,28 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	if (i) % exp['break after'] == 0:
 		# save data before every break
 		db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
-
-		# TODO: close this into a def
-		# if break was within first 100 trials,
-		# fit Weibull function
-		if i <= exp['fit until']:
-
-			# fitting psychometric function
-			w = fit_weibull(db, i)
-			newopac = w._dist2corr(exp['corrLims'])
-			exp, logs = correct_Weibull_fit(w, exp, newopac)
-
-			# log messages
-			for log in logs:
-				logging.warning(log)
-			logging.flush()
-
-			# show weibull fit
-			plot_Feedback(stim, w, exp['data'])
-
 		# break and refresh keyboard mapping
 		present_break(i)
 		show_resp_rules()
 
+	# TODO: close this into a def
+	# fit Weibull function
+	if i >= exp['fit from'] and i <= exp['fit until']:
+
+		# fitting psychometric function
+		w = fit_weibull(db, i)
+		newopac = w._dist2corr(exp['corrLims'])
+		exp, logs = correct_Weibull_fit(w, exp, newopac)
+
+		# log messages
+		for log in logs:
+			logging.warning(log)
+		logging.flush()
+
+		# show weibull fit
+		plot_Feedback(stim, w, exp['data'])
+
+	# inter-trial interval
 	stim['window'].flip()
 	core.wait(0.5) # pre-fixation time is always the same
 
