@@ -14,6 +14,7 @@ exp['clock']        = core.Clock()
 exp['use trigger']  = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['break after']  = 15  # how often subjects have a break
+exp['step until']   = 35  # continue stepwise until this trial
 exp['fit until']    = 100 # continue fitting until this trial
 
 exp['participant'] = getUserName(intUser = False)
@@ -23,6 +24,7 @@ exp['SMI']         = [2] # Stimulus Mask Interval
 exp['fixTimeLim']  = [0.75, 2.5]
 exp['maskTime']    = [20]
 exp['opacity']     = [0.05, 0.8]
+exp['min opac']    = 0.03
 exp['orientation'] = [0, 45, 90, 135]
 exp['train corr']  = [0.85, 0.75] # [slow, normal]
 exp['fdb time']    = [40] # feedback time in frames
