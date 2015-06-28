@@ -11,13 +11,15 @@ from exputils  import ms2frames, getUserName, continue_dataframe, \
 exp = {}
 exp['debug']        = True
 exp['clock']        = core.Clock()
+exp['participant']  = getUserName(intUser = False)
 exp['use trigger']  = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
+
 exp['break after']  = 15  # how often subjects have a break
 exp['step until']   = 35  # continue stepwise until this trial
+exp['fit from']     = 45  # start fitting weibull at this trial
 exp['fit until']    = 100 # continue fitting until this trial
-
-exp['participant'] = getUserName(intUser = False)
+exp['fit every']    = 10
 
 exp['targetTime']  = [1]
 exp['SMI']         = [2] # Stimulus Mask Interval
