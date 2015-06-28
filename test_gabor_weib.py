@@ -25,12 +25,12 @@ import numpy  as np
 import pandas as pd
 from ctypes    import windll
 from exputils  import plot_Feedback
-from weibull   import fit_weibull, set_opacity_if_fit_fails \
-					  correct_Weibull_fit
-from stimutils import exp, db, stim, startTrial, present_trial, \
-					  present_break, show_resp_rules, \
-					  present_feedback, give_training_db, \
-					  Instructions
+from weibull   import (fit_weibull, set_opacity_if_fit_fails
+					  correct_Weibull_fit)
+from stimutils import (exp, db, stim, startTrial, present_trial,
+					  present_break, show_resp_rules,
+					  present_feedback, give_training_db,
+					  Instructions, Stepwise)
 
 
 # set loggingly logging to logfile
