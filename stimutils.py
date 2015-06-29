@@ -245,10 +245,10 @@ class Stepwise(object):
 
 	def check(self):
 		if self.current_ratio[0] > self.corr_ratio[0]:
-			self.param += self.step
+			self.param -= self.step
 			self.current_ratio = [0, 0]
 		elif self.current_ratio[1] > self.corr_ratio[1]:
-			self.param -= self.step
+			self.param += self.step
 			self.current_ratio = [0, 0]
 
 		self.param = trim(self.param, self.min, self.max)
