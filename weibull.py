@@ -143,7 +143,7 @@ def correct_Weibull_fit(w, exp, newopac):
 		exp['opacity'] = newopac
 
 	# additional contrast checks
-	precheck_opacity = exp['opacity'].copy()
+	precheck_opacity = list(exp['opacity'])
 	if exp['opacity'][1] > 1.0:
 		exp['opacity'][1] = 1.0
 	if exp['opacity'][0] < 0.01:

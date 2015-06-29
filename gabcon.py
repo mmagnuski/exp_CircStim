@@ -25,12 +25,12 @@ import numpy  as np
 import pandas as pd
 from ctypes    import windll
 from exputils  import plot_Feedback
-from weibull   import (fit_weibull, set_opacity_if_fit_fails
+from weibull   import (fit_weibull, set_opacity_if_fit_fails,
 					  correct_Weibull_fit)
 from stimutils import (exp, db, stim, startTrial, present_trial,
 					  present_break, show_resp_rules,
 					  present_feedback, give_training_db,
-					  Instructions, Stepwise)
+					  Instructions, Stepwise, trim)
 
 
 # set logging
@@ -41,7 +41,7 @@ lg = logging.LogFile(f=exp['logfile'], level=logging.INFO, filemode='w')
 # ==========
 
 # INSTRUCTIONS!
-instr = Instructions('instructions.yml')
+instr = Instructions('instructions.yaml')
 instr.present()
 
 # show response rules:
@@ -69,7 +69,7 @@ while training_correctness < exp['train corr'][0] or i < 14:
 
 # signal that main proc is about to begin
 # ---------------------------------------
-if exp['use trigger']
+if exp['use trigger']:
 	windll.inpout32.Out32(exp['port']['port address'], 255)
 
 # ADD some more instructions here
@@ -89,7 +89,7 @@ if exp['step until'] > 0:
 
 # main loop
 for i in range(startTrial, exp['numTrials'] + 1):
-	present_trial(i)
+	present_trial(i, exp=exp)
 	stim['window'].flip()
 
 	if (i) <= step:
