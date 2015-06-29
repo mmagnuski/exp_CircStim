@@ -71,6 +71,8 @@ while training_correctness < exp['train corr'][0] or i < 14:
 # ---------------------------------------
 if exp['use trigger']:
 	windll.inpout32.Out32(exp['port']['port address'], 255)
+	core.wait(0.01)
+	clear_port(exp['port'])
 
 # ADD some more instructions here
 # TODO - info that main experiment is about to begin
