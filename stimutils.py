@@ -218,19 +218,19 @@ def present_feedback(i, db=db, stim=stim):
 # class for stepwise constrast adjustment
 class Stepwise(object):
 	"""Stepwise allows for simple staircase adjustment of
-	a given parameter.
+	a given parameter (in this exp - contrast).
 	example
 	-------
 	To get a Stepwise object
-	s = Stepwise([2, 1], 0.1)"""
+	s = Stepwise(corr_ratio=[2, 1], step=0.1)"""
 	def __init__(self, corr_ratio=[2,1], start=1.,
-		step=0.1, min=0.1, max=1., start_trial=1):
+		step=0.1, vmin=0.1, vmax=1., start_trial=1):
 		self.trial = start_trial
 		self.corr_ratio = corr_ratio
 		self.param = start
 		self.step = step
-		self.min = min
-		self.max = max
+		self.min = vmin
+		self.max = vmax
 		self.current_ratio = [0, 0]
 
 	def add(self, resp):
