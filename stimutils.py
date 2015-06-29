@@ -254,6 +254,21 @@ class Stepwise(object):
 		self.param = trim(self.param, self.min, self.max)
 
 
+class TimeShuffle(object):
+	'''TimeShuffle is used to keep track of all fixation times
+	that should be used in the experiment 2.'''
+	def __init__(self, start=1.5, end=5.0, every=0.05, times=6):
+		self.times = np.random.randint(start, end+0.001, every)
+		self.inds = range(0, len(self.times)) * times
+		np.random.shuffle(self.inds)
+		self.current_ind = 0
+
+	def get(self):
+		givetime = self.times[self.inds[self.current_ind]]
+		self.current_ind += 1
+		return givetime
+
+
 # instructions etc.
 # -----------------
 
