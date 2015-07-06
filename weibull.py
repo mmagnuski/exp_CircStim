@@ -101,11 +101,9 @@ class Weibull:
 
 
 def fit_weibull(db, i):
-#	if i < 40:
-#		idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
-#	else:
-#		idx = np.array(np.linspace(i-40+1, i, num = 40), dtype = 'int')
-	idx = np.array(np.linspace(1, i, num = i), dtype = 'int')
+
+	take_last = min([i-15, 60])
+	idx = np.arange(i-take_last+1, i+1, dtype = 'int')
 	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
 	opacit = db.loc[idx, 'opacity'].values.astype('float')
 
