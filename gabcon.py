@@ -3,18 +3,16 @@
 # add description
 
 # TODOs:
-# [ ] add instructions     (!)
-# [ ] change logging level to WARNING
-# [ ] add stepwise constrast checking
+# [.] add instructions     (!)
 # [ ] we need to log age and sex of the participant
 #     (that would go to settings.py)
 # [ ] add markers to:
 #     -> start (and end?) of each break
 #     ->
 # [ ] test continue_dataframe for overwrite
-#
-# not necessary:
-# [ ] load seaborn conditionally
+# [x] change logging level to WARNING
+# [x] add stepwise constrast checking
+
 
 # imports
 # -------
