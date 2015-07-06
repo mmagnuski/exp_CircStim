@@ -34,7 +34,7 @@ from stimutils import (exp, db, stim, startTrial,
 
 
 # set logging
-lg = logging.LogFile(f=exp['logfile'], level=logging.INFO, filemode='w')
+lg = logging.LogFile(f=exp['logfile'], level=logging.WARNING, filemode='w')
 
 
 # EXPERIMENT
