@@ -2,9 +2,9 @@ import os
 import numpy  as np
 import pandas as pd
 from psychopy  import visual, core
-from random    import randint, uniform #, choice
-from exputils  import ms2frames, getUserName, continue_dataframe, \
-					  getFrameRate
+from random    import randint, uniform
+from exputils  import (ms2frames, getUserName,
+	continue_dataframe, getFrameRate)
 
 # experiment settings
 # -------------------
