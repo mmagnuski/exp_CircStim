@@ -25,7 +25,7 @@
 - item     : text
   value    : 
     text   : >
-      Aby przejść dalej naciśnij [forwardbutton]
+      Aby przejść dalej naciśnij strzałkę w prawo bądź spację
       ...
     pos    : [0.6, -0.7]
     height : 0.07
@@ -36,6 +36,33 @@
 - item     : text
   value    : 
     text   : >
-      Kolejne instrukcje...
-      Szczęśliwe bardzo instrukcje...
-    pos    : [-0.3, 0.4]
+      Zwróć uwagę, że wzorek poniżej (bodziec)\n
+      ma "ukośne" nachylenie.\n 
+      Na bodziec o nachyleniu ukośnym - niezależnie\n 
+      czy nachylenie jest w lewo czy też w prawo\n
+      odpowiadać będziesz klawiszem [45button]
+    pos    : [0, 0.5]
+    height : 0.07
+    wrapWidth: 1.5
+- item     : gabor
+  value    : 
+    ori    : 45
+    pos    : [0, -0.5]
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Aby cofnąć się naciśnij strzałkę w lewo
+      ...
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo bądź spację
+      ...
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+
