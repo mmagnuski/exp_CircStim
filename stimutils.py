@@ -204,6 +204,20 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		db.loc[tr, 'ifcorrect'] = 0
 
 
+def present_training(exp=exp, slowdown=5):
+	i = 1
+	training_correctness = 0
+	train_db = give_training_db(db, slowdown=slowdown)
+	while training_correctness < exp['train corr'][0] or i < 14:
+		present_trial(i, exp=exp, db=train_db)
+
+		# feedback:
+		present_feedback(i, db=train_db)
+		# check correctness
+		training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
+		i += 1
+
+
 def present_feedback(i, db=db, stim=stim):
 	if db.loc[i, 'ifcorrect'] == 1:
 		stim['feedback'].setFillColor([0.1, 0.9, 0.1])

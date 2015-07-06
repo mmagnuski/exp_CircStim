@@ -52,19 +52,11 @@ show_resp_rules()
 
 # set things up
 slow = exp.copy()
-slow['opacity'] = [0.7, 1.0]
-train_db = give_training_db(db, slowdown=5)
-
-i = 1
-training_correctness = 0
-while training_correctness < exp['train corr'][0] or i < 14:
-	present_trial(i, exp=slow, db=train_db)
-
-	# feedback:
-	present_feedback(i, db=train_db)
-	# check correctness
-	training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
-	i += 1
+slow['opacity'] = [1.0, 1.0]
+slowdowns = range(5, 0, -1)
+for s in slowdowns:
+	present_training(exp=slow, slowdown=s)
+	# add some info about correctness, and that speed changes
 
 
 # signal that main proc is about to begin
