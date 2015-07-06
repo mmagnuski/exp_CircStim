@@ -101,7 +101,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	# present break
 	if (i) % exp['break after'] == 0:
 		# save data before every break
-		db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
+		db.to_excel(os.path.join(exp['data'], exp['participant'] + '_c.xls'))
 		# break and refresh keyboard mapping
 		present_break(i)
 		show_resp_rules()
@@ -127,5 +127,5 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	stim['window'].flip()
 	core.wait(0.5) # pre-fixation time is always the same
 
-db.to_excel(os.path.join(exp['data'], exp['participant'] + '.xls'))
+db.to_excel(os.path.join(exp['data'], exp['participant'] + '_c.xls'))
 core.quit()

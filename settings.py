@@ -72,7 +72,7 @@ if not os.path.isdir(exp['data']):
 	os.mkdir(exp['data'])
 
 # setup logging:
-exp['logfile'] = os.path.join(exp['data'], exp['participant'] + '.log')
+exp['logfile'] = os.path.join(exp['data'], exp['participant'] + '_c.log')
 
 # check frame rate:
 win = visual.Window(monitor="testMonitor")
@@ -84,7 +84,7 @@ win.close()
 # ----------------------------------------
 
 # check if continue with previous dataframe:
-ifcnt = continue_dataframe(exp['data'], exp['participant'] + '.xls')
+ifcnt = continue_dataframe(exp['data'], exp['participant'] + '_c.xls')
 
 if not ifcnt:
 	# create DataFrame
