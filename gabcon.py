@@ -10,8 +10,6 @@
 #     -> start (and end?) of each break
 #     ->
 # [ ] test continue_dataframe for overwrite
-# [x] change logging level to WARNING
-# [x] add stepwise constrast checking
 
 
 # imports
