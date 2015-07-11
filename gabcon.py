@@ -104,7 +104,8 @@ for i in range(startTrial, exp['numTrials'] + 1):
 
 	# TODO: close this into a def
 	# fit Weibull function
-	if i >= exp['fit from'] and i <= exp['fit until']:
+	if i >= exp['fit from'] and i <= exp['fit until'] and \
+		(i % exp['fit every']) == 0:
 
 		# fitting psychometric function
 		w = fit_weibull(db, i)
