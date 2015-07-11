@@ -48,13 +48,13 @@ show_resp_rules()
 # SLOW TRAINING
 # -------------
 
-# set things up
-slow = exp.copy()
-slow['opacity'] = [1.0, 1.0]
-slowdowns = range(5, 0, -1)
-for s in slowdowns:
-	present_training(exp=slow, slowdown=s)
-	# add some info about correctness, and that speed changes
+if exp['run training']:
+	# set things up
+	slow = exp.copy()
+	slow['opacity'] = [1.0, 1.0]
+	slowdowns = range(5, 0, -1)
+	for s in slowdowns:
+		present_training(exp=slow, slowdown=s)
 
 
 # signal that main proc is about to begin

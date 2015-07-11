@@ -15,6 +15,7 @@ exp['participant']  = getUserName(intUser = False)
 exp['use trigger']  = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 
+exp['run training'] = True
 exp['break after']  = 15  # how often subjects have a break
 exp['step until']   = 35  # continue stepwise until this trial
 exp['fit from']     = 45  # start fitting weibull at this trial
