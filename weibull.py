@@ -14,6 +14,7 @@
 from scipy.optimize import minimize
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 
 
 class Weibull:
@@ -152,4 +153,4 @@ def correct_Weibull_fit(w, exp, newopac):
 	if not (exp['opacity'] == precheck_opacity):
 		logs.append('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
 
-	return exp, log
+	return exp, logs

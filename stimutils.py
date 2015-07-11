@@ -344,7 +344,7 @@ def show_resp_rules(exp = exp, win = stim['window']):
 
 def textscreen(text, win=stim['window'], exp=exp):
 	visual.TextStim(win, text = text, units = 'norm').draw()
-	win.filp()
+	win.flip()
 	event.waitKeys()
 
 
