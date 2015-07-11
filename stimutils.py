@@ -215,10 +215,12 @@ def present_training(exp=exp, slowdown=5, mintrials=15):
 		# feedback:
 		present_feedback(i, db=train_db)
 		# check correctness
-		training_correctness = train_db.loc[max(1, i-mintrials+1):i, 'ifcorrect'].mean()
+		training_correctness = train_db.loc[max(1,
+			i-mintrials+1):i, 'ifcorrect'].mean()
 
-		if (i) % mintrials == 0:
-			thistxt = txt.format(training_correctness, exp['train corr'])
+		if (i) % (mintrials-1) == 0:
+			thistxt = txt.format(training_correctness,
+				exp['train corr'][0])
 			textscreen(thistxt)
 		i += 1
 	# save training db!
