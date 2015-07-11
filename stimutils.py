@@ -204,18 +204,24 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		db.loc[tr, 'ifcorrect'] = 0
 
 
-def present_training(exp=exp, slowdown=5):
+def present_training(exp=exp, slowdown=5, mintrials=15):
 	i = 1
+	txt = u'Twoja poprawność:\n{}\ndocelowa poprawność:\n{}'
 	training_correctness = 0
 	train_db = give_training_db(db, slowdown=slowdown)
-	while training_correctness < exp['train corr'][0] or i < 14:
+	while training_correctness < exp['train corr'][0] or i < mintrials:
 		present_trial(i, exp=exp, db=train_db)
 
 		# feedback:
 		present_feedback(i, db=train_db)
 		# check correctness
-		training_correctness = train_db.loc[1:i, 'ifcorrect'].mean()
+		training_correctness = train_db.loc[max(1, i-mintrials+1):i, 'ifcorrect'].mean()
+
+		if (i) % mintrials == 0:
+			thistxt = txt.format(training_correctness, exp['train corr'])
+			textscreen(thistxt)
 		i += 1
+	# save training db!
 
 
 def present_feedback(i, db=db, stim=stim):
@@ -334,6 +340,12 @@ def show_resp_rules(exp = exp, win = stim['window']):
 
 	# wait for space:
 	k = event.waitKeys(keyList = ['space'])
+
+
+def textscreen(text, win=stim['window'], exp=exp):
+	visual.TextStim(win, text = text, units = 'norm').draw()
+	win.filp()
+	event.waitKeys()
 
 
 def present_break(t, exp = exp, win = stim['window']):
