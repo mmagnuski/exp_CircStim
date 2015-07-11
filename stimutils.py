@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from psychopy import core, visual, event, monitors
-from ctypes    import windll
 from settings import exp, db, startTrial
 from exputils  import getFrameRate, trim
+import envutils
 import numpy  as np
 import yaml
-
 
 # import monitor settings
 monitorName = "testMonitor"
