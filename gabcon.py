@@ -27,8 +27,8 @@ from weibull   import (fit_weibull,
 	set_opacity_if_fit_fails, correct_Weibull_fit)
 from stimutils import (exp, db, stim, startTrial,
 	present_trial, present_break, show_resp_rules,
-	present_feedback, give_training_db, Instructions,
-	Stepwise, trim)
+	present_feedback, present_training, 
+	give_training_db, Instructions, Stepwise, trim)
 
 
 # set logging
