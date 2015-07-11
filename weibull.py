@@ -104,7 +104,7 @@ class Weibull:
 def fit_weibull(db, i):
 
 	take_last = min([i-15, 60])
-	idx = np.arange(i-take_last+1, i+1, dtype = 'int')
+	idx = np.array(np.arange(i-take_last+1, i+1), dtype = 'int')
 	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
 	opacit = db.loc[idx, 'opacity'].values.astype('float')
 
