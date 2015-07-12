@@ -205,24 +205,26 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 
 def present_training(exp=exp, slowdown=5, mintrials=15):
 	i = 1
-	txt = u'Twoja poprawność:\n{}\ndocelowa poprawność:\n{}'
-	training_correctness = 0
+	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
+	train_corr = 0
 	train_db = give_training_db(db, slowdown=slowdown)
-	while training_correctness < exp['train corr'][0] or i < mintrials:
+	while train_corr < exp['train corr'][0] or i < mintrials:
 		present_trial(i, exp=exp, db=train_db)
 
 		# feedback:
 		present_feedback(i, db=train_db)
 		# check correctness
-		training_correctness = train_db.loc[max(1,
+		train_corr = train_db.loc[max(1,
 			i-mintrials+1):i, 'ifcorrect'].mean()
 
-		if (i) % (mintrials-1) == 0:
-			thistxt = txt.format(training_correctness,
-				exp['train corr'][0])
+		if (i % mintrials) == 0 and train_corr < exp['train corr']:
+			thistxt = txt.format(
+				str(np.round(train_corr, decimals=2))[2:4]+'%',
+				str(exp['train corr'][0])[2:4]+'%')
 			textscreen(thistxt)
 		i += 1
 	# save training db!
+	return train_corr
 
 
 def present_feedback(i, db=db, stim=stim):

@@ -24,7 +24,7 @@ from weibull   import (fit_weibull,
 	set_opacity_if_fit_fails, correct_Weibull_fit)
 from stimutils import (exp, db, stim, startTrial,
 	present_trial, present_break, show_resp_rules,
-	present_feedback, present_training, 
+	present_feedback, present_training, textscreen,
 	give_training_db, Instructions, Stepwise, trim)
 
 if os.name == 'nt':
@@ -52,8 +52,15 @@ if exp['run training']:
 	slow = exp.copy()
 	slow['opacity'] = [1.0, 1.0]
 	slowdowns = range(5, 0, -1)
+	txt = u'Osiągnięto wymaganą poprawność.\n'
+	addtxt = u'Szybkość prezentacji bodźców zostaje zwiększona.'
 	for s in slowdowns:
 		present_training(exp=slow, slowdown=s)
+		if s == 1:
+			addtxt = 'Koniec treningu.'
+		now_txt = txt + addtxt
+		textscreen(now_txt)
+
 
 
 # signal that main proc is about to begin
