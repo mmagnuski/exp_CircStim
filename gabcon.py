@@ -16,7 +16,7 @@
 # -------
 from psychopy  import visual, core, event, logging
 
-
+import os
 import numpy  as np
 import pandas as pd
 from exputils  import plot_Feedback
@@ -27,6 +27,8 @@ from stimutils import (exp, db, stim, startTrial,
 	present_feedback, present_training, 
 	give_training_db, Instructions, Stepwise, trim)
 
+if os.name == 'nt':
+	from ctypes import windll
 
 # set logging
 lg = logging.LogFile(f=exp['logfile'], level=logging.WARNING, filemode='w')
