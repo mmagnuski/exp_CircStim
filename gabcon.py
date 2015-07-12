@@ -27,7 +27,7 @@ from stimutils import (exp, db, stim, startTrial,
 	present_feedback, present_training, textscreen,
 	give_training_db, Instructions, Stepwise, trim)
 
-if os.name == 'nt':
+if os.name == 'nt' and exp['use trigger']:
 	from ctypes import windll
 
 # set logging
