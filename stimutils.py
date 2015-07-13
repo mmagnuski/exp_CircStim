@@ -205,8 +205,10 @@ def present_training(exp=exp, slowdown=5, mintrials=15):
 def present_feedback(i, db=db, stim=stim):
 	if db.loc[i, 'ifcorrect'] == 1:
 		stim['feedback'].setFillColor([0.1, 0.9, 0.1])
+		stim['feedback'].setLineColor([0.1, 0.9, 0.1])
 	else:
 		stim['feedback'].setFillColor([0.9, 0.1, 0.1])
+		stim['feedback'].setLineColor([0.9, 0.1, 0.1])
 
 	for f in range(0, exp['fdb time'][0]):
 		stim['feedback'].draw()
