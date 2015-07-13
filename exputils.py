@@ -69,10 +69,10 @@ def ms2frames(times, frame_time):
 	return frms
 
 
-def fillz(val, num):
+def fillz(val, num, addpos='front'):
     '''
     fillz(val, num)
-    exadds zero to the beginning of val so that length of
+    adds zero to the beginning of val so that length of
     val is equal to num. val can be string, int or float
     '''
 
@@ -83,7 +83,11 @@ def fillz(val, num):
     # add zeros
     ln = len(val)
     if ln < num:
-        return '0' * (num - ln) + val
+        addz = '0' * (num - ln)
+        if addpos == 'front':
+            return addz + val
+        elif addpos == 'end':
+            return val + addz
     else:
         return val
 
