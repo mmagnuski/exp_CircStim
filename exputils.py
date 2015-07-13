@@ -36,6 +36,7 @@ def plot_Feedback(stim, plotter, pth, resize = 1.0):
 		while not resp:
 			resp = event.getKeys()
 
+
 def getFrameRate(win, frames = 25):
 	# get frame rate
 	print "testing frame rate..."
@@ -160,7 +161,7 @@ def continue_dataframe(pth, fl):
 			return df, isempt[0] + 1
 		else:
 			# here it should return something special
-			# not to everwrite the file (becasue file
+			# not to overwrite the file (because file
 			# absent and file presnt but finished re-
 			# sponses are identical)
 			return False
