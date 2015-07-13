@@ -47,6 +47,10 @@ def getFrameRate(win, frames = 25):
 	return frame
 
 
+def round2step(vals, step=0.005):
+	return np.round(vals / step) * step
+
+
 def ms2frames(times, frame_time):
 
 	tp = type(times)
