@@ -39,35 +39,6 @@ def gabor(win = win, ori = 0, opa = 1.0,
 							  sf      = sf,   ori  = ori,      \
 							  opacity = opa,  units = units)
 
-# TODO should units be set to 'deg' here?
-def whiteshape(v, win = win):
-	return visual.ShapeStim(
-		win,
-		lineWidth  = 0.5,
-		fillColor  = [1, 1, 1],
-		lineColor  = [1, 1, 1],
-		vertices   = v,
-		closeShape = True
-		)
-
-# create fixation cross:
-def fix():
-	v = np.array(
-			[
-				[0.1, -1],
-				[0.1, 1],
-				[-0.1, 1],
-				[-0.1, -1]
-			]
-		)
-
-	fix = []
-	fix.append(whiteshape(v))
-	fix.append(whiteshape(
-		np.fliplr(v)
-		))
-	return fix
-
 # prepare stimuli
 stim = {}
 stim['window'] = win
@@ -85,7 +56,12 @@ stim['mask'] = []
 for o in mask_ori:
 	stim['mask'].append(gabor(ori = o, opa = 0.25))
 
-stim['fix'] = fix()
+# fixation
+stim['fix'] = visual.Circle(stim['window'], radius=0.15,
+	edges=16, units='deg')
+stim['fix'].setFillColor([0.5, 0.5, 0.5])
+stim['fix'].setLineColor([0.5, 0.5, 0.5])
+
 
 # feedback circle:
 stim['feedback'] = visual.Circle(stim['window'], radius=2.5,
@@ -144,8 +120,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	# present fix:
 	win.callOnFlip(onflip_work, exp['port'], code='fix')
 	for f in np.arange(db.loc[tr]['fixTime']):
-		for fx in stim['fix']:
-			fx.draw()
+		stim['fix'].draw()
 		win.flip()
 
 	# present target
