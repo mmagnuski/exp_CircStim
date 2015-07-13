@@ -134,7 +134,18 @@ def continue_dataframe(pth, fl):
 		return ifex
 	else:
 		# load with pandas and take first column
-		df = pd.read_excel(flfl)
+		try:
+			df = pd.read_excel(flfl)
+		except TypeError:
+			# old version of pandas (0.13 and below):
+			xl = pd.ExcelFile(flfl)
+			sht_nm = xl.sheet_names[0]  # see all sheet names
+			df = xl.parse(sht_nm, convert_float=False)
+		# some columns have to be converted to float now
+		colnames = ['fixTime', 'targetTime', 'SMI', 'maskTime', 
+			'orientation', 'ifcorrect']
+		df.loc[:, colnames] = df.loc[:, colnames].astype('Int32')
+
 		col = df.columns
 		col = df[col[0]]
 
