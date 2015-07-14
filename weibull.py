@@ -64,7 +64,7 @@ class Weibull:
 	def inverse(self, corrinput):
 		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr))**2
 		# optimize with respect to correctness
-		return minimize(invfun, 1.0, method='Nelder-Mead')['x'][0]
+		return minimize(invfun, self.params[1], method='Nelder-Mead')['x'][0]
 	
 	def _dist2corr(self, corr):
 		return map(self.inverse, corr)
