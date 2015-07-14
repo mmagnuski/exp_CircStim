@@ -106,7 +106,6 @@ class Weibull:
 
 
 def fit_weibull(db, i):
-
 	take_last = min([i-15, 60])
 	idx = np.array(np.arange(i-take_last+1, i+1), dtype = 'int')
 	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
@@ -137,7 +136,7 @@ def correct_Weibull_fit(w, exp, newopac):
 	logs.append( 'Contrast limits set to:  {0} - {1}'.format(*newopac) )
 
 	# TODO this needs checking, removing duplicates and testing
-	if newopac[1] < 0.005 or newopac[1] <= newopac[0] or w.params[0] < 0 \
+	if newopac[1] <= newopac[0] or w.params[0] < 0 \
 		or newopac[1] < 0.01 or newopac[0] > 1.0:
 
 		set_opacity_if_fit_fails(w.orig_y, exp)
