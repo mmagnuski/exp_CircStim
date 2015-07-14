@@ -158,3 +158,26 @@ def correct_Weibull_fit(w, exp, newopac):
 		logs.append('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
 
 	return exp, logs
+
+
+# for interactive plotting:
+# -------------------------
+def fitw(df, ind):
+    x = df.loc[ind, 'opacity']
+    y = df.loc[ind, 'ifcorrect']
+    w = Weibull(x, y)
+    w.fit([1., 1.])
+    return w
+
+
+def idx_at(fit_num):
+    current_trial = 45 + (fit_num-1)*10
+    take_last = min([current_trial-15, 60])
+    idx = np.array(np.arange(current_trial-take_last+1,
+                             current_trial+1), dtype = 'int')
+    return idx
+
+
+def wfit_at(df, fit_num):
+    idx = idx_at(fit_num)
+    return fit_weibull(df, idx[-1])
