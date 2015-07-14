@@ -69,7 +69,7 @@ class Weibull:
 	def _dist2corr(self, corr):
 		return map(self.inverse, corr)
 	
-	def plot(self, pth=''):
+	def plot(self, pth='', points=True, line=True):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 1., num = numpnts)
@@ -79,15 +79,19 @@ class Weibull:
 		l = len(self.x)
 		yrnd = np.random.uniform(-0.05, 0.05, l)
 
-		# plot
-		plt.hold(True)
-		plt.grid()
-		plt.plot(x, y, zorder = 1)
-		plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, c=[0.3, 0.3, 0.3])
+		# plot setup
+		plt.hold(True) # just in case (matlab habit)
+		plt.grid(True)
+
+		# plot line
+		if line:
+			plt.plot(x, y, zorder = 1)
+		if points:
+			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, c=[0.3, 0.3, 0.3])
 
 		# aesthetics
 		maxval = np.max(self.x)
-		uplim = np.round(maxval + 0.5, decimals = 1)
+		uplim = min([1.0, np.round(maxval + 0.5, decimals = 1)])
 		plt.xlim([0.0, uplim])
 		plt.ylim([-0.1, 1.1])
 		plt.xlabel('stimulus intensity')
