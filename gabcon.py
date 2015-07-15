@@ -44,22 +44,22 @@ instr.present()
 # show response rules:
 show_resp_rules()
 
-# SLOW TRAINING
-# -------------
+# TRAINING
+# --------
 
 if exp['run training']:
 	# set things up
 	slow = exp.copy()
 	slow['opacity'] = [1.0, 1.0]
-	slowdowns = range(5, 0, -1)
 	txt = u'Osiągnięto wymaganą poprawność.\n'
 	addtxt = u'Szybkość prezentacji bodźców zostaje zwiększona.'
-	for s in slowdowns:
-		present_training(exp=slow, slowdown=s)
+	for s, c in zip(exp['train slow'], exp['train corr']):
+		current_corr = present_training(exp=slow, slowdown=s, corr=c)
 		if s == 1:
 			addtxt = 'Koniec treningu.'
 		now_txt = txt + addtxt
 		textscreen(now_txt)
+		show_resp_rules()
 
 
 

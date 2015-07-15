@@ -16,6 +16,8 @@ exp['use trigger']  = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 
 exp['run training'] = True
+exp['train slow']   = [5, 4, 3, 2, 1]
+exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.9]
 exp['break after']  = 15  # how often subjects have a break
 exp['step until']   = 35  # continue stepwise until this trial
 exp['fit from']     = 45  # start fitting weibull at this trial
@@ -29,7 +31,6 @@ exp['maskTime']    = [20]
 exp['opacity']     = [0.05, 0.8]
 exp['min opac']    = 0.03
 exp['orientation'] = [0, 45, 90, 135]
-exp['train corr']  = [0.85, 0.75] # [slow, normal]
 exp['fdb time']    = [40] # feedback time in frames
 exp['corrLims']    = [0.55, 0.9]
 
