@@ -181,6 +181,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 	i = 1
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
+	txt += u'\n\n Aby przejść dalej naciśnij spację.'
 	train_corr = 0
 	train_db = give_training_db(db, slowdown=slowdown)
 	while train_corr < corr or i < mintrials:
@@ -196,7 +197,9 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 			thistxt = txt.format(
 				str(np.round(train_corr, decimals=2))[2:4]+'%',
 				str(corr)[2:]+'%')
+			# show info about correctness and remind key mapping
 			textscreen(thistxt)
+			show_resp_rules()
 		i += 1
 	# save training db!
 	return train_corr
