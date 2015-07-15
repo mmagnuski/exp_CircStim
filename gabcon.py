@@ -62,6 +62,38 @@ if exp['run training']:
 		show_resp_rules()
 
 
+# ADD some more instructions here
+# TODO - info that main experiment is about to begin
+
+# Contrast fitting - stepwise
+# ---------------------------
+
+# init stepwise contrast adjustment
+step = exp['step until']
+s = Stepwise(corr_ratio=[1,1])
+exp['opacity'] = [1., 1.]
+
+while s.trial <= step[0] and len(s.reversals) < 2:
+	present_trial(i, exp=exp)
+	stim['window'].flip()
+
+	s.add(db.loc[i, 'ifcorrect'])
+	c = s.next()
+	exp['opacity'] = [c, c]
+
+# more detailed stepping now
+all_reversals = s.reversals[-1]
+s = Stepwise(corr_ratio=[2,1], start=s.param, step=0.05)
+
+while s.trial <= step[1]
+	present_trial(i, exp=exp)
+	stim['window'].flip()
+
+	s.add(db.loc[i, 'ifcorrect'])
+	c = s.next()
+	exp['opacity'] = [c, c]
+
+
 
 # signal that main proc is about to begin
 # ---------------------------------------
@@ -70,30 +102,15 @@ if exp['use trigger']:
 	core.wait(0.01)
 	clear_port(exp['port'])
 
-# ADD some more instructions here
-# TODO - info that main experiment is about to begin
-show_resp_rules()
-
 
 # MAIN EXPERIMENT
 # ---------------
 
-step = exp['step until']
-
-# init stepwise contrast adjustment
-if step > 0:
-	s = Stepwise()
-	exp['opacity'] = [1., 1.]
 
 # main loop
 for i in range(startTrial, exp['numTrials'] + 1):
 	present_trial(i, exp=exp)
 	stim['window'].flip()
-
-	if (i) <= step:
-		s.add(db.loc[i, 'ifcorrect'])
-		contrast = s.next()
-		exp['opacity'] = [contrast, contrast]
 
 	if step > 0 and i == step + 1:
 		# add about 0.2 around the current contrast
