@@ -94,6 +94,15 @@ while s.trial <= step[1]
 	exp['opacity'] = [c, c]
 
 
+# Contrast fitting - weibull
+# --------------------------
+
+# get training db with slowdown 1
+# fit weibull
+w = fit_weibull(db, i)
+# if fit is ok take threshold for specified correctness
+take_corr = [0.55, 0.65, 0.775, 0.9]
+
 
 # signal that main proc is about to begin
 # ---------------------------------------
