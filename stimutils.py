@@ -178,12 +178,12 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		db.loc[tr, 'ifcorrect'] = 0
 
 
-def present_training(exp=exp, slowdown=5, mintrials=15):
+def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 	i = 1
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	train_corr = 0
 	train_db = give_training_db(db, slowdown=slowdown)
-	while train_corr < exp['train corr'][0] or i < mintrials:
+	while train_corr < corr or i < mintrials:
 		present_trial(i, exp=exp, db=train_db)
 
 		# feedback:
@@ -195,7 +195,7 @@ def present_training(exp=exp, slowdown=5, mintrials=15):
 		if (i % mintrials) == 0 and train_corr < exp['train corr']:
 			thistxt = txt.format(
 				str(np.round(train_corr, decimals=2))[2:4]+'%',
-				str(exp['train corr'][0])[2:4]+'%')
+				str(corr)[2:]+'%')
 			textscreen(thistxt)
 		i += 1
 	# save training db!
