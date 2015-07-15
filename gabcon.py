@@ -19,7 +19,7 @@ from psychopy  import visual, core, event, logging
 import os
 import numpy  as np
 import pandas as pd
-from exputils  import plot_Feedback
+from exputils  import plot_Feedback, to_percent
 from weibull   import (fit_weibull,
 	set_opacity_if_fit_fails, correct_Weibull_fit)
 from stimutils import (exp, db, stim, startTrial,
@@ -51,14 +51,14 @@ if exp['run training']:
 	# set things up
 	slow = exp.copy()
 	slow['opacity'] = [1.0, 1.0]
-	txt = u'Osiągnięto wymaganą poprawność.\n'
+	txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
 	addtxt = u'Szybkość prezentacji bodźców zostaje zwiększona.'
 	for s, c in zip(exp['train slow'], exp['train corr']):
 		current_corr = present_training(exp=slow, slowdown=s, corr=c)
 		if s == 1:
 			addtxt = 'Koniec treningu.'
 		now_txt = txt + addtxt
-		textscreen(now_txt)
+		textscreen(now_txt.format(to_perc(current_corr)))
 		show_resp_rules()
 
 
