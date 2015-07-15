@@ -134,7 +134,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 
 		# fitting psychometric function
 		w = fit_weibull(db, i)
-		newopac = w._dist2corr(exp['corrLims'])
+		newopac = w.get_threshold(exp['corrLims'])
 		exp, logs = correct_Weibull_fit(w, exp, newopac)
 
 		# log messages
