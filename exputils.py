@@ -97,6 +97,12 @@ def fillz(val, num, addpos='front'):
         return val
 
 
+def to_percent(val):
+	# currently assumes val is 0 - 1 
+	s = str(val * 100)
+	return s.split('.')[0] + '%'
+
+
 def trim(val, vmin, vmax):
     return max([min([val, vmax]), vmin])
 
