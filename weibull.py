@@ -90,8 +90,8 @@ class Weibull:
 			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, c=[0.3, 0.3, 0.3])
 
 		# aesthetics
-		maxval = np.max(self.x)
-		uplim = min([1.0, np.round(maxval + 0.5, decimals = 1)])
+		maxval = self.get_threshold([0.99]) + 0.1
+		uplim = min([1.0, np.round(maxval, decimals = 1)])
 		plt.xlim([0.0, uplim])
 		plt.ylim([-0.1, 1.1])
 		plt.xlabel('stimulus intensity')
