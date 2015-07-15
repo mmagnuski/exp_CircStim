@@ -69,12 +69,13 @@ if exp['run training']:
 # ---------------------------
 
 # init stepwise contrast adjustment
+fitting_db = give_training_db(db, slowdown=slowdown)
 step = exp['step until']
 s = Stepwise(corr_ratio=[1,1])
 exp['opacity'] = [1., 1.]
 
 while s.trial <= step[0] and len(s.reversals) < 2:
-	present_trial(i, exp=exp)
+	present_trial(s.trial, db=fitting_db, exp=exp)
 	stim['window'].flip()
 
 	s.add(db.loc[i, 'ifcorrect'])
@@ -82,16 +83,20 @@ while s.trial <= step[0] and len(s.reversals) < 2:
 	exp['opacity'] = [c, c]
 
 # more detailed stepping now
+last_trial = s.trial
 all_reversals = s.reversals[-1]
 s = Stepwise(corr_ratio=[2,1], start=s.param, step=0.05)
 
 while s.trial <= step[1]
-	present_trial(i, exp=exp)
+	present_trial(s.trial + last_trial, db=fitting_db, exp=exp)
 	stim['window'].flip()
 
 	s.add(db.loc[i, 'ifcorrect'])
 	c = s.next()
 	exp['opacity'] = [c, c]
+
+all_reversals.append(s.reversals)
+mean_thresh = np.mean(all_reversals)
 
 
 # Contrast fitting - weibull
