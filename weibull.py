@@ -61,13 +61,13 @@ class Weibull:
 	def fit(self, initparams):
 		self.params = minimize(self.loglik, initparams, method='Nelder-Mead')['x']
 
-	def inverse(self, corrinput):
+	def _inverse(self, corrinput):
 		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr))**2
 		# optimize with respect to correctness
 		return minimize(invfun, self.params[1], method='Nelder-Mead')['x'][0]
 	
-	def _dist2corr(self, corr):
-		return map(self.inverse, corr)
+	def get_threshold(self, corr):
+		return map(self._inverse, corr)
 	
 	def plot(self, pth='', points=True, line=True):
 		# get predicted data
