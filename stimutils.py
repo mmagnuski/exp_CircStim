@@ -226,6 +226,7 @@ class Stepwise(object):
 	s = Stepwise(corr_ratio=[2, 1], step=0.1)"""
 	def __init__(self, corr_ratio=[2,1], start=1.,
 		step=0.1, vmin=0.1, vmax=1.):
+		self.trial = 1
 		self.direction = 'down'
 		self.reversals = []
 		self.rev_dir    = []
@@ -239,6 +240,7 @@ class Stepwise(object):
 	def add(self, resp):
 		ind = 0 if resp else 1
 		self.current_ratio[ind] += 1
+		self.trial += 1
 		self.check()
 
 	def next(self):

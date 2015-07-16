@@ -75,7 +75,7 @@ step = exp['step until']
 s = Stepwise(corr_ratio=[1,1])
 exp['opacity'] = [1., 1.]
 
-while s.trial <= step[0] and len(s.reversals) < 2:
+while s.trial <= step[0] and len(s.reversals) < 3:
 	present_trial(s.trial, db=fitting_db, exp=exp)
 	stim['window'].flip()
 
