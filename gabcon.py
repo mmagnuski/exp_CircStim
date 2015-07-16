@@ -19,7 +19,8 @@ from psychopy  import visual, core, event, logging
 import os
 import numpy  as np
 import pandas as pd
-from exputils  import plot_Feedback, to_percent
+from exputils  import (plot_Feedback, to_percent,
+	round2step)
 from weibull   import (fit_weibull,
 	set_opacity_if_fit_fails, correct_Weibull_fit)
 from stimutils import (exp, db, stim, startTrial,
@@ -69,7 +70,7 @@ if exp['run training']:
 # ---------------------------
 
 # init stepwise contrast adjustment
-fitting_db = give_training_db(db, slowdown=slowdown)
+fitting_db = give_training_db(db, slowdown=1)
 step = exp['step until']
 s = Stepwise(corr_ratio=[1,1])
 exp['opacity'] = [1., 1.]
@@ -97,16 +98,33 @@ while s.trial <= step[1]
 
 all_reversals.append(s.reversals)
 mean_thresh = np.mean(all_reversals)
+tri = s.trial + last_trial
 
 
 # Contrast fitting - weibull
 # --------------------------
 
-# get training db with slowdown 1
-# fit weibull
-w = fit_weibull(db, i)
-# if fit is ok take threshold for specified correctness
 take_corr = [0.55, 0.65, 0.775, 0.9]
+check_contrast = np.arange(mean_thresh-0.05, mean_thresh+0.1, 0.05)
+while tri <= stim['fit until']:
+	np.random.shuffle(check_contrast)
+	for c in check_contrast:
+		exp['opacity'] = [c, c]
+		present_trial(tri, db=fitting_db, exp=exp)
+		stim['window'].flip()
+		tri += 1
+
+	# fit weibull
+	w = fitw(df, ind)
+	# take threshold for specified correctness levels
+	new_contrast = w.get_threshold(take_corr)
+	if w.params[0] < 0.01:
+		# if fit is not ok, move measurement points 0.05 down
+		new_contrast = [c - 0.05 for c in new_contrast]
+	# trim all points
+	check_contrast = np.array([trim(c, exp['min opac'], 1.)
+		for c in new_contrast])
+	check_contrast = round2step(check_contrast)
 
 
 # signal that main proc is about to begin
