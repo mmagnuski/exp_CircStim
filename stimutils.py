@@ -2,8 +2,7 @@
 
 from psychopy import core, visual, event, monitors
 from settings import exp, db, startTrial
-from exputils  import getFrameRate, trim
-import envutils
+from exputils  import getFrameRate, trim, to_percent
 import numpy  as np
 import yaml
 
@@ -194,9 +193,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 			i-mintrials+1):i, 'ifcorrect'].mean()
 
 		if (i % mintrials) == 0 and train_corr < exp['train corr']:
-			thistxt = txt.format(
-				str(np.round(train_corr, decimals=2))[2:4]+'%',
-				str(corr)[2:]+'%')
+			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
 			# show info about correctness and remind key mapping
 			textscreen(thistxt)
 			show_resp_rules()

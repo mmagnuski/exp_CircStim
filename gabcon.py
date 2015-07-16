@@ -58,7 +58,7 @@ if exp['run training']:
 		if s == 1:
 			addtxt = 'Koniec treningu.'
 		now_txt = txt + addtxt
-		textscreen(now_txt.format(to_perc(current_corr)))
+		textscreen(now_txt.format(to_percent(current_corr)))
 		show_resp_rules()
 
 
