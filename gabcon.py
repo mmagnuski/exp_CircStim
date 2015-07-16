@@ -138,7 +138,6 @@ if exp['use trigger']:
 # MAIN EXPERIMENT
 # ---------------
 
-
 # main loop
 for i in range(startTrial, exp['numTrials'] + 1):
 	present_trial(i, exp=exp)
