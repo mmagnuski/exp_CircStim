@@ -88,7 +88,7 @@ last_trial = s.trial
 all_reversals = s.reversals[-1]
 s = Stepwise(corr_ratio=[2,1], start=s.param, step=0.05)
 
-while s.trial <= step[1]
+while s.trial <= step[1]:
 	present_trial(s.trial + last_trial, db=fitting_db, exp=exp)
 	stim['window'].flip()
 
