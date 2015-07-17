@@ -131,7 +131,8 @@ while trial <= exp['fit until']:
 	check_contrast = round2step(check_contrast)
 
 	# show weibull fit
-	plot_Feedback(stim, w, exp['data'])
+	if exp['debug']:
+		plot_Feedback(stim, w, exp['data'])
 
 # save fitting dataframe!
 fitting_db.to_excel(os.path.join(exp['data'], exp['participant'] + '_b.xls'))
