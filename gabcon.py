@@ -103,7 +103,7 @@ tri = s.trial + last_trial
 
 # Contrast fitting - weibull
 # --------------------------
-
+params = [1., 1.]
 take_corr = [0.55, 0.65, 0.775, 0.9]
 check_contrast = np.arange(mean_thresh-0.05, mean_thresh+0.1, 0.05)
 while tri <= stim['fit until']:
@@ -115,7 +115,8 @@ while tri <= stim['fit until']:
 		tri += 1
 
 	# fit weibull
-	w = fitw(df, ind)
+	w = fitw(df, ind, init_params=params)
+	params = w.params
 	# take threshold for specified correctness levels
 	new_contrast = w.get_threshold(take_corr)
 	if w.params[0] < 0.01:
