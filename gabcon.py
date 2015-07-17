@@ -78,7 +78,7 @@ while s.trial <= step[0] and len(s.reversals) < 5:
 	present_trial(s.trial, db=fitting_db, exp=exp)
 	stim['window'].flip()
 
-	s.add(db.loc[i, 'ifcorrect'])
+	s.add(fitting_db.loc[s.trial, 'ifcorrect'])
 	c = s.next()
 	exp['opacity'] = [c, c]
 
@@ -90,11 +90,11 @@ s = Stepwise(corr_ratio=[2,1], start=s.param, min=0.05,
 	step=0.05)
 
 while s.trial <= step[1]:
-	present_trial(s.trial + last_trial, db=fitting_db, exp=exp)
 	trial = s.trial + last_trial
+	present_trial(trial, db=fitting_db, exp=exp)
 	stim['window'].flip()
 
-	s.add(db.loc[i, 'ifcorrect'])
+	s.add(fitting_db.loc[trial, 'ifcorrect'])
 	c = s.next()
 	exp['opacity'] = [c, c]
 
