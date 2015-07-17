@@ -249,14 +249,14 @@ class Stepwise(object):
 		return self.param
 
 	def check(self):
-		if self.current_ratio[0] > self.corr_ratio[0]:
+		if self.current_ratio[0] >= self.corr_ratio[0]:
 			if self.direction == 'up':
 				self.rev_dir.append(self.direction)
 				self.reversals.append(self.param)
 				self.direction = 'down'
 			self.param -= self.step
 			self.current_ratio = [0, 0]
-		elif self.current_ratio[1] > self.corr_ratio[1]:
+		elif self.current_ratio[1] >= self.corr_ratio[1]:
 			if self.direction == 'down':
 				self.rev_dir.append(self.direction)
 				self.reversals.append(self.param)
