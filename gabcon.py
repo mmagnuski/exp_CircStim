@@ -74,7 +74,7 @@ step = exp['step until']
 s = Stepwise(corr_ratio=[1,1])
 exp['opacity'] = [1., 1.]
 
-while s.trial <= step[0] and len(s.reversals) < 3:
+while s.trial <= step[0] and len(s.reversals) < 5:
 	present_trial(s.trial, db=fitting_db, exp=exp)
 	stim['window'].flip()
 
@@ -83,21 +83,24 @@ while s.trial <= step[0] and len(s.reversals) < 3:
 	exp['opacity'] = [c, c]
 
 # more detailed stepping now
-last_trial = s.trial
-all_reversals = s.reversals[-1]
-s = Stepwise(corr_ratio=[2,1], start=s.param, step=0.05)
+last_trial = s.trial - 1
+start_param = np.mean(s.reversals)[0] if \
+	len(s.reversals) > 1 else s.param
+s = Stepwise(corr_ratio=[2,1], start=s.param, min=0.05,
+	step=0.05)
 
 while s.trial <= step[1]:
 	present_trial(s.trial + last_trial, db=fitting_db, exp=exp)
+	trial = s.trial + last_trial
 	stim['window'].flip()
 
 	s.add(db.loc[i, 'ifcorrect'])
 	c = s.next()
 	exp['opacity'] = [c, c]
 
-all_reversals.append(s.reversals)
-mean_thresh = np.mean(all_reversals)
-tri = s.trial + last_trial
+mean_thresh = np.mean(s.reversals) if s.reversals else c
+# save fitting dataframe
+fitting_db.to_excel(os.path.join(exp['data'], exp['participant'] + '_b.xls'))
 
 
 # Contrast fitting - weibull
