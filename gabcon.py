@@ -107,7 +107,6 @@ fitting_db.to_excel(os.path.join(exp['data'], exp['participant'] + '_b.xls'))
 # --------------------------
 trial += 1
 params = [1., 1.]
-take_corr = [0.55, 0.65, 0.775, 0.9]
 check_contrast = np.arange(mean_thresh-0.05, mean_thresh+0.1, 0.05)
 while trial <= exp['fit until']:
 	np.random.shuffle(check_contrast)
@@ -123,14 +122,19 @@ while trial <= exp['fit until']:
 	w = fitw(fitting_db, ind, init_params=params)
 	params = w.params
 	# take threshold for specified correctness levels
-	new_contrast = w.get_threshold(take_corr)
-	if w.params[0] < 0.01:
-		# if fit is not ok, move measurement points 0.05 down
-		new_contrast = [c - 0.05 for c in new_contrast]
+	contrast_range = w.get_threshold(exp['corrLims'])
+	check_contrast = np.linspace(contrast_range[0], 
+		contrast_range[1], num=5)
 	# trim all points
 	check_contrast = np.array([trim(c, exp['min opac'], 1.)
-		for c in new_contrast])
+		for c in check_contrast])
 	check_contrast = round2step(check_contrast)
+
+	# show weibull fit
+	plot_Feedback(stim, w, exp['data'])
+
+# save fitting dataframe!
+fitting_db.to_excel(os.path.join(exp['data'], exp['participant'] + '_b.xls'))
 
 
 # signal that main proc is about to begin
