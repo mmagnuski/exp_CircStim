@@ -21,8 +21,7 @@ import numpy  as np
 import pandas as pd
 from exputils  import (plot_Feedback, to_percent,
 	round2step)
-from weibull   import (fit_weibull,
-	set_opacity_if_fit_fails, correct_Weibull_fit)
+from weibull   import fitw
 from stimutils import (exp, db, stim, startTrial,
 	present_trial, present_break, show_resp_rules,
 	present_feedback, present_training, textscreen,
@@ -103,19 +102,22 @@ tri = s.trial + last_trial
 
 # Contrast fitting - weibull
 # --------------------------
+trial += 1
 params = [1., 1.]
 take_corr = [0.55, 0.65, 0.775, 0.9]
 check_contrast = np.arange(mean_thresh-0.05, mean_thresh+0.1, 0.05)
-while tri <= stim['fit until']:
+while trial <= exp['fit until']:
 	np.random.shuffle(check_contrast)
 	for c in check_contrast:
 		exp['opacity'] = [c, c]
-		present_trial(tri, db=fitting_db, exp=exp)
+		present_trial(trial, db=fitting_db, exp=exp)
 		stim['window'].flip()
-		tri += 1
+		trial += 1
 
 	# fit weibull
-	w = fitw(df, ind, init_params=params)
+	take_last = min(trial-10, 50)
+	ind = np.r_[trial-take_last:trial] # because np.r_ does not include last value
+	w = fitw(fitting_db, ind, init_params=params)
 	params = w.params
 	# take threshold for specified correctness levels
 	new_contrast = w.get_threshold(take_corr)
@@ -158,24 +160,6 @@ for i in range(startTrial, exp['numTrials'] + 1):
 		# break and refresh keyboard mapping
 		present_break(i)
 		show_resp_rules()
-
-	# TODO: close this into a def
-	# fit Weibull function
-	if i >= exp['fit from'] and i <= exp['fit until'] and \
-		(i % exp['fit every']) == 0:
-
-		# fitting psychometric function
-		w = fit_weibull(db, i)
-		newopac = w.get_threshold(exp['corrLims'])
-		exp, logs = correct_Weibull_fit(w, exp, newopac)
-
-		# log messages
-		for log in logs:
-			logging.warning(log)
-		logging.flush()
-
-		# show weibull fit
-		plot_Feedback(stim, w, exp['data'])
 
 	# inter-trial interval
 	stim['window'].flip()
