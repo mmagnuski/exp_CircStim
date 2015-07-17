@@ -84,9 +84,9 @@ while s.trial <= step[0] and len(s.reversals) < 5:
 
 # more detailed stepping now
 last_trial = s.trial - 1
-start_param = np.mean(s.reversals)[0] if \
+start_param = np.mean(s.reversals) if \
 	len(s.reversals) > 1 else s.param
-s = Stepwise(corr_ratio=[2,1], start=s.param, min=0.05,
+s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.05,
 	step=0.05)
 
 while s.trial <= step[1]:

@@ -162,8 +162,8 @@ def correct_Weibull_fit(w, exp, newopac):
 # for interactive plotting:
 # -------------------------
 def fitw(df, ind, init_params=[1.,1.]):
-    x = df.loc[ind, 'opacity']
-    y = df.loc[ind, 'ifcorrect']
+    x = df.loc[ind, 'opacity'].values
+    y = df.loc[ind, 'ifcorrect'].values
     w = Weibull(x, y)
     w.fit(init_params)
     return w
