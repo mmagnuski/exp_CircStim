@@ -25,8 +25,10 @@ win.setMouseVisible(False)
 def txt(win=win, **kwargs):
 	return visual.TextStim(win, units='norm', **kwargs)
 
-def txt_newlines(win=win, text='', **kwargs):
+def txt_newlines(win=win, exp=exp, text='', **kwargs):
 	text = text.replace('\\n', '\n')
+	text = text.replace('[90button]', exp['keymap'][90])
+	text = text.replace('[45button]', exp['keymap'][45])
 	return visual.TextStim(win, text=text, units='norm', **kwargs)
 
 # gabor creation
