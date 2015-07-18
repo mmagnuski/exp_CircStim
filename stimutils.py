@@ -122,6 +122,9 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		stim['fix'].draw()
 		win.flip()
 
+	# clear keyboard buffer
+	event.getKeys()
+
 	# present target
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 		clock=exp['clock'])
