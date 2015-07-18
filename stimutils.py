@@ -5,6 +5,7 @@ from settings import exp, db, startTrial
 from exputils  import getFrameRate, trim, to_percent
 import numpy  as np
 import yaml
+import re
 
 # import monitor settings
 monitorName = "testMonitor"
@@ -29,6 +30,21 @@ def txt_newlines(win=win, exp=exp, text='', **kwargs):
 	text = text.replace('\\n', '\n')
 	text = text.replace('[90button]', exp['keymap'][90])
 	text = text.replace('[45button]', exp['keymap'][45])
+
+	# check for gender related formulations
+	ptrn = re.compile(r'\[(\w+)/(\w+)\]')
+	found = ptrn.finditer(text, flags=re.U)
+	new_text = ''; last_ind = 0
+	for f in found:
+		ind = f.span()
+		grp = f.groups()
+		correct_text = grp[exp['subject']['sex'] == 'k']
+		new_text += text[last_ind:ind[0]] + correct_text
+		last_ind = ind[1]
+	if new_text:
+		new_text += text[last_ind:]
+		text = new_text
+
 	return visual.TextStim(win, text=text, units='norm', **kwargs)
 
 # gabor creation
