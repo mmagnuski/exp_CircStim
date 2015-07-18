@@ -37,7 +37,7 @@ lg = logging.LogFile(f=exp['logfile'], level=logging.WARNING, filemode='w')
 # EXPERIMENT
 # ==========
 
-# INSTRUCTIONS!
+# INSTRUCTIONS
 instr = Instructions('instructions.yaml')
 instr.present()
 
