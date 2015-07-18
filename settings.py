@@ -139,6 +139,13 @@ if not ifcnt:
 		exp['frm']['time']
 		)
 
+	# make sure types are correct:
+	to_float = ['time', 'opacity', 'RT']
+	to_int = ['ifcorrect']
+	db.loc[:, to_float+to_int] = db.loc[:, to_float+to_int].fillna(0)
+	db.loc[:, to_float] = db.loc[:, to_float].astype('float64')
+	db.loc[:, to_int] = db.loc[:, to_int].astype('int32')
+
 	startTrial = 1
 else:
 	db, startTrial = ifcnt
