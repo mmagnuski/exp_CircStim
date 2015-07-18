@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from psychopy       import gui
 from psychopy       import event
 from matplotlib     import pyplot   as plt
@@ -108,7 +110,7 @@ def trim(val, vmin, vmax):
 
 
 # get user name:
-def getUserName(intUser = True):
+def getSubject():
     '''
     PsychoPy's simple GUI for entering 'stuff'
     Does not look nice or is not particularily user-friendly
@@ -117,19 +119,14 @@ def getUserName(intUser = True):
     and returns it as a string
     '''
     myDlg = gui.Dlg(title="Pseudonim", size = (800,600))
-    myDlg.addText('Podaj numer osoby badanej')
-    myDlg.addField('numer')
+    myDlg.addText('Informacje o osobie badanej')
+    myDlg.addField('numer:')
+    myDlg.addField('wiek:', 30)
+    myDlg.addField(u'płeć:', choices=[u'kobieta', u'mężczyzna'])
     myDlg.show()  # show dialog and wait for OK or Cancel
 
     if myDlg.OK:  # the user pressed OK
-        dialogInfo = myDlg.data
-        if intUser:
-            try:
-                user = int(dialogInfo[0])
-            except (ValueError, TypeError):
-                user = None
-        else:
-            user = dialogInfo[0]
+        user = myDlg.data
     else:
         user = None
 

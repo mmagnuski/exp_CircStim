@@ -4,7 +4,7 @@
 
 # TODOs:
 # [.] add instructions     (!)
-# [ ] we need to log age and sex of the participant
+# [x] we need to log age and sex of the participant
 #     (that would go to settings.py)
 # [ ] add markers to:
 #     -> start (and end?) of each break
@@ -100,7 +100,7 @@ while s.trial <= step[1]:
 
 mean_thresh = np.mean(s.reversals) if s.reversals else c
 # save fitting dataframe
-fitting_db.to_excel(os.path.join(exp['data'], exp['participant'] + '_b.xls'))
+fitting_db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_b.xls'))
 
 
 # Contrast fitting - weibull
@@ -135,7 +135,7 @@ while trial <= exp['fit until']:
 		plot_Feedback(stim, w, exp['data'])
 
 # save fitting dataframe!
-fitting_db.to_excel(os.path.join(exp['data'], exp['participant'] + '_b.xls'))
+fitting_db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_b.xls'))
 
 
 # signal that main proc is about to begin
@@ -164,7 +164,7 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	# present break
 	if (i) % exp['break after'] == 0:
 		# save data before every break
-		db.to_excel(os.path.join(exp['data'], exp['participant'] + '_c.xls'))
+		db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_c.xls'))
 		# break and refresh keyboard mapping
 		present_break(i)
 		show_resp_rules()
@@ -173,5 +173,5 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	stim['window'].flip()
 	core.wait(0.5) # pre-fixation time is always the same
 
-db.to_excel(os.path.join(exp['data'], exp['participant'] + '_c.xls'))
+db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_c.xls'))
 core.quit()

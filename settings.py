@@ -3,7 +3,7 @@ import numpy  as np
 import pandas as pd
 from psychopy  import visual, core
 from random    import randint, uniform
-from exputils  import (ms2frames, getUserName,
+from exputils  import (ms2frames, getSubject,
 	continue_dataframe, getFrameRate)
 
 # experiment settings
@@ -11,7 +11,6 @@ from exputils  import (ms2frames, getUserName,
 exp = {}
 exp['debug']        = True
 exp['clock']        = core.Clock()
-exp['participant']  = getUserName(intUser = False)
 exp['use trigger']  = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 
@@ -63,6 +62,13 @@ portdict['codes'].update({'target_'+str(ori) : 4+i \
 						   })
 exp['port'] = portdict
 
+# subject info
+# ------------
+sub_data = getSubject()
+exp['participant']  = dict()
+exp['participant']['ID'] = sub_data[0] 
+exp['participant']['age'] = sub_data[1] 
+exp['participant']['sex'] = sub_data[2][0] 
 
 # get path
 pth   = os.path.dirname(os.path.abspath(__file__))
@@ -74,7 +80,7 @@ if not os.path.isdir(exp['data']):
 	os.mkdir(exp['data'])
 
 # setup logging:
-exp['logfile'] = os.path.join(exp['data'], exp['participant'] + '_c.log')
+exp['logfile'] = os.path.join(exp['data'], exp['participant']['ID'] + '_c.log')
 
 # check frame rate:
 win = visual.Window(monitor="testMonitor")
@@ -86,7 +92,7 @@ win.close()
 # ----------------------------------------
 
 # check if continue with previous dataframe:
-ifcnt = continue_dataframe(exp['data'], exp['participant'] + '_c.xls')
+ifcnt = continue_dataframe(exp['data'], exp['participant']['ID'] + '_c.xls')
 
 if not ifcnt:
 	# create DataFrame
