@@ -32,8 +32,9 @@ class Weibull:
 
 	def __init__(self, x, y):
 		self.x = x
+		self.orig_y = y
 		# y is 0 or 1 - this is problematic for log
-		self.orig_y = y # CHECK ensure that this is a copy!
+		# so we drag the values a little
 		self.y = self.drag(y)
 
 	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
