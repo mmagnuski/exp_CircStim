@@ -214,7 +214,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 		train_corr = train_db.loc[max(1,
 			i-mintrials+1):i, 'ifcorrect'].mean()
 
-		if (i % mintrials) == 0 and train_corr < exp['train corr']:
+		if (i % mintrials) == 0 and train_corr < corr:
 			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
 			# show info about correctness and remind key mapping
 			textscreen(thistxt)
