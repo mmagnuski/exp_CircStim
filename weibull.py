@@ -81,14 +81,17 @@ class Weibull:
 		yrnd = np.random.uniform(-0.05, 0.05, l)
 
 		# plot setup
+		f, ax = plt.subplots()
+		ax.set_axis_bgcolor((0.92, 0.92, 0.92))
 		plt.hold(True) # just in case (matlab habit)
-		plt.grid(True)
+		plt.grid(True, color=(1.,1.,1.), lw=1.5, linestyle='-', zorder = -1)
 
 		# plot line
-		if line:
-			plt.plot(x, y, zorder = 1)
 		if points:
-			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, c=[0.3, 0.3, 0.3])
+			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, 
+				zorder=2, c=[0.3, 0.3, 0.3])
+		if line:
+			plt.plot(x, y, zorder = 3, lw=3, color='k')
 
 		# aesthetics
 		maxval = self.get_threshold([0.99])[0] + 0.1
