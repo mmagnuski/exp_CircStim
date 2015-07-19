@@ -102,7 +102,7 @@
   value    : 
     text   : >
       Ten bodziec natomiast ma "proste" nachylenie - nie jest na ukos.\n
-      Na proste bodżce odpowiadać będziesz klawiszem [0button]
+      Na proste bodżce odpowiadać będziesz klawiszem [90button]
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
@@ -134,7 +134,7 @@
   value    : 
     text   : >
       Ten bodziec również jest prosty.\n
-      Na proste bodżce odpowiadać będziesz klawiszem [0button]
+      Na proste bodżce odpowiadać będziesz klawiszem [90button]
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
