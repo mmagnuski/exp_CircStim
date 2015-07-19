@@ -2,7 +2,8 @@
 
 from psychopy import core, visual, event, monitors
 from settings import exp, db, startTrial
-from exputils  import getFrameRate, trim, to_percent
+from exputils import getFrameRate
+from utils    import trim, to_percent
 import numpy  as np
 import yaml
 import re

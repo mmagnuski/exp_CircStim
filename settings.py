@@ -3,8 +3,9 @@ import numpy  as np
 import pandas as pd
 from psychopy  import visual, core
 from random    import randint, uniform
+from utils     import continue_dataframe
 from exputils  import (ms2frames, getSubject,
-	continue_dataframe, getFrameRate)
+	getFrameRate)
 
 # experiment settings
 # -------------------

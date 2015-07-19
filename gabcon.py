@@ -19,8 +19,8 @@ from psychopy  import visual, core, event, logging
 import os
 import numpy  as np
 import pandas as pd
-from exputils  import (plot_Feedback, to_percent,
-	round2step)
+from exputils  import plot_Feedback
+from utils     import to_percent, round2step
 from weibull   import fitw, get_new_contrast
 from stimutils import (exp, db, stim, startTrial,
 	present_trial, present_break, show_resp_rules,
