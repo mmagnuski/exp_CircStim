@@ -32,13 +32,13 @@ def txt_newlines(win=win, exp=exp, text='', **kwargs):
 	text = text.replace('[45button]', exp['keymap'][45])
 
 	# check for gender related formulations
-	ptrn = re.compile(r'\[(\w+)/(\w+)\]')
-	found = ptrn.finditer(text, flags=re.U)
+	ptrn = re.compile(r'\[(\w+)/(\w+)\]', flags=re.U)
+	found = ptrn.finditer(text)
 	new_text = ''; last_ind = 0
 	for f in found:
 		ind = f.span()
 		grp = f.groups()
-		correct_text = grp[exp['subject']['sex'] == 'k']
+		correct_text = grp[exp['participant']['sex'] == 'k']
 		new_text += text[last_ind:ind[0]] + correct_text
 		last_ind = ind[1]
 	if new_text:
