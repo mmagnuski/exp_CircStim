@@ -110,7 +110,11 @@ if exp['run fitting']:
 	# --------------------------
 	trial += 1
 	params = [1., 1.]
-	check_contrast = np.arange(mean_thresh-0.05, mean_thresh+0.1, 0.05)
+	check_contrast = np.arange(mean_thresh-0.05,
+		mean_thresh+0.1, 0.05)
+	check_contrast = np.arange( [trim(c, exp['min opac'], 1.)
+			for c in check_contrast] )
+
 	while trial <= exp['fit until']:
 		np.random.shuffle(check_contrast)
 		for c in check_contrast:
@@ -125,7 +129,7 @@ if exp['run fitting']:
 		w = fitw(fitting_db, ind, init_params=params)
 		params = w.params
 
-		check_contrast = get_new_contrast(w, exp=exp, 
+		check_contrast = get_new_contrast(w, exp=exp,
 			method=exp['search method'])
 
 		# show weibull fit
