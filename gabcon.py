@@ -38,8 +38,9 @@ lg = logging.LogFile(f=exp['logfile'], level=logging.WARNING, filemode='w')
 # ==========
 
 # INSTRUCTIONS
-instr = Instructions('instructions.yaml')
-instr.present()
+if exp['run instruct']:
+	instr = Instructions('instructions.yaml')
+	instr.present()
 
 # show response rules:
 show_resp_rules()
@@ -143,6 +144,9 @@ while trial <= exp['fit until']:
 # save fitting dataframe!
 fitting_db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_b.xls'))
 
+# stop here if not running final proc:
+if not exp['run main c']:
+	core.quit()
 
 # signal that main proc is about to begin
 # ---------------------------------------
