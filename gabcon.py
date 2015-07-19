@@ -121,8 +121,14 @@ while trial <= exp['fit until']:
 	ind = np.r_[trial-take_last:trial] # because np.r_ does not include last value
 	w = fitw(fitting_db, ind, init_params=params)
 	params = w.params
+
 	# take threshold for specified correctness levels
-	contrast_range = w.get_threshold(exp['corrLims'])
+	if w.params[0] <= 0.01:
+		contrast_range = [exp['min opac'], 0.2]
+	else:
+		contrast_range = w.get_threshold(exp['corrLims'])
+
+	# get 5 values from the contrast range
 	check_contrast = np.linspace(contrast_range[0], 
 		contrast_range[1], num=5)
 	# trim all points
