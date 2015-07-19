@@ -24,6 +24,8 @@ exp['step until']   = [15, 25]  # continue stepwise until this trial
 exp['fit from']     = 45  # start fitting weibull at this trial
 exp['fit until']    = 100 # continue fitting until this trial
 exp['fit every']    = 10
+exp['fitCorrLims']  = [0.5, 1.]
+exp['search method']= '4midlogsteps'
 
 exp['targetTime']  = [1]
 exp['SMI']         = [2] # Stimulus Mask Interval

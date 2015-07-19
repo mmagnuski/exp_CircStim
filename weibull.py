@@ -162,6 +162,43 @@ def correct_Weibull_fit(w, exp, newopac):
 
 	return exp, logs
 
+def get_new_contrast(model, exp=None, method='random'):
+	if 'steps' in method:
+		# get method details from string
+		log = 'log' in method
+		steps = ''
+		for c in tx:
+			if c.isdigit():
+				steps += c
+			else:
+				break
+		steps = int(steps) if steps else 5
+
+		# take contrast for specified correctness levels
+		if w.params[0] <= 0.01:
+			contrast_range = [exp['min opac'], 0.2]
+		else:
+			contrast_range = w.get_threshold(exp['fitCorrLims'])
+
+		# get N values from the contrast range
+		if log:
+			if 'mid' in method:
+				# add midpoint
+				pnts = [contrast_range[0], np.mean(contrast_range),
+					contrast_range[1]]
+				pw = np.log10(pnts)
+				lft = np.logspace(pw[1], pw[0], num=steps+1)
+				rgt = np.logspace(pw[1], pw[2], num=steps+1)
+				contrast_range = np.hstack(lft[len(lft)::-1], rgt[1:])
+			else:
+				pw = np.log10(contrast_range)
+				check_contrast = np.linspace(*pw, num=steps)
+		else:
+			check_contrast = np.linspace(*contrast_range, num=steps)
+		# trim all points
+		check_contrast = np.array([trim(c, exp['min opac'], 1.)
+			for c in check_contrast])
+		check_contrast = round2step(check_contrast)
 
 # for interactive plotting:
 # -------------------------

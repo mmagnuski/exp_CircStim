@@ -21,7 +21,7 @@ import numpy  as np
 import pandas as pd
 from exputils  import (plot_Feedback, to_percent,
 	round2step)
-from weibull   import fitw
+from weibull   import fitw, get_new_contrast
 from stimutils import (exp, db, stim, startTrial,
 	present_trial, present_break, show_resp_rules,
 	present_feedback, present_training, textscreen,
@@ -123,19 +123,7 @@ while trial <= exp['fit until']:
 	w = fitw(fitting_db, ind, init_params=params)
 	params = w.params
 
-	# take threshold for specified correctness levels
-	if w.params[0] <= 0.01:
-		contrast_range = [exp['min opac'], 0.2]
-	else:
-		contrast_range = w.get_threshold(exp['corrLims'])
-
-	# get 5 values from the contrast range
-	check_contrast = np.linspace(contrast_range[0], 
-		contrast_range[1], num=5)
-	# trim all points
-	check_contrast = np.array([trim(c, exp['min opac'], 1.)
-		for c in check_contrast])
-	check_contrast = round2step(check_contrast)
+	check_contrast = get_new_contrast(w, exp=exp, method=exp['search method'])
 
 	# show weibull fit
 	if exp['debug']:
