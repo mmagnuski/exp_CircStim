@@ -69,68 +69,72 @@ if exp['run training']:
 # Contrast fitting - stepwise
 # ---------------------------
 
-# init stepwise contrast adjustment
-fitting_db = give_training_db(db, slowdown=1)
-step = exp['step until']
-s = Stepwise(corr_ratio=[1,1])
-exp['opacity'] = [1., 1.]
+if exp['run fitting']:
+	# init stepwise contrast adjustment
+	fitting_db = give_training_db(db, slowdown=1)
+	step = exp['step until']
+	s = Stepwise(corr_ratio=[1,1])
+	exp['opacity'] = [1., 1.]
 
-while s.trial <= step[0] and len(s.reversals) < 5:
-	present_trial(s.trial, db=fitting_db, exp=exp)
-	stim['window'].flip()
+	while s.trial <= step[0] and len(s.reversals) < 5:
+		present_trial(s.trial, db=fitting_db, exp=exp)
+		stim['window'].flip()
 
-	s.add(fitting_db.loc[s.trial, 'ifcorrect'])
-	c = s.next()
-	exp['opacity'] = [c, c]
-
-# more detailed stepping now
-last_trial = s.trial - 1
-start_param = np.mean(s.reversals) if \
-	len(s.reversals) > 1 else s.param
-s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.05,
-	step=0.05)
-
-while s.trial <= step[1]:
-	trial = s.trial + last_trial
-	present_trial(trial, db=fitting_db, exp=exp)
-	stim['window'].flip()
-
-	s.add(fitting_db.loc[trial, 'ifcorrect'])
-	c = s.next()
-	exp['opacity'] = [c, c]
-
-mean_thresh = np.mean(s.reversals) if s.reversals else c
-# save fitting dataframe
-fitting_db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_b.xls'))
-
-
-# Contrast fitting - weibull
-# --------------------------
-trial += 1
-params = [1., 1.]
-check_contrast = np.arange(mean_thresh-0.05, mean_thresh+0.1, 0.05)
-while trial <= exp['fit until']:
-	np.random.shuffle(check_contrast)
-	for c in check_contrast:
+		s.add(fitting_db.loc[s.trial, 'ifcorrect'])
+		c = s.next()
 		exp['opacity'] = [c, c]
+
+	# more detailed stepping now
+	last_trial = s.trial - 1
+	start_param = np.mean(s.reversals) if \
+		len(s.reversals) > 1 else s.param
+	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.05,
+		step=0.05)
+
+	while s.trial <= step[1]:
+		trial = s.trial + last_trial
 		present_trial(trial, db=fitting_db, exp=exp)
 		stim['window'].flip()
-		trial += 1
 
-	# fit weibull
-	take_last = min(trial-10, 50)
-	ind = np.r_[trial-take_last:trial] # because np.r_ does not include last value
-	w = fitw(fitting_db, ind, init_params=params)
-	params = w.params
+		s.add(fitting_db.loc[trial, 'ifcorrect'])
+		c = s.next()
+		exp['opacity'] = [c, c]
 
-	check_contrast = get_new_contrast(w, exp=exp, method=exp['search method'])
+	mean_thresh = np.mean(s.reversals) if s.reversals else c
+	# save fitting dataframe
+	fitting_db.to_excel(os.path.join(exp['data'], 
+		exp['participant']['ID'] + '_b.xls'))
 
-	# show weibull fit
-	if exp['debug']:
-		plot_Feedback(stim, w, exp['data'])
 
-# save fitting dataframe!
-fitting_db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_b.xls'))
+	# Contrast fitting - weibull
+	# --------------------------
+	trial += 1
+	params = [1., 1.]
+	check_contrast = np.arange(mean_thresh-0.05, mean_thresh+0.1, 0.05)
+	while trial <= exp['fit until']:
+		np.random.shuffle(check_contrast)
+		for c in check_contrast:
+			exp['opacity'] = [c, c]
+			present_trial(trial, db=fitting_db, exp=exp)
+			stim['window'].flip()
+			trial += 1
+
+		# fit weibull
+		take_last = min(trial-10, 50)
+		ind = np.r_[trial-take_last:trial] # because np.r_ does not include last value
+		w = fitw(fitting_db, ind, init_params=params)
+		params = w.params
+
+		check_contrast = get_new_contrast(w, exp=exp, 
+			method=exp['search method'])
+
+		# show weibull fit
+		if exp['debug']:
+			plot_Feedback(stim, w, exp['data'])
+
+	# save fitting dataframe!
+	fitting_db.to_excel(os.path.join(exp['data'], 
+		exp['participant']['ID'] + '_b.xls'))
 
 # stop here if not running final proc:
 if not exp['run main c']:

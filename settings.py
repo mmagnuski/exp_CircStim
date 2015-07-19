@@ -16,6 +16,7 @@ exp['port address'] = '0xDC00' # string, for example '0xD05'
 
 exp['run instruct'] = True
 exp['run training'] = True
+exp['run fitting']  = True
 exp['run main c']   = True
 exp['train slow']   = [5, 4, 3, 2, 1]
 exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.9]
