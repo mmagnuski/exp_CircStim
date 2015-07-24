@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def round2step(vals, step=0.005):
+def round2step(vals, step=0.001):
 	return np.round(vals / step) * step
 
 

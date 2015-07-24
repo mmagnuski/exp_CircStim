@@ -21,7 +21,7 @@ import numpy  as np
 import pandas as pd
 from exputils  import plot_Feedback
 from utils     import to_percent, round2step
-from weibull   import fitw, get_new_contrast
+from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim, startTrial,
 	present_trial, present_break, show_resp_rules,
 	present_feedback, present_training, textscreen,
@@ -37,6 +37,8 @@ lg = logging.LogFile(f=exp['logfile'], level=logging.WARNING, filemode='w')
 # EXPERIMENT
 # ==========
 
+# save participant info at the beginning
+
 # INSTRUCTIONS
 if exp['run instruct']:
 	instr = Instructions('instructions.yaml')
@@ -51,16 +53,27 @@ show_resp_rules()
 if exp['run training']:
 	# set things up
 	slow = exp.copy()
+	df_train = []
 	slow['opacity'] = [1.0, 1.0]
 	txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
-	addtxt = u'Szybkość prezentacji bodźców zostaje zwiększona.'
+	addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.' +
+		u'\nAby przejść dalej naciśnij spację.')
 	for s, c in zip(exp['train slow'], exp['train corr']):
-		current_corr = present_training(exp=slow, slowdown=s, corr=c)
+		df, current_corr = present_training(exp=slow, slowdown=s, corr=c)
 		if s == 1:
 			addtxt = 'Koniec treningu.'
 		now_txt = txt + addtxt
 		textscreen(now_txt.format(to_percent(current_corr)))
 		show_resp_rules()
+		# concatenate training db's (and change indexing)
+		if df_train:
+			df_train = pd.concat([df_train, df])
+			df_train.index = np.r_[1:df_train.shape[0]+1]
+		else:
+			df_train = df
+	# save training database:
+	df_train.to_excel(os.path.join(exp['data'],
+		exp['participant']['ID'] + '_a.xls'))
 
 
 # ADD some more instructions here
@@ -72,6 +85,7 @@ if exp['run training']:
 if exp['run fitting']:
 	# init stepwise contrast adjustment
 	fitting_db = give_training_db(db, slowdown=1)
+	num_fail = 0
 	step = exp['step until']
 	s = Stepwise(corr_ratio=[1,1])
 	exp['opacity'] = [1., 1.]
@@ -112,10 +126,14 @@ if exp['run fitting']:
 	params = [1., 1.]
 	check_contrast = np.arange(mean_thresh-0.05,
 		mean_thresh+0.1, 0.05)
-	check_contrast = np.arange( [trim(c, exp['min opac'], 1.)
-			for c in check_contrast] )
+	# make sure to trim and 'granularize' check_contrast
+	check_contrast = np.array( [trim(x, exp['min opac'], 
+		1.) for x in check_contrast] )
 
 	while trial <= exp['fit until']:
+		# remind about the button press mappings
+		show_resp_rules()
+		# shuffle trials and present them all
 		np.random.shuffle(check_contrast)
 		for c in check_contrast:
 			exp['opacity'] = [c, c]
@@ -129,15 +147,21 @@ if exp['run fitting']:
 		w = fitw(fitting_db, ind, init_params=params)
 		params = w.params
 
-		check_contrast = get_new_contrast(w, exp=exp,
-			method=exp['search method'])
+		# save weibull params in fitting_db:
+		# fitting_db.loc[trial, 'w1'] = params[0]
+		# fitting_db.loc[trial, 'w2'] = params[1]
+
+		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
+		check_contrast, contrast_range = get_new_contrast(w, corr_lims=exp['fitCorrLims'],
+			method=exp['search method'], contrast_lims=contrast_range)
+		print check_contrast
 
 		# show weibull fit
 		if exp['debug']:
 			plot_Feedback(stim, w, exp['data'])
 
 	# save fitting dataframe!
-	fitting_db.to_excel(os.path.join(exp['data'], 
+	fitting_db.to_excel(os.path.join(exp['data'],
 		exp['participant']['ID'] + '_b.xls'))
 
 # stop here if not running final proc:
@@ -159,13 +183,6 @@ if exp['use trigger']:
 for i in range(startTrial, exp['numTrials'] + 1):
 	present_trial(i, exp=exp)
 	stim['window'].flip()
-
-	if step > 0 and i == step + 1:
-		# add about 0.2 around the current contrast
-		exp['opacity'] = [trim(contrast - 0.2,
-							   exp['min opac'], 0.95),
-						  trim(contrast + 0.2,
-							   exp['min opac']+0.05, 1.)]
 
 	# present break
 	if (i) % exp['break after'] == 0:

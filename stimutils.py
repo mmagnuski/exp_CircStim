@@ -221,7 +221,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 			show_resp_rules()
 		i += 1
 	# save training db!
-	return train_corr
+	return train_db, train_corr
 
 
 def present_feedback(i, db=db, stim=stim):

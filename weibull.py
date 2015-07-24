@@ -6,14 +6,15 @@
 #       -> do not have to pass additional args 
 #          if they are in the model 
 #       -> but allow to pass these args if needed
-# [ ] - ! ensure that orig_y and y are copies !
 # [ ] - predict (now performed by _fun but could change names)
 # [ ] - ! think about adding params to to predictors for both slope and position
 
 # imports
 from scipy.optimize import minimize
 from matplotlib import pyplot as plt
+from utils import trim, round2step
 import numpy as np
+import pandas as pd
 import os
 
 
@@ -89,9 +90,9 @@ class Weibull:
 		# plot line
 		if points:
 			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, 
-				zorder=2, c=[0.3, 0.3, 0.3])
+				zorder=4, c=[0.3, 0.3, 0.3])
 		if line:
-			plt.plot(x, y, zorder = 3, lw=3, color='k')
+			plt.plot(x, y, zorder = 4, lw=3, color='k')
 
 		# aesthetics
 		maxval = self.get_threshold([0.99])[0] + 0.1
@@ -117,11 +118,11 @@ def fit_weibull(db, i):
 
 	# fit on non-nan
 	notnan = ~(np.isnan(ifcorr))
-	w = Weibull(opacit[notnan], ifcorr[notnan])
 	w.fit([1.0, 1.0])
+	w = Weibull(opacit[notnan], ifcorr[notnan])
 	return w
 
-
+	
 def set_opacity_if_fit_fails(corr, exp):
 	mean_corr = np.mean(corr)
 	if mean_corr > 0.8:
@@ -162,12 +163,27 @@ def correct_Weibull_fit(w, exp, newopac):
 
 	return exp, logs
 
-def get_new_contrast(model, exp=None, method='random'):
+def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None, method='random'):
+	'''
+	Methods:
+	'5steps', '6steps', '12steps' - divides the contrast
+	    range to equally spaced steps. The number of the
+	    steps is defined at the beginning of the string.
+	'6logsteps' - six logaritmic steps
+	'4midlogsteps' - four log steps from the middle point
+		of the contrast range to each direction (left and
+			right)
+
+	'''
+	# TODO - maybe add 'random' to steps method
+	#        this would shift the contrast points
+	#        randomly from -0.5 to 0.5 of respective
+	#        bin width (asymmteric in logsteps)
 	if 'steps' in method:
 		# get method details from string
 		log = 'log' in method
 		steps = ''
-		for c in tx:
+		for c in method:
 			if c.isdigit():
 				steps += c
 			else:
@@ -175,30 +191,57 @@ def get_new_contrast(model, exp=None, method='random'):
 		steps = int(steps) if steps else 5
 
 		# take contrast for specified correctness levels
-		if w.params[0] <= 0.01:
-			contrast_range = [exp['min opac'], 0.2]
+		if model.params[0] <= 0: # should be some small positive value
+			if not contrast_lims:
+				contrast_lims = [vmin, vmin+0.2]
 		else:
-			contrast_range = w.get_threshold(exp['fitCorrLims'])
+			contrast_lims = model.get_threshold(corr_lims)
 
 		# get N values from the contrast range
 		if log:
 			if 'mid' in method:
 				# add midpoint
-				pnts = [contrast_range[0], np.mean(contrast_range),
-					contrast_range[1]]
+				pnts = [contrast_lims[0], np.mean(contrast_lims),
+					contrast_lims[1]]
 				pw = np.log10(pnts)
 				lft = np.logspace(pw[1], pw[0], num=steps+1)
 				rgt = np.logspace(pw[1], pw[2], num=steps+1)
-				contrast_range = np.hstack(lft[len(lft)::-1], rgt[1:])
+				check_contrast = np.hstack([lft[len(lft)::-1], rgt[1:]])
 			else:
-				pw = np.log10(contrast_range)
-				check_contrast = np.linspace(*pw, num=steps)
+				pw = np.log10(contrast_lims)
+				check_contrast = np.logspace(*pw, num=steps)
 		else:
-			check_contrast = np.linspace(*contrast_range, num=steps)
+			check_contrast = np.linspace(*contrast_lims, num=steps)
 		# trim all points
-		check_contrast = np.array([trim(c, exp['min opac'], 1.)
+		check_contrast = np.array([trim(c, vmin, 1.)
 			for c in check_contrast])
 		check_contrast = round2step(check_contrast)
+		return check_contrast, contrast_lims
+
+
+def correct_weibull(model, num_fail, df=None):
+	if isinstance(df, pd.DataFrame):
+		if model.params[0] <= 0:
+			num_fail += 1
+			corr_below = max([1. - num_fail*0.1, 0.65])
+			# find last trial
+			fin = np.where(df.time == 0.)[0][0]
+			df = df[1:fin]
+			# find bin with corr below:
+			bins = pd.cut(df.opacity, 7)
+			mn = df.groupby(bins)['ifcorrect'].mean()
+			rng = np.where(mn < 0.9)[0]
+			low_rng = float(mn.index[0].split(',')[0][1:])
+			if rng:
+				high_rng = float(mn.index[rng[-1]].split(',')[1][1:-1])
+			else:
+				high_rng = float(mn.index[1].split(',')[1][1:-1])
+			contrast_range = [low_rng, high_rng]
+			return contrast_range, num_fail
+		else:
+			return None, 0
+	else:
+		return None, num_fail
 
 # for interactive plotting:
 # -------------------------
