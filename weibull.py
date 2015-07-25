@@ -191,11 +191,11 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None
 		steps = int(steps) if steps else 5
 
 		# take contrast for specified correctness levels
-		if model.params[0] <= 0: # should be some small positive value
-			if not contrast_lims:
+		if not contrast_lims:
+			if model.params[0] <= 0: # should be some small positive value
 				contrast_lims = [vmin, vmin+0.2]
-		else:
-			contrast_lims = model.get_threshold(corr_lims)
+			else:
+				contrast_lims = model.get_threshold(corr_lims)
 
 		# get N values from the contrast range
 		if log:
