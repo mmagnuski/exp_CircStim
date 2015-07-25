@@ -261,7 +261,19 @@ def correct_weibull(model, num_fail, df=None):
 			contrast_range = [low_rng, high_rng]
 			return contrast_range, num_fail
 		else:
-			return None, 0
+			num_fail = 0
+			contrast_range = None
+			contrast_lims = model.get_threshold([0.55, 0.9])
+			if contrast_lims[1] > 1.:
+				binval, bins = cut_df_corr(df, num_bins=7)
+				where_low = np.where(binval < 0.6)[0]
+				if np.any(where_low):
+					low = where_low[-1]
+				else:
+					low = 0
+				contrast_range = [bins[low, 1], 1.]
+
+			return contrast_range, num_fail
 	else:
 		return None, num_fail
 
