@@ -215,8 +215,15 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None
 		# trim all points
 		check_contrast = np.array([trim(c, vmin, 1.)
 			for c in check_contrast])
-		check_contrast = round2step(check_contrast)
-		return check_contrast, contrast_lims
+		# try steps of 0.1, 0.05 or 0.01
+		steps = [0.1, 0.05, 0.01]
+		base_nonrep = not (len(check_contrast) == len(np.unique(check_contrast)))
+		for s in steps:
+			this_contrast = round2step(check_contrast, step=s)
+			new_nonrep = len(this_contrast) == len(np.unique(this_contrast))
+			if base_nonrep or new_nonrep:
+				break
+		return this_contrast, contrast_lims
 
 
 def correct_weibull(model, num_fail, df=None):
