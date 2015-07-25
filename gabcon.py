@@ -129,6 +129,11 @@ if exp['run fitting']:
 	# --------------------------
 	trial += 1
 	params = [1., 1.]
+
+	# add param columns to fitting db
+	fitting_db['w1'] = np.nan
+	fitting_db['w2'] = np.nan
+
 	check_contrast = np.arange(mean_thresh-0.05,
 		mean_thresh+0.1, 0.05)
 	# make sure to trim and 'granularize' check_contrast
@@ -147,14 +152,16 @@ if exp['run fitting']:
 			trial += 1
 
 		# fit weibull
-		take_last = min(trial-10, 50)
+		take_last = min(trial-10, 65)
 		ind = np.r_[trial-take_last:trial] # because np.r_ does not include last value
 		w = fitw(fitting_db, ind, init_params=params)
 		params = w.params
 
-		# save weibull params in fitting_db:
-		# fitting_db.loc[trial, 'w1'] = params[0]
-		# fitting_db.loc[trial, 'w2'] = params[1]
+		# save weibull params in fitting_db and save to disk:
+		fitting_db.loc[trial-1, 'w1'] = params[0]
+		fitting_db.loc[trial-1, 'w2'] = params[1]
+		fitting_db.to_excel(os.path.join(exp['data'],
+			exp['participant']['ID'] + '_b.xls'))
 
 		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
 		check_contrast, contrast_range = get_new_contrast(w, corr_lims=exp['fitCorrLims'],
