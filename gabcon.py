@@ -97,6 +97,9 @@ if exp['run fitting']:
 		s.add(fitting_db.loc[s.trial, 'ifcorrect'])
 		c = s.next()
 		exp['opacity'] = [c, c]
+		if (s.trial % 10) == 0:
+			show_resp_rules()
+
 
 	# more detailed stepping now
 	last_trial = s.trial - 1
@@ -113,6 +116,8 @@ if exp['run fitting']:
 		s.add(fitting_db.loc[trial, 'ifcorrect'])
 		c = s.next()
 		exp['opacity'] = [c, c]
+		if (trial % 10) == 0:
+			show_resp_rules()
 
 	mean_thresh = np.mean(s.reversals) if s.reversals else c
 	# save fitting dataframe
