@@ -250,18 +250,14 @@ def correct_weibull(model, num_fail, df=None):
 		if model.params[0] <= 0:
 			num_fail += 1
 			corr_below = max([1. - num_fail*0.1, 0.65])
-			# find last trial
-			fin = np.where(df.time == 0.)[0][0]
-			df = df[1:fin]
-			# find bin with corr below:
-			bins = pd.cut(df.opacity, 7)
-			mn = df.groupby(bins)['ifcorrect'].mean()
-			rng = np.where(mn < 0.9)[0]
-			low_rng = float(mn.index[0].split(',')[0][1:])
-			if rng:
-				high_rng = float(mn.index[rng[-1]].split(',')[1][1:-1])
+
+			binval, bins = cut_df_corr(df, num_bins=7)
+			rng = np.where(binval < 0.9)[0]
+			low_rng = float(binval.index[0].split(',')[0][1:])
+			if np.any(rng):
+				high_rng = float(binval.index[rng[-1]].split(',')[1][1:-1])
 			else:
-				high_rng = float(mn.index[1].split(',')[1][1:-1])
+				high_rng = float(binval.index[1].split(',')[1][1:-1])
 			contrast_range = [low_rng, high_rng]
 			return contrast_range, num_fail
 		else:
