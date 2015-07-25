@@ -10,7 +10,7 @@ import numpy  as np
 #
 
 
-def plot_Feedback(stim, plotter, pth, resize = 1.0):
+def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
     # get file names from
     imfls = plotter.plot(pth)
     if not isinstance(imfls, type([])):
@@ -22,17 +22,20 @@ def plot_Feedback(stim, plotter, pth, resize = 1.0):
 		imgsize = np.array(img.size)
 		del img
 
+		# clear buffer
+		k = event.getKeys()
+
 		# set image
 		stim['centerImage'].size = np.round(imgsize * resize)
 		stim['centerImage'].setImage(im)
 		stim['centerImage'].draw()
 		stim['window'].update()
 
-		k = event.getKeys()
-		resp = False
-
-		while not resp:
-			resp = event.getKeys()
+		if keys:
+			resp = event.waitKeys(keyList=keys, maxWait=wait_time)
+		else:
+			resp = event.waitKeys()
+		return resp
 
 
 def getFrameRate(win, frames = 25):
