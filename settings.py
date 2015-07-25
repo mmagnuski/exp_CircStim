@@ -14,35 +14,38 @@ exp['debug']        = True
 exp['clock']        = core.Clock()
 exp['use trigger']  = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
-
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True
 exp['run main c']   = False
-exp['train slow']   = [5, 4, 3, 2, 1]
-exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.9]
 exp['break after']  = 15  # how often subjects have a break
-exp['step until']   = [15, 25]  # continue stepwise until this trial
-exp['fit from']     = 45  # start fitting weibull at this trial
-exp['fit until']    = 250 # continue fitting until this trial
-exp['fit every']    = 10
-exp['fitCorrLims']  = [0.52, 0.9]
-exp['search method']= '7steps'
+exp['corrLims']    = [0.55, 0.9]
+exp['opacity']     = [0.05, 0.8]
+exp['min opac']    = 0.02
 
+# training settings
+exp['train slow']   = [5, 4, 3, 2, 1]
+exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.95]
+
+# fitting settings
+exp['step until']   = [15, 25]  # continue stepwise until this trial
+exp['fit until']    = 100 # continue fitting until this trial
+exp['fitCorrLims']  = [0.52, 0.9]
+exp['search method']= '4steps'
+
+# timing settings
 exp['targetTime']  = [1]
 exp['SMI']         = [2] # Stimulus Mask Interval
 exp['fixTimeLim']  = [0.75, 2.5]
 exp['maskTime']    = [20]
-exp['opacity']     = [0.05, 0.8]
-exp['min opac']    = 0.03
-exp['orientation'] = [0, 45, 90, 135]
 exp['fdb time']    = [40] # feedback time in frames
-exp['corrLims']    = [0.55, 0.9]
-
-exp['gabor size']  = 5
-exp['gabor freq']  = 1
-exp['use keys']    = ['f', 'j']
 exp['respWait']    = 1.5
+
+# gabor settings
+exp['gabor size']  = 5
+exp['gabor freq']  = 1.5
+exp['orientation'] = [0, 45, 90, 135]
+exp['use keys']    = ['f', 'j']
 
 # response mapping
 # ----------------
