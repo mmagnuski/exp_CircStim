@@ -215,11 +215,14 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None
 		# trim all points
 		check_contrast = np.array([trim(c, vmin, 1.)
 			for c in check_contrast])
-		# try steps of 0.1, 0.05 or 0.01
-		steps = [0.1, 0.05, 0.01]
+
+		# try different contrast steps for best granularity
+		steps = [0.1, 0.05, 0.01, 0.005]
 		base_nonrep = not (len(check_contrast) == len(np.unique(check_contrast)))
 		for s in steps:
 			this_contrast = round2step(check_contrast, step=s)
+			this_contrast = np.array([trim(x, vmin, 1.)
+				for x in this_contrast])
 			new_nonrep = len(this_contrast) == len(np.unique(this_contrast))
 			if base_nonrep or new_nonrep:
 				break
