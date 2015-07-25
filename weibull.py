@@ -226,6 +226,25 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None
 		return this_contrast, contrast_lims
 
 
+def cut_df_corr(df, num_bins=7):
+	# find last trial
+	fin = np.where(df.time == 0.)[0]
+	if np.any(fin):
+		fin = fin[0]
+		df = df[1:fin]
+
+	# find bin with corr below:
+	bins = pd.cut(df.opacity, num_bins)
+	binval = df.groupby(bins)['ifcorrect'].mean()
+
+	# get bin low and high:
+	lowfun = lambda x: float(x.split(',')[0][1:])
+	highfun = lambda x: float(x.split(',')[1][1:-1])
+	low = map(lowfun, binval.index)
+	high = map(highfun, binval.index)
+	return binval, np.vstack([low, high]).T
+
+
 def correct_weibull(model, num_fail, df=None):
 	if isinstance(df, pd.DataFrame):
 		if model.params[0] <= 0:
