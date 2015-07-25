@@ -83,6 +83,7 @@ if exp['run training']:
 # ---------------------------
 
 if exp['run fitting']:
+	continue_fitting = True
 	# init stepwise contrast adjustment
 	fitting_db = give_training_db(db, slowdown=1)
 	num_fail = 0
@@ -140,7 +141,9 @@ if exp['run fitting']:
 	check_contrast = np.array( [trim(x, exp['min opac'], 
 		1.) for x in check_contrast] )
 
-	while trial <= exp['fit until']:
+	while (trial <= exp['fit until'] or
+		continue_fitting) and trial <= exp['max fit']:
+
 		# remind about the button press mappings
 		show_resp_rules()
 		# shuffle trials and present them all
@@ -169,8 +172,15 @@ if exp['run fitting']:
 		print check_contrast
 
 		# show weibull fit
-		if exp['debug']:
-			plot_Feedback(stim, w, exp['data'])
+		if trial-1 <= exp['fit until']:
+			plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
+				wait_time=1.5)
+		else:
+			keys = plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
+				wait_time=5)
+			if '0' in keys:
+				continue_fitting = False
+
 
 	# save fitting dataframe!
 	fitting_db.to_excel(os.path.join(exp['data'],
