@@ -212,6 +212,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None
 				check_contrast = np.logspace(*pw, num=steps)
 		else:
 			check_contrast = np.linspace(*contrast_lims, num=steps)
+
 		# trim all points
 		check_contrast = np.array([trim(c, vmin, 1.)
 			for c in check_contrast])

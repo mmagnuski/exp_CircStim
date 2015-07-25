@@ -81,7 +81,6 @@ if exp['run training']:
 
 # Contrast fitting - stepwise
 # ---------------------------
-
 if exp['run fitting']:
 	continue_fitting = True
 	# init stepwise contrast adjustment
@@ -146,6 +145,7 @@ if exp['run fitting']:
 
 		# remind about the button press mappings
 		show_resp_rules()
+
 		# shuffle trials and present them all
 		np.random.shuffle(check_contrast)
 		for c in check_contrast:
@@ -182,7 +182,7 @@ if exp['run fitting']:
 				continue_fitting = False
 
 
-	# save fitting dataframe!
+	# save fitting dataframe! TODO: TRIM!
 	fitting_db.to_excel(os.path.join(exp['data'],
 		exp['participant']['ID'] + '_b.xls'))
 
