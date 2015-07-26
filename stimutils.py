@@ -254,7 +254,8 @@ class Stepwise(object):
 		self.rev_dir    = []
 		self.corr_ratio = corr_ratio
 		self.param = start
-		self.step = step
+		self.step = step if isinstance(step, list) else [step]
+		self.current_step = step[0]
 		self.min = vmin
 		self.max = vmax
 		self.current_ratio = [0, 0]
@@ -276,17 +277,19 @@ class Stepwise(object):
 				self.rev_dir.append(self.direction)
 				self.reversals.append(self.param)
 				self.direction = 'down'
-			self.param -= self.step
+			self.param -= self.current_step
 			self.current_ratio = [0, 0]
 		elif self.current_ratio[1] >= self.corr_ratio[1]:
 			if self.direction == 'down':
 				self.rev_dir.append(self.direction)
 				self.reversals.append(self.param)
 				self.direction = 'up'
-			self.param += self.step
+			self.param += self.current_step
 			self.current_ratio = [0, 0]
 
 		self.param = trim(self.param, self.min, self.max)
+		if len(self.step) > len(self.reversals):
+			self.current_step = self.step[len(reversals)]
 
 
 class TimeShuffle(object):
