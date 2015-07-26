@@ -28,7 +28,7 @@ exp['train slow']   = [5, 4, 3, 2, 1]
 exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.95]
 
 # fitting settings
-exp['step until']   = [15, 25]  # continue stepwise until this trial
+exp['step until']   = [10, 35]  # continue stepwise until this trial
 exp['fit until']    = 100 # continue fitting until this trial
 exp['fitCorrLims']  = [0.52, 0.9]
 exp['fit decide']   = ['1', '0']

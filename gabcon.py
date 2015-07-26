@@ -90,7 +90,7 @@ if exp['run fitting']:
 	s = Stepwise(corr_ratio=[1,1])
 	exp['opacity'] = [1., 1.]
 
-	while s.trial <= step[0] and len(s.reversals) < 5:
+	while s.trial <= step[0] and len(s.reversals) < 3:
 		present_trial(s.trial, db=fitting_db, exp=exp)
 		stim['window'].flip()
 
@@ -105,8 +105,8 @@ if exp['run fitting']:
 	last_trial = s.trial - 1
 	start_param = np.mean(s.reversals) if \
 		len(s.reversals) > 1 else s.param
-	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.05,
-		step=0.05)
+	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.025,
+		step=[0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.025, 0.025, 0.025])
 
 	while s.trial <= step[1]:
 		trial = s.trial + last_trial
