@@ -20,7 +20,7 @@ import os
 import numpy  as np
 import pandas as pd
 from exputils  import plot_Feedback
-from utils     import to_percent, round2step
+from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim, startTrial,
 	present_trial, present_break, show_resp_rules,
@@ -67,10 +67,10 @@ if exp['run training']:
 		show_resp_rules()
 		# concatenate training db's (and change indexing)
 		if df_train:
-			df_train = pd.concat([df_train, df])
+			df_train = pd.concat([df_train, trim_df(df)])
 			df_train.index = np.r_[1:df_train.shape[0]+1]
 		else:
-			df_train = df
+			df_train = trim_df(df)
 	# save training database:
 	df_train.to_excel(os.path.join(exp['data'],
 		exp['participant']['ID'] + '_a.xls'))
@@ -163,7 +163,8 @@ if exp['run fitting']:
 		# save weibull params in fitting_db and save to disk:
 		fitting_db.loc[trial-1, 'w1'] = params[0]
 		fitting_db.loc[trial-1, 'w2'] = params[1]
-		fitting_db.to_excel(os.path.join(exp['data'],
+		save_df = trim_df(fitting_db)
+		save_df.to_excel(os.path.join(exp['data'],
 			exp['participant']['ID'] + '_b.xls'))
 
 		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
@@ -183,7 +184,7 @@ if exp['run fitting']:
 
 
 	# save fitting dataframe! TODO: TRIM!
-	fitting_db.to_excel(os.path.join(exp['data'],
+	trim_df(fitting_db).to_excel(os.path.join(exp['data'],
 		exp['participant']['ID'] + '_b.xls'))
 
 # stop here if not running final proc:

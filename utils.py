@@ -17,6 +17,13 @@ def to_percent(val):
 	s = str(val * 100)
 	return s.split('.')[0] + '%'
 
+def trim_df(df):
+	# find last trial
+	fin = np.where(df.time == 0.)[0]
+	if np.any(fin):
+		fin = fin[0]
+		df = df[0:fin]
+	return df
 
 def fillz(val, num, addpos='front'):
     '''

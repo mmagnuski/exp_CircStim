@@ -12,7 +12,7 @@
 # imports
 from scipy.optimize import minimize
 from matplotlib import pyplot as plt
-from utils import trim, round2step
+from utils import trim, trim_df, round2step
 import numpy as np
 import pandas as pd
 import os
@@ -231,11 +231,8 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None
 
 
 def cut_df_corr(df, num_bins=7):
-	# find last trial
-	fin = np.where(df.time == 0.)[0]
-	if np.any(fin):
-		fin = fin[0]
-		df = df[1:fin]
+	# trim the dataframe
+	df = trim_df(df)
 
 	# find bin with corr below:
 	bins = pd.cut(df.opacity, num_bins)
