@@ -249,37 +249,50 @@ def cut_df_corr(df, num_bins=7):
 	return binval, np.vstack([low, high]).T
 
 
-def correct_weibull(model, num_fail, df=None):
-	if isinstance(df, pd.DataFrame):
-		if model.params[0] <= 0:
-			num_fail += 1
-			corr_below = max([1. - num_fail*0.1, 0.65])
-
-			binval, bins = cut_df_corr(df, num_bins=7)
-			rng = np.where(binval < 0.9)[0]
-			low_rng = float(binval.index[0].split(',')[0][1:])
-			if np.any(rng):
-				high_rng = float(binval.index[rng[-1]].split(',')[1][1:-1])
-			else:
-				high_rng = float(binval.index[1].split(',')[1][1:-1])
-			contrast_range = [low_rng, high_rng]
-			return contrast_range, num_fail
-		else:
-			num_fail = 0
-			contrast_range = None
-			contrast_lims = model.get_threshold([0.55, 0.9])
-			if contrast_lims[1] > 1.:
-				binval, bins = cut_df_corr(df, num_bins=7)
-				where_low = np.where(binval < 0.6)[0]
-				if np.any(where_low):
-					low = where_low[-1]
-				else:
-					low = 0
-				contrast_range = [bins[low, 1], 1.]
-
-			return contrast_range, num_fail
+def get_new_range(binval, bins, high_corr=0.8, low_corr=0.6):
+	rng = np.where(binval > high_corr)[0]
+	if np.any(rng):
+		highval = bins[rng[0],0]
 	else:
+		highval = bins[-1,0]
+	where_low = np.where(binval < low_corr)[0]
+	if np.any(where_low):
+		low = where_low[-1]
+		lowval = bins[low, 0]
+	else:
+		go_below = bins[0,1] - bins[0,0]
+		lowval = max(bins[0,0] - go_below*2, 0.03)
+	return [lowval, highval]
+
+
+def correct_weibull(model, num_fail, df=None):
+	if not isinstance(df, pd.DataFrame):
 		return None, num_fail
+	if model.params[0] <= 0:
+		num_fail += 1
+		corr_below = max([1. - num_fail*0.1, 0.65])
+
+		binval, bins = cut_df_corr(df, num_bins=7)
+		contrast_range = get_new_range(binval, bins, 
+			high_corr=corr_below)
+		return contrast_range, num_fail
+	else:
+		num_fail = 0
+		contrast_range = None
+		contrast_lims = model.get_threshold([0.55, 0.9])
+		if contrast_lims[1] > 1.:
+			# 0.9 is off the contrast limits
+			binval, bins = cut_df_corr(df, num_bins=7)
+			contrast_range = get_new_range(binval, bins)
+		if contrast_lims[1] - contrast_lims[0] > 0.75:
+			# the curve is very non-s-like, probably needs correction
+			corr75 = model.get_threshold([0.75])
+			if (contrast_lims[1] - corr75) > (corr75 - contrast_lims[0]):
+				binval, bins = cut_df_corr(df, num_bins=7)
+				contrast_range = get_new_range(binval, bins)
+
+		return contrast_range, num_fail
+
 
 # for interactive plotting:
 # -------------------------
