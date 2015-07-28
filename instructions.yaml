@@ -207,3 +207,55 @@
     pos    : [0.6, -0.7]
     height : 0.07
     wrapWidth: 0.5
+---
+# page 7
+# add info about fixation point and ask participant to fixate on it
+- item     : text
+  value    : 
+    text   : >
+      Poczekaj na eksperymentatora.
+    height : 0.07
+    wrapWidth: 1.5
+- item      : fix
+  value     : 
+    color   : [0.5, 0.5, 0.5]
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+---
+# page 8
+- item     : text
+  value    : 
+    text   : >
+      Poczekaj na eksperymentatora.
+    height : 0.07
+    wrapWidth: 1.5
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
