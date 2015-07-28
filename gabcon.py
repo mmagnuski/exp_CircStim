@@ -156,8 +156,8 @@ if exp['run fitting']:
 			trial += 1
 
 		# fit weibull
-		take_last = min(trial-10, 65)
-		ind = np.r_[trial-take_last:trial] # because np.r_ does not include last value
+		look_back = min(trial-1, 75)
+		ind = np.r_[trial-look_back:trial]
 		w = fitw(fitting_db, ind, init_params=params)
 		params = w.params
 
