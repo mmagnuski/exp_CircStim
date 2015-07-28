@@ -65,6 +65,7 @@ def fix(color=(0.5, 0.5, 0.5)):
 	return dot
 
 # prepare stimuli
+# ---------------
 stim = {}
 stim['window'] = win
 stim['target'] = gabor()
@@ -72,7 +73,6 @@ stim['target'] = gabor()
 
 stim['centerImage'] = visual.ImageStim(win, image=None,
             pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
-
 
 # mask - all gabor directions superposed
 mask_ori = [0, 45, 90, 135]

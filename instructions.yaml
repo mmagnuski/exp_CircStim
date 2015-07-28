@@ -31,7 +31,7 @@
     wrapWidth: 0.5
 
 ---
-# Test page 2
+# page 2
 - item     : text
   value    : 
     text   : >
@@ -65,7 +65,7 @@
     wrapWidth: 0.5
 
 ---
-# Test page 3
+# page 3
 - item     : text
   value    : 
     text   : >
@@ -97,7 +97,7 @@
     wrapWidth: 0.5
 
 ---
-# Test page 4
+# page 4
 - item     : text
   value    : 
     text   : >
@@ -129,7 +129,7 @@
     wrapWidth: 0.5
 
 ---
-# Test page 5
+# page 5
 - item     : text
   value    : 
     text   : >
@@ -161,7 +161,7 @@
     wrapWidth: 0.5
 
 ---
-# Test page 6
+# page 6
 - item     : text
   value    : 
     text   : >
