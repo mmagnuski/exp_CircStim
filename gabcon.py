@@ -180,7 +180,7 @@ if exp['run fitting']:
 		else:
 			keys = plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
 				wait_time=5)
-			if '0' in keys:
+			if keys and '0' in keys:
 				continue_fitting = False
 
 
