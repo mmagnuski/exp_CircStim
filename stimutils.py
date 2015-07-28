@@ -57,6 +57,13 @@ def gabor(win = win, ori = 0, opa = 1.0,
 							  sf      = sf,   ori  = ori,      \
 							  opacity = opa,  units = units)
 
+def fix(color=(0.5, 0.5, 0.5)):
+	dot = visual.Circle(stim['window'], radius=0.15,
+		edges=16, units='deg')
+	dot.setFillColor(color)
+	dot.setLineColor(color)
+	return dot
+
 # prepare stimuli
 stim = {}
 stim['window'] = win
@@ -75,11 +82,7 @@ for o in mask_ori:
 	stim['mask'].append(gabor(ori = o, opa = 0.25))
 
 # fixation
-stim['fix'] = visual.Circle(stim['window'], radius=0.15,
-	edges=16, units='deg')
-stim['fix'].setFillColor([0.5, 0.5, 0.5])
-stim['fix'].setLineColor([0.5, 0.5, 0.5])
-
+stim['fix'] = fix()
 
 # feedback circle:
 stim['feedback'] = visual.Circle(stim['window'], radius=2.5,
@@ -396,7 +399,8 @@ def give_training_db(db, exp=exp, slowdown=8):
 class Instructions:
 
 	nextpage   = 0
-	mapdict    = {'gabor': gabor, 'text': txt_newlines}
+	mapdict    = {'gabor': gabor, 'text': txt_newlines,
+		'fix':fix}
 	navigation = {'left': 'prev',
 				  'right': 'next',
 				  'space': 'next'}
