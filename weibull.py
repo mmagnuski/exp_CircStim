@@ -234,6 +234,9 @@ def cut_df_corr(df, num_bins=7):
 	# trim the dataframe
 	df = trim_df(df)
 
+	# make sure the type is int
+	df.ifcorrect = df.ifcorrect.astype('int')
+
 	# find bin with corr below:
 	bins = pd.cut(df.opacity, num_bins)
 	binval = df.groupby(bins)['ifcorrect'].mean()
