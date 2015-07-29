@@ -34,13 +34,20 @@ if os.name == 'nt' and exp['use trigger']:
 # set logging
 lg = logging.LogFile(f=exp['logfile'], level=logging.WARNING, filemode='w')
 
+# TODO: check for continue?
+# ifcnt = continue_dataframe(exp['data'], exp['participant']['ID'] + '_c.xls')
+#
+# if not ifcnt:
+# 	startTrial = 1
+# else:
+# 	db, startTrial = ifcnt
+# 	exp['numTrials'] = len(db)
 
-# EXPERIMENT
-# ==========
 
-# save participant info at the beginning
+# TODO: save participant info at the beginning
 
 # INSTRUCTIONS
+# ------------
 if exp['run instruct']:
 	instr = Instructions('instructions.yaml')
 	instr.present()
@@ -50,7 +57,6 @@ show_resp_rules()
 
 # TRAINING
 # --------
-
 if exp['run training']:
 	# set things up
 	slow = exp.copy()
@@ -168,6 +174,7 @@ if exp['run fitting']:
 		save_df.to_excel(os.path.join(exp['data'],
 			exp['participant']['ID'] + '_b.xls'))
 
+		# contrast corrections, choosing new contrast samples
 		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
 		check_contrast, contrast_range = get_new_contrast(w, corr_lims=exp['fitCorrLims'],
 			method=exp['search method'], contrast_lims=contrast_range)
@@ -184,7 +191,7 @@ if exp['run fitting']:
 				continue_fitting = False
 
 
-	# save fitting dataframe! TODO: TRIM!
+	# save fitting dataframe
 	trim_df(fitting_db).to_excel(os.path.join(exp['data'],
 		exp['participant']['ID'] + '_b.xls'))
 
@@ -205,15 +212,10 @@ contrast_steps = np.linspace(contrast_range[0], contrast_range[1],
 db = create_database(exp, combine_with=('opacity', contrast_steps), rep=13)
 
 # signal that main proc is about to begin
-# ---------------------------------------
 if exp['use trigger']:
 	windll.inpout32.Out32(exp['port']['port address'], 255)
 	core.wait(0.01)
 	clear_port(exp['port'])
-
-
-# MAIN EXPERIMENT
-# ---------------
 
 # main loop
 for i in range(startTrial, exp['numTrials'] + 1):
@@ -233,4 +235,10 @@ for i in range(startTrial, exp['numTrials'] + 1):
 	core.wait(0.5) # pre-fixation time is always the same
 
 db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_c.xls'))
+
+
+# EXPERIMENT - part t
+# -------------------
+
+# goodbye!
 core.quit()
