@@ -20,7 +20,7 @@ from psychopy  import visual, core, event, logging
 import os
 import numpy  as np
 import pandas as pd
-from exputils  import plot_Feedback
+from exputils  import plot_Feedback, create_database
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim, startTrial,
@@ -192,6 +192,18 @@ if exp['run fitting']:
 if not exp['run main c']:
 	core.quit()
 
+
+# EXPERIMENT - part c
+# -------------------
+
+# get contrast from training
+if 'contrast_range' not in locals():
+	contrast_range = [0.05, 0.35]
+
+contrast_steps = np.linspace(contrast_range[0], contrast_range[1],
+	exp['opac steps'])
+db = create_database(exp, combine_with=('opacity', contrast_steps), rep=13)
+
 # signal that main proc is about to begin
 # ---------------------------------------
 if exp['use trigger']:
@@ -205,7 +217,7 @@ if exp['use trigger']:
 
 # main loop
 for i in range(startTrial, exp['numTrials'] + 1):
-	present_trial(i, exp=exp)
+	present_trial(i, exp=exp, db=db)
 	stim['window'].flip()
 
 	# present break
