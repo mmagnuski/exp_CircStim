@@ -99,6 +99,59 @@ class Button:
 			self.rect_stim.setLineColor(self.click_color)
 
 
+class ClickScale(object):
+	# TODOs: add tickmarks - 0.25, 0.5, 0.75
+	def __init__(self, win=None, size=(0.5, 0.15), pos=(0, 0), 
+		color=(-0.3, -0.3, -0.3), units='norm'):
+		self.win = win
+		# maybe - raise ValueError if win is none
+		self.points = []
+		self.lines = []
+		self.units = units
+		self.color = color
+		self.pos = pos
+		self.line_color = (1.0, -0.3, -0.3)
+		self.scale = visual.Rect(win, pos=pos, width=size[0],
+				height=size[1], fillColor=color, lineColor=color,
+				units=units)
+		# TODO: check if pos is divided by two
+		self.x_extent = [pos[0]-size[0]/2., pos[0]+size[0]/2.]
+		self.x_len = size[0]
+		self.h = size[1]
+
+	def point2xpos(self, point):
+		return self.x_extent[0] + point*self.x_len
+
+	def xpos2point(self, xpos):
+		return (xpos - self.x_extent[0]) / self.x_len
+
+	def test_click(self, mouse):
+		if self.scale.contains(mouse):
+			mouse_pos = mouse.getPos()
+			val = self.xpos2point(mouse_pos[0])
+			self.add_point(val)
+
+	def add_point(self, val):
+		self.points.append(val)
+		pos = [0., self.pos[1]]
+		pos[0] = self.point2xpos(val)
+		ln = visual.Rect(self.win, pos=pos, width=0.01,
+				height=self.h, fillColor=self.line_color, 
+				lineColor=self.line_color, units=self.units)
+		self.lines.append(ln)
+
+	def remove_point(self, ind):
+		try:
+			self.points.pop(ind)
+			self.lines.pop(ind)
+		except:
+			pass
+
+	def draw(self):
+		self.scale.draw()
+		[l.draw() for l in self.lines]
+
+
 def create_database(exp, trials=None, rep=None, combine_with=None):
 	# define column names:
 	colNames = ['time', 'fixTime', 'targetTime', 'SMI', \
