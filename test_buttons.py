@@ -7,8 +7,8 @@ button_pos = np.zeros([3,2])
 button_pos[:,0] = 0.5
 button_pos[:,1] = [0.5, 0., -0.5]
 button_text = list('ABC')
-buttons = [Button(win=win, pos=p, text=t) for p, t in 
-	zip(button_pos, button_text)]
+buttons = [Button(win=win, pos=p, text=t, size=(0.5,0.15))
+	for p, t in zip(button_pos, button_text)]
 mouse = event.Mouse()
 
 [b.draw() for b in buttons]
