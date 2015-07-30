@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from psychopy       import gui
-from psychopy       import event
+from psychopy       import visual, event, gui
 from PIL            import Image
 import numpy  as np
 import pandas as pd
@@ -71,7 +70,7 @@ class Button:
 			buttons[which_clicked[0]].click()
 	'''
 
-	def __init__(self, pos=(0, 0), win=win, size=(0.4, 0.15),
+	def __init__(self, pos=(0, 0), win=None, size=(0.4, 0.15),
 		text='...', box_color=(-0.3, -0.3, -0.3), font_height=0.08,
 		units='norm', click_color=(0.2, -0.3, -0.3)):
 		self.rect_stim = visual.Rect(win, pos=pos, width=size[0],
