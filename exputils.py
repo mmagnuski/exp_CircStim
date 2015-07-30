@@ -39,6 +39,68 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 		return resp
 
 
+class Button:
+	'''
+	Simple button class, does not check itself, needs to be checked
+	in some event loop.
+
+	create buttons
+	--------------
+	win = visual.Window(monitor="testMonitor")
+	button_pos = np.zeros([3,2])
+	button_pos[:,0] = 0.5
+	button_pos[:,1] = [0.5, 0., -0.5]
+	button_text = list('ABC')
+	buttons = [Button(win=win, pos=p, text=t) for p, t in
+		zip(button_pos, button_text)]
+
+	draw buttons
+	------------
+	[b.draw() for b in buttons]
+	win.flip()
+
+	check if buttons were pressed
+	-----------------------------
+	mouse = event.Mouse()
+	m1, m2, m3 = mouse.getPressed()
+	if m1:
+		mouse.clickReset()
+		ifclicked = [b.contains(mouse) for b in buttons]
+		which_clicked = np.where(ifclicked)[0]
+		if which_clicked.size > 0:
+			buttons[which_clicked[0]].click()
+	'''
+
+	def __init__(self, pos=(0, 0), win=win, size=(0.4, 0.15),
+		text='...', box_color=(-0.3, -0.3, -0.3), font_height=0.08,
+		units='norm', click_color=(0.2, -0.3, -0.3)):
+		self.rect_stim = visual.Rect(win, pos=pos, width=size[0],
+			height=size[1], fillColor=box_color, lineColor=box_color,
+			units=units)
+		self.text_stim = visual.TextStim(win, text=text, pos=pos,
+			height=font_height, units=units)
+		self.clicked = False
+		self.orig_color = box_color
+		self.click_color = click_color
+
+	def draw(self):
+		self.rect_stim.draw()
+		self.text_stim.draw()
+
+	def contains(self, obj):
+		return self.rect_stim.contains(obj)
+
+	def click(self):
+		if self.clicked:
+			self.clicked = False
+			self.rect_stim.setFillColor(self.orig_color)
+			self.rect_stim.setLineColor(self.orig_color)
+		else:
+			self.clicked = True
+			self.rect_stim.setFillColor(self.click_color)
+			self.rect_stim.setLineColor(self.click_color)
+
+
 def create_database(exp, trials=None, rep=None, combine_with=None):
 	# define column names:
 	colNames = ['time', 'fixTime', 'targetTime', 'SMI', \
