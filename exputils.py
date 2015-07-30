@@ -32,10 +32,47 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 		stim['centerImage'].size = np.round(imgsize * resize)
 		stim['centerImage'].setImage(im)
 		return stim
-		else:
-			resp = event.waitKeys()
-		return resp
 
+
+class ContrastInterface(object):
+	def __init__(self, exp=None, stim=None):
+		button_pos = np.zeros([3,2])
+		button_pos[:,0] = 0.5
+		button_pos[:,1] = [0.5, 0., -0.5]
+		button_text = ['kontynuuj', 'zakończ', 'edytuj']
+		self.buttons = [Button(win=win, pos=p, text=t,
+			size=(0.35, 0.15)) for p, t in
+			zip(button_pos, button_text)]
+		self.edit_mode = False
+
+		# mouse-related stuff
+		self.mouse = event.Mouse()
+		self.two_windows = 'window2' in stim
+		if self.two_windows:
+			stim['window2'].setMouseVisible(True)
+		else:
+			stim['window'].setMouseVisible(True)
+
+	def draw(self):
+		[b.draw() for b in self.buttons]
+		stim['centerImage'].draw()
+
+	def refresh(self):
+		self.check_mouse_click()
+		if not self.edit_mode and self.buttons[-1].clicked:
+			self.edit_mode = True
+		self.draw()
+		stim['window'].flip()
+
+	def check_mouse_click(self):
+		m1, m2, m3 = self.mouse.getPressed()
+		if m1:
+			self.mouse.clickReset()
+			ifclicked = [b.contains(self.mouse) for b in self.buttons]
+			which_clicked = np.where(ifclicked)[0]
+			if which_clicked.size > 0:
+				self.buttons[which_clicked[0]].click()
+		
 
 class Button:
 	'''
