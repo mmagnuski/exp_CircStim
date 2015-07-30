@@ -11,10 +11,13 @@ import pandas as pd
 
 
 def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
-    # get file names from
-    imfls = plotter.plot(pth)
-    if not isinstance(imfls, type([])):
-    	imfls = [imfls]
+	'''
+	return feedback image in stim['centerImage']. Does not draw the image.
+	'''
+	# get file names from
+	imfls = plotter.plot(pth)
+	if not isinstance(imfls, type([])):
+		imfls = [imfls]
 
 	for im in imfls:
 		# check image size:
@@ -28,11 +31,7 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 		# set image
 		stim['centerImage'].size = np.round(imgsize * resize)
 		stim['centerImage'].setImage(im)
-		stim['centerImage'].draw()
-		stim['window'].update()
-
-		if keys:
-			resp = event.waitKeys(keyList=keys, maxWait=wait_time)
+		return stim
 		else:
 			resp = event.waitKeys()
 		return resp
