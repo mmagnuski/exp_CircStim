@@ -20,7 +20,8 @@ from psychopy  import visual, core, event, logging
 import os
 import numpy  as np
 import pandas as pd
-from exputils  import plot_Feedback, create_database
+from exputils  import (plot_Feedback, create_database,
+	ContrastInterface)
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim,
@@ -183,11 +184,26 @@ if exp['run fitting']:
 		# show weibull fit
 		stim = plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
 			wait_time=1.5)
-		stim['centerImage'].draw()
-		stim['window'].flip()
-		k = event.waitKeys()
-		if k and 'q' in k:
-			continue_fitting = False
+		interf = ContrastInterface(stim=stim)
+
+		interfaceLoop = True
+		stim['window'].units = 'norm'
+		while interfaceLoop:
+			interf.refresh()
+			k = event.getKeys()
+			if k and 'q' in k or 'return' in k:
+				interfaceLoop = False
+			if interf.buttons[1].clicked:
+				interfaceLoop = False
+				continue_fitting = False
+			elif interf.buttons[0].clicked:
+				interfaceLoop = False
+				continue_fitting = True
+		if len(interf.contrast) > 0:
+			check_contrast = interf.contrast
+		stim['window'].setMouseVisible(False)
+		stim['window'].units = 'deg'
+
 
 	# save fitting dataframe
 	trim_df(fitting_db).to_excel(os.path.join(exp['data'],
