@@ -307,7 +307,7 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	db.loc[:, to_float] = db.loc[:, to_float].astype('float64')
 	db.loc[:, to_int] = db.loc[:, to_int].astype('int32')
 
-	return db[1:trials]
+	return db[0:trials]
 
 
 def getFrameRate(win, frames = 25):
