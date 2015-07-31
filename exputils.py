@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from psychopy       import visual, event, gui
+from psychopy       import visual, event, gui, core
 from PIL            import Image
+from utils          import round2step
 import numpy  as np
 import pandas as pd
 
@@ -36,42 +37,86 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 
 class ContrastInterface(object):
 	def __init__(self, exp=None, stim=None):
-		button_pos = np.zeros([3,2])
-		button_pos[:,0] = 0.5
-		button_pos[:,1] = [0.5, 0., -0.5]
-		button_text = ['kontynuuj', 'zakończ', 'edytuj']
-		self.buttons = [Button(win=win, pos=p, text=t,
-			size=(0.35, 0.15)) for p, t in
-			zip(button_pos, button_text)]
-		self.edit_mode = False
 
-		# mouse-related stuff
+		self.stim = stim
+		self.exp  = exp
+
+		# postion ImageStim:
+		self.stim['centerImage'].setPos((-0.4, 0.4))
+		self.stim['centerImage'].setSize((1.2, 1.2))
+
+		# two or one monitor:
 		self.mouse = event.Mouse()
 		self.two_windows = 'window2' in stim
 		if self.two_windows:
-			stim['window2'].setMouseVisible(True)
+			self.win = stim['window2']
+			self.win.setMouseVisible(True)
 		else:
-			stim['window'].setMouseVisible(True)
+			self.win = stim['window']
+			self.win.setMouseVisible(True)
+
+		button_pos = np.zeros([4,2])
+		button_pos[:,0] = 0.7
+		button_pos[:,1] = np.linspace(-0.25, -0.8, num=4)
+		button_text = [u'kontynuuj', u'zakończ', u'edytuj', '0.1']
+		self.buttons = [Button(win=self.win, pos=p, text=t,
+			size=(0.35, 0.12)) for p, t in zip(button_pos, button_text)]
+
+		self.buttons[-1].click_fun = self.cycle_vals
+		self.grain_vals = [0.1, 0.05, 0.01, 0.005]
+		self.current_grain_val = 0
+		self.text = visual.TextStim(win=self.win, text='kontrast:\n',
+			pos=(0.5, 0.5))
+
+		# scale
+		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1))
+		self.edit_mode = False
 
 	def draw(self):
 		[b.draw() for b in self.buttons]
-		stim['centerImage'].draw()
+		if self.buttons[-2].clicked:
+			self.scale.draw()
+			# contrast list
+			step = self.grain_vals[self.current_grain_val]
+			pnts = round2step(np.array(self.scale.points), step=step)
+			txt = 'kontrast:\n' + '\n'.join(map(str, pnts))
+			self.text.setText(txt)
+			self.text.draw()
+		self.stim['centerImage'].draw()
+
+
+
+	def cycle_vals(self):
+		self.current_grain_val += 1
+		if self.current_grain_val >= len(self.grain_vals):
+			self.current_grain_val = 0
+		self.buttons[-1].setText(str(self.grain_vals[self.current_grain_val]))
+		# TODO: change contrast values
 
 	def refresh(self):
 		self.check_mouse_click()
 		if not self.edit_mode and self.buttons[-1].clicked:
 			self.edit_mode = True
 		self.draw()
-		stim['window'].flip()
+		self.win.flip()
+		core.wait(0.1)
 
 	def check_mouse_click(self):
 		m1, m2, m3 = self.mouse.getPressed()
 		if m1:
 			self.mouse.clickReset()
+			# test buttons
 			ifclicked = [b.contains(self.mouse) for b in self.buttons]
 			which_clicked = np.where(ifclicked)[0]
 			if which_clicked.size > 0:
 				self.buttons[which_clicked[0]].click()
+
+			# test scale
+			self.scale.test_click(self.mouse)
+			
+		elif m3:
+			self.mouse.clickReset()
+			self.scale.remove_point(-1)
 		
 
 class Button:
@@ -117,6 +162,7 @@ class Button:
 		self.clicked = False
 		self.orig_color = box_color
 		self.click_color = click_color
+		self.click_fun = self.default_click_fun
 
 	def draw(self):
 		self.rect_stim.draw()
@@ -125,7 +171,10 @@ class Button:
 	def contains(self, obj):
 		return self.rect_stim.contains(obj)
 
-	def click(self):
+	def setText(self, text):
+		self.text_stim.setText(text)
+
+	def default_click_fun(self):
 		if self.clicked:
 			self.clicked = False
 			self.rect_stim.setFillColor(self.orig_color)
@@ -134,6 +183,9 @@ class Button:
 			self.clicked = True
 			self.rect_stim.setFillColor(self.click_color)
 			self.rect_stim.setLineColor(self.click_color)
+
+	def click(self):
+		self.click_fun()
 
 
 class ClickScale(object):
