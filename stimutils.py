@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from psychopy import core, visual, event, monitors
-from settings import exp, db, startTrial
+from settings import exp, db
 from exputils import getFrameRate
 from utils    import trim, to_percent
 import numpy  as np

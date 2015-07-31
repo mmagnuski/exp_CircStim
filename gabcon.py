@@ -23,7 +23,7 @@ import pandas as pd
 from exputils  import plot_Feedback, create_database
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
-from stimutils import (exp, db, stim, startTrial,
+from stimutils import (exp, db, stim,
 	present_trial, present_break, show_resp_rules,
 	present_feedback, present_training, textscreen,
 	give_training_db, Instructions, Stepwise, trim)
@@ -218,7 +218,7 @@ if exp['use trigger']:
 	clear_port(exp['port'])
 
 # main loop
-for i in range(startTrial, exp['numTrials'] + 1):
+for i in range(1, db.shape[0] + 1):
 	present_trial(i, exp=exp, db=db)
 	stim['window'].flip()
 
