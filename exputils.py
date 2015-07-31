@@ -40,6 +40,7 @@ class ContrastInterface(object):
 
 		self.stim = stim
 		self.exp  = exp
+		self.contrast = []
 
 		# postion ImageStim:
 		self.stim['centerImage'].units = 'norm'
@@ -72,24 +73,31 @@ class ContrastInterface(object):
 		self.grain_vals = [0.1, 0.05, 0.01, 0.005]
 		self.current_grain_val = 0
 		self.text = visual.TextStim(win=self.win, text='kontrast:\n',
-			pos=(0.5, 0.5))
+			pos=(0.75, 0.5), units='norm', height=0.1)
+		self.text_height = {0: 0.12, 5: 0.1, 9: 0.06, 15: 0.04, 20: 0.03}
 
 		# scale
 		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1))
 		self.edit_mode = False
+		self.last_pressed = False
 
 	def draw(self):
 		[b.draw() for b in self.buttons]
 		if self.buttons[-2].clicked:
 			self.scale.draw()
-			# contrast list
-			step = self.grain_vals[self.current_grain_val]
-			pnts = round2step(np.array(self.scale.points), step=step)
-			txt = 'kontrast:\n' + '\n'.join(map(str, pnts))
-			self.text.setText(txt)
+			# TODO: this might be moved to refresh:
+			if self.last_pressed:
+				step = self.grain_vals[self.current_grain_val]
+				self.contrast = round2step(np.array(self.scale.points), step=step)
+				txt = 'kontrast:\n' + '\n'.join(map(str, self.contrast))
+				num_cntrst = len(self.contrast)
+				k = np.sort(self.text_height.keys())
+				sel = np.where(np.array(k) <= num_cntrst)[0][-1]
+				self.text.setHeight(self.text_height[k[sel]])
+				self.text.setText(txt)
+				self.last_pressed = False
 			self.text.draw()
 		self.stim['centerImage'].draw()
-
 
 
 	def cycle_vals(self):
@@ -100,12 +108,14 @@ class ContrastInterface(object):
 		# TODO: change contrast values
 
 	def refresh(self):
-		self.check_mouse_click()
+		if_click = self.check_mouse_click()
+		self.last_pressed = if_click
 		if not self.edit_mode and self.buttons[-1].clicked:
 			self.edit_mode = True
 		self.draw()
 		self.win.flip()
-		core.wait(0.1)
+		if if_click:
+			core.wait(0.1)
 
 	def check_mouse_click(self):
 		m1, m2, m3 = self.mouse.getPressed()
@@ -123,6 +133,7 @@ class ContrastInterface(object):
 		elif m3:
 			self.mouse.clickReset()
 			self.scale.remove_point(-1)
+		return m1 or m3
 		
 
 class Button:
