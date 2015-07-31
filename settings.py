@@ -100,4 +100,4 @@ exp['frm'] = getFrameRate(win)
 win.close()
 
 # create base dataframe
-db = create_database(exp, trials=100)
+db = create_database(exp, trials=300)
