@@ -181,15 +181,13 @@ if exp['run fitting']:
 		print check_contrast
 
 		# show weibull fit
-		if trial-1 <= exp['fit until']:
-			plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
-				wait_time=1.5)
-		else:
-			keys = plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
-				wait_time=5)
-			if keys and '0' in keys:
-				continue_fitting = False
-
+		stim = plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
+			wait_time=1.5)
+		stim['centerImage'].draw()
+		stim['window'].flip()
+		k = event.waitKeys()
+		if k and 'q' in k:
+			continue_fitting = False
 
 	# save fitting dataframe
 	trim_df(fitting_db).to_excel(os.path.join(exp['data'],
