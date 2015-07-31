@@ -165,7 +165,7 @@ if exp['run fitting']:
 		# fit weibull
 		look_back = min(trial-1, 75)
 		ind = np.r_[trial-look_back:trial]
-		w = fitw(fitting_db, ind, init_params=params)
+		w = fitw(fitting_db, ind, init_params=[0.,0.])
 		params = w.params
 
 		# save weibull params in fitting_db and save to disk:
