@@ -95,7 +95,11 @@ class Weibull:
 			plt.plot(x, y, zorder = 4, lw=3, color='k')
 
 		# aesthetics
-		maxval = self.get_threshold([0.99])[0] + 0.1
+		gab99 = self.get_threshold([0.99])[0]
+		if gab99 < 0. or gab99 > 1.:
+			maxval = 1.
+		else:
+			maxval = gab99 + 0.1
 		uplim = min([1.0, np.round(maxval, decimals = 1)])
 		plt.xlim([0.0, uplim])
 		plt.ylim([-0.1, 1.1])
