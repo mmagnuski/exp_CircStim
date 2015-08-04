@@ -50,11 +50,11 @@ class ContrastInterface(object):
 		self.stim['centerImage'].units = 'norm'
 		self.stim['centerImage'].setPos((-0.4, 0.4))
 		size = np.array(self.stim['centerImage'].size)
-		print size
+		print 'size pre: ', size
 		if np.any(size > 1.5):
 			prop = size[1]/size[0]
 			self.stim['centerImage'].setSize((1.2, 1.2*prop))
-			print self.stim['centerImage'].size
+			print 'size post: ', self.stim['centerImage'].size
 
 		# two or one monitor:
 		self.mouse = event.Mouse()
