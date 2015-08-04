@@ -4,13 +4,16 @@
 
 # TODOs:
 # [.] add instructions     (!)
-# [.] we need to log and save age, sex of the participant
+# [x] we need to log and save age, sex of the participant
 #     and response mappings etc.
 #     (that would go to settings.py)
 # [ ] add markers to:
 #     -> start (and end?) of each break
 #     ->
-# [ ] test continue_dataframe for overwrite
+# [x] add DataManager class to exputils
+#     - stores relevant path
+#     - saves subject data
+#     - avoids overwrites
 
 
 # imports
@@ -21,7 +24,7 @@ import os
 import numpy  as np
 import pandas as pd
 from exputils  import (plot_Feedback, create_database,
-	ContrastInterface)
+	ContrastInterface, DataManager)
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim,
@@ -33,19 +36,16 @@ if os.name == 'nt' and exp['use trigger']:
 	from ctypes import windll
 
 # set logging
-lg = logging.LogFile(f=exp['logfile'], level=logging.WARNING, filemode='w')
+dm = DataManager(exp)
+exp['keymap'] = dm.keymap
+log_path = dm.give_path('l', file_ending='log')
+lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
 # TODO: check for continue?
-# ifcnt = continue_dataframe(exp['data'], exp['participant']['ID'] + '_c.xls')
-#
-# if not ifcnt:
-# 	startTrial = 1
-# else:
-# 	db, startTrial = ifcnt
-# 	exp['numTrials'] = len(db)
+# if fitting completed -> use data
+# if c part done -> use data
+# check via dm.give_previous_path('b') etc.
 
-
-# TODO: save participant info at the beginning
 
 # INSTRUCTIONS
 # ------------
@@ -80,8 +80,7 @@ if exp['run training']:
 		else:
 			df_train = trim_df(df)
 	# save training database:
-	df_train.to_excel(os.path.join(exp['data'],
-		exp['participant']['ID'] + '_a.xls'))
+	df_train.to_excel(dm.give_path('a'))
 
 
 # ADD some more instructions here
@@ -129,8 +128,7 @@ if exp['run fitting']:
 
 	mean_thresh = np.mean(s.reversals) if s.reversals else c
 	# save fitting dataframe
-	fitting_db.to_excel(os.path.join(exp['data'], 
-		exp['participant']['ID'] + '_b.xls'))
+	fitting_db.to_excel(dm.give_path('b'))
 
 
 	# Contrast fitting - weibull
@@ -172,8 +170,7 @@ if exp['run fitting']:
 		fitting_db.loc[trial-1, 'w1'] = params[0]
 		fitting_db.loc[trial-1, 'w2'] = params[1]
 		save_df = trim_df(fitting_db)
-		save_df.to_excel(os.path.join(exp['data'],
-			exp['participant']['ID'] + '_b.xls'))
+		save_df.to_excel(dm.give_path('b'))
 
 		# contrast corrections, choosing new contrast samples
 		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
@@ -206,8 +203,7 @@ if exp['run fitting']:
 
 
 	# save fitting dataframe
-	trim_df(fitting_db).to_excel(os.path.join(exp['data'],
-		exp['participant']['ID'] + '_b.xls'))
+	trim_df(fitting_db).to_excel(dm.give_path('b'))
 
 # stop here if not running final proc:
 if not exp['run main c']:
@@ -239,7 +235,7 @@ for i in range(1, db.shape[0] + 1):
 	# present break
 	if (i) % exp['break after'] == 0:
 		# save data before every break
-		db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_c.xls'))
+		db.to_excel(dm.give_path('c'))
 		# break and refresh keyboard mapping
 		present_break(i)
 		show_resp_rules()
@@ -248,7 +244,7 @@ for i in range(1, db.shape[0] + 1):
 	stim['window'].flip()
 	core.wait(0.5) # pre-fixation time is always the same
 
-db.to_excel(os.path.join(exp['data'], exp['participant']['ID'] + '_c.xls'))
+db.to_excel(dm.give_path('c'))
 
 
 # EXPERIMENT - part t

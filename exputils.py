@@ -3,6 +3,10 @@
 from psychopy       import visual, event, gui, core
 from PIL            import Image
 from utils          import round2step
+
+import os
+import re
+import yaml
 import numpy  as np
 import pandas as pd
 
@@ -382,3 +386,63 @@ def getSubject():
         user = None
 
     return user
+
+
+class DataManager(object):
+	'''manges data paths for the experiment - avoiding overwrites etc.'''
+	def __init__(self, exp):
+		self.keymap = exp['keymap']
+		self.ID = exp['participant']['ID'] 
+		self.age = exp['participant']['age']
+		self.sex = exp['participant']['sex']
+		self.val = dict()
+		self.path = dict()
+		self.path['data'] = exp['data']
+		self.path['ID'] = os.path.join(self.path['data'], self.ID)
+
+		# check if such subject has been created
+		# if so - read keymap
+		self.subj_present = os.path.isfile(self.path['ID'])
+		if self.subj_present:
+			self.read()
+		else:
+			self.write()
+
+	def read(self):
+		with open(self.path['ID'], 'r') as f:
+			data = yaml.load(f)
+		self.keymap = data['key-mapping']
+		self.age = data['age']
+		self.sex = data['sex']
+
+	def give_path(self, path_type, file_ending='xls'):
+		if path_type in self.path and self.path[path_type]:
+			return self.path[path_type]
+		else:
+			pattern = self.ID + '_{}_([0-9]+)\.'.format(path_type) + file_ending
+			def get_repval(pattern, s):
+				r = re.search(pattern, s)
+				return int(r.groups()[0]) if r else 0
+			fls = os.listdir(self.path['data'])
+			self.val[path_type] = max([get_repval(pattern, s) for s in fls]) + 1
+			self.path[path_type] = os.path.join(self.path['data'], self.ID +
+				'_{}_{}.'.format(path_type, self.val[path_type]) + file_ending)
+			return self.path[path_type]
+
+	def give_previous_path(self, path_type, file_ending='xls'):
+		# make sure current path was checked
+		self.give_path(self, path_type, file_ending=file_ending)
+		# get previous:
+		prev_val = self.val[path_type] - 1
+		if prev_val == 0:
+			return ''
+		else:
+			return os.path.join(self.path['data'], self.ID + '_{}_{}.'.format(
+				path_type, prev_val) + file_ending)
+
+
+	def write(self):
+		save_data = {'ID': self.ID, 'age': self.age,
+			'sex':self.sex, 'key-mapping': self.keymap}
+		with open(self.path['ID'], 'w') as f:
+			f.write(yaml.dump(save_data))
