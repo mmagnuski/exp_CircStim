@@ -40,8 +40,8 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 
 
 class ContrastInterface(object):
-	def __init__(self, exp=None, stim=None):
 
+	def __init__(self, exp=None, stim=None):
 		self.stim = stim
 		self.exp  = exp
 		self.contrast = []
@@ -85,6 +85,7 @@ class ContrastInterface(object):
 		self.edit_mode = False
 		self.last_pressed = False
 
+
 	def draw(self):
 		[b.draw() for b in self.buttons]
 		if self.buttons[-2].clicked:
@@ -111,6 +112,7 @@ class ContrastInterface(object):
 		self.buttons[-1].setText(str(self.grain_vals[self.current_grain_val]))
 		# TODO: change contrast values
 
+
 	def refresh(self):
 		if_click = self.check_mouse_click()
 		self.last_pressed = if_click
@@ -120,6 +122,7 @@ class ContrastInterface(object):
 		self.win.flip()
 		if if_click:
 			core.wait(0.1)
+
 
 	def check_mouse_click(self):
 		m1, m2, m3 = self.mouse.getPressed()
@@ -138,7 +141,7 @@ class ContrastInterface(object):
 			self.mouse.clickReset()
 			self.scale.remove_point(-1)
 		return m1 or m3
-		
+
 
 class Button:
 	'''
@@ -185,15 +188,19 @@ class Button:
 		self.click_color = click_color
 		self.click_fun = self.default_click_fun
 
+
 	def draw(self):
 		self.rect_stim.draw()
 		self.text_stim.draw()
 
+
 	def contains(self, obj):
 		return self.rect_stim.contains(obj)
 
+
 	def setText(self, text):
 		self.text_stim.setText(text)
+
 
 	def default_click_fun(self):
 		if self.clicked:
@@ -205,12 +212,13 @@ class Button:
 			self.rect_stim.setFillColor(self.click_color)
 			self.rect_stim.setLineColor(self.click_color)
 
+
 	def click(self):
 		self.click_fun()
 
 
 class ClickScale(object):
-	# TODOs: add tickmarks - 0.25, 0.5, 0.75
+
 	def __init__(self, win=None, size=(0.5, 0.15), pos=(0, 0), 
 		color=(-0.3, -0.3, -0.3), units='norm'):
 		self.win = win
@@ -229,17 +237,21 @@ class ClickScale(object):
 		self.x_len = size[0]
 		self.h = size[1]
 
+
 	def point2xpos(self, point):
 		return self.x_extent[0] + point*self.x_len
 
+
 	def xpos2point(self, xpos):
 		return (xpos - self.x_extent[0]) / self.x_len
+
 
 	def test_click(self, mouse):
 		if self.scale.contains(mouse):
 			mouse_pos = mouse.getPos()
 			val = self.xpos2point(mouse_pos[0])
 			self.add_point(val)
+
 
 	def add_point(self, val):
 		self.points.append(val)
@@ -250,12 +262,14 @@ class ClickScale(object):
 				lineColor=self.line_color, units=self.units)
 		self.lines.append(ln)
 
+
 	def remove_point(self, ind):
 		try:
 			self.points.pop(ind)
 			self.lines.pop(ind)
 		except:
 			pass
+
 
 	def draw(self):
 		self.scale.draw()
@@ -408,12 +422,14 @@ class DataManager(object):
 		else:
 			self.write()
 
+
 	def read(self):
 		with open(self.path['ID'], 'r') as f:
 			data = yaml.load(f)
 		self.keymap = data['key-mapping']
 		self.age = data['age']
 		self.sex = data['sex']
+
 
 	def give_path(self, path_type, file_ending='xls'):
 		if path_type in self.path and self.path[path_type]:
@@ -428,6 +444,7 @@ class DataManager(object):
 			self.path[path_type] = os.path.join(self.path['data'], self.ID +
 				'_{}_{}.'.format(path_type, self.val[path_type]) + file_ending)
 			return self.path[path_type]
+
 
 	def give_previous_path(self, path_type, file_ending='xls'):
 		# make sure current path was checked
