@@ -18,6 +18,7 @@ exp['run instruct'] = True
 exp['run training'] = False
 exp['run fitting']  = True
 exp['run main c']   = False
+exp['run main t']   = False
 exp['break after']  = 15  # how often subjects have a break
 exp['corrLims']    = [0.55, 0.9]
 exp['opacity']     = [0.05, 0.8]
@@ -32,7 +33,6 @@ exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.95]
 exp['step until']   = [10, 35]  # continue stepwise until this trial
 exp['fit until']    = 100 # continue fitting until this trial
 exp['fitCorrLims']  = [0.55, 0.9]
-exp['fit decide']   = ['1', '0']
 exp['search method']= '4steps'
 exp['max fit']      = 300
 

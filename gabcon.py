@@ -69,7 +69,8 @@ if exp['run training']:
 	for s, c in zip(exp['train slow'], exp['train corr']):
 		df, current_corr = present_training(exp=slow, slowdown=s, corr=c)
 		if s == 1:
-			addtxt = 'Koniec treningu.'
+			addtxt = (u'Koniec treningu.\nAby przejść dalej ' +
+				'naciśnij spację.')
 		now_txt = txt + addtxt
 		textscreen(now_txt.format(to_percent(current_corr)))
 		show_resp_rules()

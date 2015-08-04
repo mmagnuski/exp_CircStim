@@ -10,10 +10,6 @@ import yaml
 import numpy  as np
 import pandas as pd
 
-# TODOs:
-# [ ] - continue_dataframe should test for overwrite
-#
-
 
 def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 	'''
@@ -345,19 +341,15 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	return db[0:trials]
 
 
-def getFrameRate(win, frames = 25):
+def getFrameRate(win, frames=25):
 	# get frame rate
-	print "testing frame rate..."
 	frame = {}
 	frame['rate'] = win.getActualFrameRate(nIdentical = frames)
 	frame['time'] = 1000.0 / frame['rate']
-	print "frame rate: " + str(frame['rate'])
-	print "time per frame: " + str(frame['time'])
 	return frame
 
 
 def ms2frames(times, frame_time):
-
 	tp = type(times)
 	if tp == type([]):
 	    frms = []
