@@ -4,16 +4,9 @@
 
 # TODOs:
 # [.] add instructions     (!)
-# [x] we need to log and save age, sex of the participant
-#     and response mappings etc.
-#     (that would go to settings.py)
 # [ ] add markers to:
 #     -> start (and end?) of each break
 #     ->
-# [x] add DataManager class to exputils
-#     - stores relevant path
-#     - saves subject data
-#     - avoids overwrites
 
 
 # imports
