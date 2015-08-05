@@ -48,6 +48,7 @@ if exp['run instruct']:
 	show_resp_rules(exp=exp, text=u"Tak wygląda ekran przerwy.")
 	instr.present()
 
+
 # show response rules:
 show_resp_rules()
 
