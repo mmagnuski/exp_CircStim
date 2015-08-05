@@ -44,6 +44,8 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # ------------
 if exp['run instruct']:
 	instr = Instructions('instructions.yaml')
+	instr.present(stop=8)
+	show_resp_rules(exp=exp, text=u"Tak wygląda ekran przerwy.")
 	instr.present()
 
 # show response rules:
