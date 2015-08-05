@@ -398,6 +398,7 @@ class DataManager(object):
 	'''manges data paths for the experiment - avoiding overwrites etc.'''
 	def __init__(self, exp):
 		self.keymap = exp['keymap']
+		self.choose_resp = exp['choose_resp']
 		self.ID = exp['participant']['ID'] 
 		self.age = exp['participant']['age']
 		self.sex = exp['participant']['sex']
@@ -455,3 +456,11 @@ class DataManager(object):
 			'sex':self.sex, 'key-mapping': self.keymap}
 		with open(self.path['ID'], 'w') as f:
 			f.write(yaml.dump(save_data))
+
+
+	def update_exp(self, exp):
+		exp['choose_resp'] = self.choose_resp
+		exp['keymap'] = self.keymap
+		exp['participant']['sex'] = self.sex
+		exp['participant']['age'] = self.age
+		return exp

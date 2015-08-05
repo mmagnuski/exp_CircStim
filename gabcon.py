@@ -30,7 +30,7 @@ if os.name == 'nt' and exp['use trigger']:
 
 # set logging
 dm = DataManager(exp)
-exp['keymap'] = dm.keymap
+exp = dm.update_exp(exp)
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
