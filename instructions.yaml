@@ -12,8 +12,8 @@
       Witaj,\ndziękujemy że zgodzi[łeś/łaś] się wziąć udział w
       eksperymencie.\nEksperyment dotyczy neuronalnych
       mechanizmów percepcji.\nTwoim zadaniem będzie odpowiadanie
-      w jakiej orientacji pojawił się bodziec.\nPrzykładowy
-      bodziec możesz zobaczyć poniżej:
+      w jakiej orientacji\npojawił się wzorek (bodziec).\nPrzykładowy
+      wzorek możesz zobaczyć poniżej:
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
@@ -214,14 +214,13 @@
   value    : 
     text   : >
       Wszystkie bodźce będą pojawiać się na środku ekranu.\nPrzed pojawieniem
-      się bodźca środek ekranu będzie oznaczony kropką\n(taką jak poniżej). Dla
-      poprawnego przebiegu eksperymentu ważne jest abyś patrzy[ła/ł] cały czas na
+      się bodźca środek ekranu\nbędzie oznaczony kropką (taką jak poniżej).\nDla
+      poprawnego przebiegu eksperymentu ważne jest abyś patrzy[ł/ła] cały czas na
       środek ekranu. W związku z tym podczas eksperymentu należy utrzymywać wzrok na kropce, kiedy tylko
-      będzie obecna na ekranie. Podczas przerw nie będzie to konieczne - będziesz
-      m[ogła/ógł] patrzeć się gdzie chcesz.
+      będzie obecna na ekranie.
     pos    : [0, 0.5]
     height : 0.07
-    wrapWidth: 1.5
+    wrapWidth: 1.25
 - item      : fix
   value     : 
     color   : [0.5, 0.5, 0.5]
@@ -229,7 +228,7 @@
 - item     : text
   value    : 
     text   : >
-      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji
       naciśnij strzałkę w lewo
     pos    : [-0.6, -0.7]
     height : 0.07
@@ -241,15 +240,17 @@
     pos    : [0.6, -0.7]
     height : 0.07
     wrapWidth: 0.5
+
 ---
 # page 8
 - item     : text
   value    : 
     text   : >
-      Przerwy będą się pojawiać regularnie w eksperymencie. Podczas przerwy
-      możesz się patrzeć gdzie chesz. Przerwa może trwać tyle ile potrzebujesz
+      W trakcie eksperymentu regularnie pojawiać się będzie informacja o przerwie.\nPodczas
+      przerwy możesz się patrzeć gdzie chesz. Przerwa może trwać tyle ile potrzebujesz
       - kończysz przerwę naciskając spację. Podczas przerwy na ekranie wyświetlane
-      będzie przypomnienie o tym jak należy reagować na jakie bodźce.
+      będzie przypomnienie o tym jak należy reagować na jakie bodźce. Za chwilę zobaczysz
+      przykładowy ekran przerwy.
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
@@ -257,7 +258,7 @@
 - item     : text
   value    : 
     text   : >
-      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji
       naciśnij strzałkę w lewo
     pos    : [-0.6, -0.7]
     height : 0.07
@@ -274,7 +275,7 @@
 - item     : text
   value    : 
     text   : >
-      Po każdej prezentacji bodźca będziesz mieć 1.5 sekundy na odpowiedź.\nStaraj
+      Po każdej prezentacji bodźca będziesz mia[ł/ła] 1.5 sekundy na odpowiedź.\nStaraj
       się odpowiadać najszybciej jak potrafisz.\nJeżeli nie zdążysz zareagować na
       bodziec w ciągu 1.5 sekundy, program przejdzie do prezentacji kolejnych bodźców.
     pos    : [0, 0.5]
