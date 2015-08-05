@@ -64,12 +64,21 @@ def fix(color=(0.5, 0.5, 0.5)):
 	dot.setLineColor(color)
 	return dot
 
+
 # prepare stimuli
 # ---------------
 stim = {}
 stim['window'] = win
 stim['target'] = gabor()
-# CHANGE - window size, so that it is accurate...
+
+def feedback_circle(win=stim['window'], radius=2.5, edges=64,
+	color='green', pos=[0,0]):
+	color_mapping = {'green': [0.1, 0.9, 0.1], 'red': [0.9, 0.1, 0.1]}
+	color = color_mapping[color]
+	circ = visual.Circle(win, pos=pos, radius=radius, edges=edges, units='deg')
+	circ.setFillColor(color)
+	circ.setLineColor(color)
+	return circ
 
 stim['centerImage'] = visual.ImageStim(win, image=None,
             pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
@@ -85,8 +94,7 @@ for o in mask_ori:
 stim['fix'] = fix()
 
 # feedback circle:
-stim['feedback'] = visual.Circle(stim['window'], radius=2.5,
-	edges=32, units='deg')
+stim['feedback'] = feedback_circle()
 
 
 # TRIGGERS
@@ -419,7 +427,7 @@ class Instructions:
 
 	nextpage   = 0
 	mapdict    = {'gabor': gabor, 'text': txt_newlines,
-		'fix':fix}
+		'fix':fix, 'feedback': feedback_circle}
 	navigation = {'left': 'prev',
 				  'right': 'next',
 				  'space': 'next'}
