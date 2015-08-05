@@ -332,7 +332,7 @@ class TimeShuffle(object):
 # -----------------
 
 # this should go to instructions module
-def show_resp_rules(exp = exp, win = stim['window']):
+def show_resp_rules(exp=exp, win=stim['window'], text=None):
 
 	# create diagonal on one side and cardinal on the other
 	ch    = exp['choose_resp']
@@ -371,6 +371,10 @@ def show_resp_rules(exp = exp, win = stim['window']):
 
 	for g in stims:
 		g.draw()
+
+	# draw text if necessary:
+	if text:
+		visual.TextStim(win, text=text).draw()	
 
 	win.flip()
 
