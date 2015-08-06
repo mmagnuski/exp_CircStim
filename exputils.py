@@ -122,7 +122,7 @@ class ContrastInterface(object):
 		if not self.edit_mode and self.buttons[-1].clicked:
 			self.edit_mode = True
 		self.draw()
-		self.win.flip()
+		self.win.flip(clearBuffer=False)
 		if if_click:
 			core.wait(0.1)
 
