@@ -132,6 +132,7 @@ class ContrastInterface(object):
 		if m1:
 			self.mouse.clickReset()
 			# test buttons
+			print "mouse click pos: ", self.mouse.getPos()
 			ifclicked = [b.contains(self.mouse) for b in self.buttons]
 			which_clicked = np.where(ifclicked)[0]
 			if which_clicked.size > 0:
