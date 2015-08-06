@@ -42,6 +42,22 @@ class ContrastInterface(object):
 		self.exp  = exp
 		self.contrast = []
 
+		# monitor setup
+		# -------------
+		self.mouse = event.Mouse()
+		self.two_windows = 'window2' in stim
+		if self.two_windows:
+			self.win = stim['window2']
+			self.wait_txt = visual.TextStim(stim['window'],
+				text=u'Proszę czekać, trwa dobieranie kontrastu...')
+			self.wait_txt.draw()
+			stim['window'].flip()
+		else:
+			self.win = stim['window']
+		self.win.setMouseVisible(True)
+		self.origunits = self.win.units
+		self.win.units = 'norm'
+
 		# postion ImageStim:
 		self.stim['centerImage'].units = 'norm'
 		self.stim['centerImage'].setPos((-0.4, 0.4))
@@ -52,15 +68,6 @@ class ContrastInterface(object):
 			self.stim['centerImage'].setSize((1.2, 1.2*prop))
 			print 'size post: ', self.stim['centerImage'].size
 
-		# two or one monitor:
-		self.mouse = event.Mouse()
-		self.two_windows = 'window2' in stim
-		if self.two_windows:
-			self.win = stim['window2']
-			self.win.setMouseVisible(True)
-		else:
-			self.win = stim['window']
-			self.win.setMouseVisible(True)
 
 		button_pos = np.zeros([4,2])
 		button_pos[:,0] = 0.7
@@ -137,6 +144,11 @@ class ContrastInterface(object):
 			self.mouse.clickReset()
 			self.scale.remove_point(-1)
 		return m1 or m3
+
+
+	def quit(self):
+		self.win.setMouseVisible(False)
+		self.win.units = self.origunits
 
 
 class Button:

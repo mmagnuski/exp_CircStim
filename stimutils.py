@@ -8,7 +8,7 @@ import numpy  as np
 import yaml
 import re
 
-# import monitor settings
+# setup monitor
 monitorName = "testMonitor"
 monitors = monitors.getAllMonitors()
 if "BENQ-XL2411" in monitors:
@@ -16,8 +16,11 @@ if "BENQ-XL2411" in monitors:
 
 # create a window
 # ---------------
-win = visual.Window(monitor=monitorName,
-    units="deg", color = [-0.2, -0.2, -0.2], fullscr=True)
+winkeys = {'units' : 'deg', 'fullscr' : True,
+	'color' : [-0.2, -0.2, -0.2], 'monitor' : monitorName}
+if exp['two screens']:
+	winkeys.update({'screen' : 0})	
+win = visual.Window(**winkeys)
 win.setMouseVisible(False)
 
 
@@ -69,6 +72,9 @@ def fix(color=(0.5, 0.5, 0.5)):
 # ---------------
 stim = {}
 stim['window'] = win
+if exp['two screens']:
+	winkeys.update({'screen' : 1})	
+	stim['window2'] = visual.Window(**winkeys)
 stim['target'] = gabor()
 
 def feedback_circle(win=stim['window'], radius=2.5, edges=64,
@@ -80,7 +86,11 @@ def feedback_circle(win=stim['window'], radius=2.5, edges=64,
 	circ.setLineColor(color)
 	return circ
 
-stim['centerImage'] = visual.ImageStim(win, image=None,
+if exp['two screens']:
+	imgwin = stim['window2']
+else:
+	imgwin = stim['window']
+stim['centerImage'] = visual.ImageStim(imgwin, image=None,
             pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
 
 # mask - all gabor directions superposed

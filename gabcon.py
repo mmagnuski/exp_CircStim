@@ -180,7 +180,7 @@ if exp['run fitting']:
 		interf = ContrastInterface(stim=stim)
 
 		interfaceLoop = True
-		stim['window'].units = 'norm'
+		# stim['window'].units = 'norm'
 		while interfaceLoop:
 			interf.refresh()
 			k = event.getKeys()
@@ -192,11 +192,10 @@ if exp['run fitting']:
 			elif interf.buttons[0].clicked:
 				interfaceLoop = False
 				continue_fitting = True
+		interf.quit()
 		if len(interf.contrast) > 0:
 			check_contrast = interf.contrast
 		print 'interface contrast: ', interf.contrast
-		stim['window'].setMouseVisible(False)
-		stim['window'].units = 'deg'
 
 
 	# save fitting dataframe

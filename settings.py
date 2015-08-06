@@ -11,6 +11,7 @@ from exputils  import (ms2frames, getSubject,
 # -------------------
 exp = {}
 exp['debug']        = True
+exp['two screens']  = True
 exp['clock']        = core.Clock()
 exp['use trigger']  = False
 exp['port address'] = '0xDC00' # string, for example '0xD05'
