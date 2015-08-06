@@ -66,7 +66,7 @@ if exp['run training']:
 		df, current_corr = present_training(exp=slow, slowdown=s, corr=c)
 		if s == 1:
 			addtxt = (u'Koniec treningu.\nAby przejść dalej ' +
-				'naciśnij spację.')
+				u'naciśnij spację.')
 		now_txt = txt + addtxt
 		textscreen(now_txt.format(to_percent(current_corr)))
 		show_resp_rules()
@@ -176,8 +176,7 @@ if exp['run fitting']:
 		print check_contrast
 
 		# show weibull fit
-		stim = plot_Feedback(stim, w, exp['data'], keys=exp['fit decide'], 
-			wait_time=1.5)
+		stim = plot_Feedback(stim, w, exp['data'])
 		interf = ContrastInterface(stim=stim)
 
 		interfaceLoop = True
