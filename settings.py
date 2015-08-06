@@ -23,7 +23,7 @@ exp['run main t']   = False
 exp['break after']  = 15  # how often subjects have a break
 exp['corrLims']    = [0.55, 0.9]
 exp['opacity']     = [0.05, 0.8]
-exp['min opac']    = 0.02
+exp['min opac']    = 0.01
 exp['opac steps']  = 10
 
 # training settings
