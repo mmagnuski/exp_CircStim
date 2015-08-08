@@ -50,7 +50,7 @@ if exp['run instruct']:
 
 
 # show response rules:
-show_resp_rules()
+show_resp_rules(exp=exp)
 
 # TRAINING
 # --------
