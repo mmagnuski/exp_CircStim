@@ -12,7 +12,7 @@
       Witaj,\ndziękujemy że zgodzi[łeś/łaś] się wziąć udział w
       eksperymencie.\nEksperyment dotyczy neuronalnych
       mechanizmów percepcji.\nTwoim zadaniem będzie odpowiadanie
-      w jakiej orientacji\npojawił się wzorek (bodziec).\nPrzykładowy
+      jakie nachylenie miał prezentowany wzorek (bodziec).\nPrzykładowy
       wzorek możesz zobaczyć poniżej:
     pos    : [0, 0.5]
     height : 0.07
@@ -247,7 +247,7 @@
   value    : 
     text   : >
       W trakcie eksperymentu regularnie pojawiać się będzie informacja o przerwie.\nPodczas
-      przerwy możesz się patrzeć gdzie chesz. Przerwa może trwać tyle ile potrzebujesz
+      przerwy możesz sobie odpocząć. Możesz wtedy patrzeć się gdzie chesz. Przerwa może trwać tyle ile potrzebujesz
       - kończysz przerwę naciskając spację. Podczas przerwy na ekranie wyświetlane
       będzie przypomnienie o tym jak należy reagować na jakie bodźce. Za chwilę zobaczysz
       przykładowy ekran przerwy.
