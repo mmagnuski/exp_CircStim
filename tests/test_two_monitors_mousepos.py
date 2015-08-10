@@ -15,7 +15,7 @@ create_win = lambda s: Window(size=(1280,1024), fullscr=True,
 	monitor="testMonitor", screen=s)
 win1 = create_win(0)
 win2 = create_win(1)
-mouse = event.Mouse()
+mouse = event.Mouse(win=win2)
 # draw some text on the Window
 txt = list()
 txt.append(TextStim(win1, text="This is screen 1"))
