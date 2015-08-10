@@ -17,7 +17,7 @@ import os
 import numpy  as np
 import pandas as pd
 from exputils  import (plot_Feedback, create_database,
-	ContrastInterface, DataManager)
+	ContrastInterface, DataManager, ExperimenterInfo)
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim,
@@ -38,7 +38,7 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # if fitting completed -> use data
 # if c part done -> use data
 # check via dm.give_previous_path('b') etc.
-
+exp_info = ExperimenterInfo(exp, stim)
 
 # INSTRUCTIONS
 # ------------
@@ -58,24 +58,38 @@ if exp['run training']:
 	# set things up
 	slow = exp.copy()
 	df_train = []
+	num_training_blocks = len(exp['train slow'])
+	current_block = 0
+
 	slow['opacity'] = [1.0, 1.0]
 	txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
 	addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.' +
 		u'\nAby przejść dalej naciśnij spację.')
+
 	for s, c in zip(exp['train slow'], exp['train corr']):
+		# present current training block until correctness is achieved
 		df, current_corr = present_training(exp=slow, slowdown=s, corr=c)
+		current_block += 1
+
+		# update experimenter info:
+		exp_info.training_info([current_block, num_training_blocks],
+			current_corr)
+
+		# show info for the subject:
 		if s == 1:
 			addtxt = (u'Koniec treningu.\nAby przejść dalej ' +
 				u'naciśnij spację.')
 		now_txt = txt + addtxt
 		textscreen(now_txt.format(to_percent(current_corr)))
 		show_resp_rules()
+
 		# concatenate training db's (and change indexing)
 		if df_train:
 			df_train = pd.concat([df_train, trim_df(df)])
 			df_train.index = np.r_[1:df_train.shape[0]+1]
 		else:
 			df_train = trim_df(df)
+
 	# save training database:
 	df_train.to_excel(dm.give_path('a'))
 
