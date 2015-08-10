@@ -35,26 +35,37 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 		return stim
 
 
-class ContrastInterface(object):
+class Interface(object):
+	exp = None
+	stim = None
+	def __init__(self, exp, stim):
+		self.exp = exp
+		self.stim =self.stim
+		self.two_windows = 'window2' in stim
+		if self.two_windows:
+			self.win = stim['window2']
+
+			if self.wait_text:
+				self.wait_txt = visual.TextStim(stim['window'],
+					text=self.wait_text)
+				self.wait_txt.draw()
+				stim['window'].flip()
+		else:
+			self.win = stim['window']
+
+
+class ContrastInterface(Interface):
 
 	def __init__(self, exp=None, stim=None):
-		self.stim = stim
-		self.exp  = exp
 		self.contrast = []
 
 		# monitor setup
 		# -------------
-		self.mouse = event.Mouse()
-		self.two_windows = 'window2' in stim
-		if self.two_windows:
-			self.win = stim['window2']
-			self.wait_txt = visual.TextStim(stim['window'],
-				text=u'Proszę czekać, trwa dobieranie kontrastu...')
-			self.wait_txt.draw()
-			stim['window'].flip()
-		else:
-			self.win = stim['window']
+		self.wait_text = u'Proszę czekać, trwa dobieranie kontrastu...'	
+		super(ContrastInterface, self).__init__(exp, stim)	
+
 		self.win.setMouseVisible(True)
+		self.mouse = event.Mouse(win=self.win)
 		self.origunits = self.win.units
 		self.win.units = 'norm'
 
