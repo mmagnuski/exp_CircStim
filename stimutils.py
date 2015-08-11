@@ -30,6 +30,7 @@ win.setMouseVisible(False)
 def txt(win=win, **kwargs):
 	return visual.TextStim(win, units='norm', **kwargs)
 
+
 def txt_newlines(win=win, exp=exp, text='', **kwargs):
 	text = text.replace('\\n', '\n')
 	text = text.replace('[90button]', exp['keymap'][90])
@@ -51,6 +52,7 @@ def txt_newlines(win=win, exp=exp, text='', **kwargs):
 
 	return visual.TextStim(win, text=text, units='norm', **kwargs)
 
+
 # gabor creation
 def gabor(win = win, ori = 0, opa = 1.0,
 		  pos  = [0, 0], size = exp['gabor size'],
@@ -60,6 +62,7 @@ def gabor(win = win, ori = 0, opa = 1.0,
 							  sf      = sf,   ori  = ori,      \
 							  opacity = opa,  units = units)
 
+
 def fix(color=(0.5, 0.5, 0.5)):
 	dot = visual.Circle(stim['window'], radius=0.15,
 		edges=16, units='deg')
@@ -68,16 +71,7 @@ def fix(color=(0.5, 0.5, 0.5)):
 	return dot
 
 
-# prepare stimuli
-# ---------------
-stim = {}
-stim['window'] = win
-if exp['two screens']:
-	winkeys.update({'screen' : 1})	
-	stim['window2'] = visual.Window(**winkeys)
-stim['target'] = gabor()
-
-def feedback_circle(win=stim['window'], radius=2.5, edges=64,
+def feedback_circle(win=win, radius=2.5, edges=64,
 	color='green', pos=[0,0]):
 	color_mapping = {'green': [0.1, 0.9, 0.1], 'red': [0.9, 0.1, 0.1]}
 	color = color_mapping[color]
@@ -86,24 +80,32 @@ def feedback_circle(win=stim['window'], radius=2.5, edges=64,
 	circ.setLineColor(color)
 	return circ
 
+
+# prepare stimuli
+# ---------------
+stim = {}
+stim['window'] = win
+
+# resolve multiple screens stuff
 if exp['two screens']:
+	winkeys.update({'screen' : 1})	
+	stim['window2'] = visual.Window(**winkeys)
 	imgwin = stim['window2']
 else:
 	imgwin = stim['window']
+
+stim['target'] = gabor()
 stim['centerImage'] = visual.ImageStim(imgwin, image=None,
-            pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
+	pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
 
 # mask - all gabor directions superposed
 mask_ori = [0, 45, 90, 135]
 stim['mask'] = []
-
 for o in mask_ori:
 	stim['mask'].append(gabor(ori = o, opa = 0.25))
 
-# fixation
+# fixation and feedback circle:
 stim['fix'] = fix()
-
-# feedback circle:
 stim['feedback'] = feedback_circle()
 
 
