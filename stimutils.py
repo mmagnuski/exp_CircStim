@@ -353,7 +353,7 @@ class TimeShuffle(object):
 def show_resp_rules(exp=exp, win=stim['window'], text=None):
 
 	# create diagonal on one side and cardinal on the other
-	ch    = exp['choose_resp']
+	ch    = int(exp['keymap'][45] == exp['use keys'][0])
 
 	stims = []
 	ornt      = [[0, 90], [45, 135]]
@@ -368,25 +368,19 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 						   units = 'deg'))
 
 	# add info on correct responses
-	tx = [
-		u'naciśnij  ' + exp['keymap'][ornt[0]],
-		u'naciśnij  ' + exp['keymap'][ornt[2]],
-		u'aby przejść dalej naciśnij spację'
-		]
-	positions = [
-		[-0.5, 0.75],
-		[0.5, 0.75],
-		[0, -0.85]
-		]
+	tx = [ u'naciśnij  ' + exp['keymap'][ornt[0]],
+		   u'naciśnij  ' + exp['keymap'][ornt[2]],
+		   u'aby przejść dalej naciśnij spację' ]
+	positions = [[-0.5, 0.75], [0.5, 0.75], [0, -0.85]]
 	txStim = []
 
 	for t, p in zip(tx, positions):
-		txStim.append(visual.TextStim(win, text = t, pos = p, units = 'norm'))
+		txStim.append(visual.TextStim(win, text = t,
+			pos = p, units = 'norm'))
 
 	# draw all:
 	for t in txStim:
 		t.draw()
-
 	for g in stims:
 		g.draw()
 
