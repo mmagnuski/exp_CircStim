@@ -87,7 +87,7 @@ if exp['run training']:
 				u'naciśnij spację.')
 		now_txt = txt + addtxt
 		textscreen(now_txt.format(to_percent(current_corr)))
-		show_resp_rules()
+		show_resp_rules(exp=exp)
 
 		# concatenate training db's (and change indexing)
 		if df_train:
@@ -122,7 +122,7 @@ if exp['run fitting']:
 		c = s.next()
 		exp['opacity'] = [c, c]
 		if (s.trial % 10) == 0:
-			show_resp_rules()
+			show_resp_rules(exp=exp)
 
 
 	# more detailed stepping now
@@ -141,7 +141,7 @@ if exp['run fitting']:
 		c = s.next()
 		exp['opacity'] = [c, c]
 		if (trial % 10) == 0:
-			show_resp_rules()
+			show_resp_rules(exp=exp)
 
 	mean_thresh = np.mean(s.reversals) if s.reversals else c
 	# save fitting dataframe
@@ -167,7 +167,7 @@ if exp['run fitting']:
 		continue_fitting) and trial <= exp['max fit']:
 
 		# remind about the button press mappings
-		show_resp_rules()
+		show_resp_rules(exp=exp)
 
 		# shuffle trials and present them all
 		np.random.shuffle(check_contrast)
@@ -254,7 +254,7 @@ for i in range(1, db.shape[0] + 1):
 		db.to_excel(dm.give_path('c'))
 		# break and refresh keyboard mapping
 		present_break(i)
-		show_resp_rules()
+		show_resp_rules(exp=exp)
 
 	# inter-trial interval
 	stim['window'].flip()
