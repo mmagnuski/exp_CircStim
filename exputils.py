@@ -343,13 +343,13 @@ class AnyQuestionsGUI(Interface):
 		self.wait_text = False
 		super(AnyQuestionsGUI, self).__init__(exp, stim, main_win=1)
 		tx = (u'Jeżeli masz jakieś pytania - naciśnij f albo j.\n' +
-			'Jeżeli nie masz pytań - naciśnij spację.')
+			u'Jeżeli nie masz pytań - naciśnij spację.')
 		self.tx1 = visual.TextStim(self.win, text=tx)
 		if self.two_windows:
 			self.tx2 = visual.TextStim(self.win2, text='...')
 			self.circ = visual.Circle(self.win2, radius=6, edges=64)
-			self.circ.setLineColor([0.1, 0.9, 0.1])
-			self.circ.setFillColor([0.1, 0.9, 0.1])
+			self.circ.setLineColor([0.9, 0.1, 0.1])
+			self.circ.setFillColor([0.9, 0.1, 0.1])
 
 	def run(self):
 		if self.two_windows:
@@ -368,11 +368,9 @@ class AnyQuestionsGUI(Interface):
 			self.tx1.setText(u'Poczekaj na eksperymentatora.')
 			self.tx1.draw()
 			self.win.flip()
-
-		self.pressed = event.waitKeys(keyList=['i', 'o'])
+			self.pressed = event.waitKeys(keyList=['i', 'o'])
 
 		
-
 def create_database(exp, trials=None, rep=None, combine_with=None):
 	# define column names:
 	colNames = ['time', 'fixTime', 'targetTime', 'SMI', \
