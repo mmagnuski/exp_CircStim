@@ -18,13 +18,14 @@ import numpy  as np
 import pandas as pd
 from exputils  import (plot_Feedback, create_database,
 	ContrastInterface, DataManager, ExperimenterInfo,
-	AnyQuestionsGUI)
+	AnyQuestionsGUI, ms2frames)
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
-from stimutils import (exp, db, stim,
-	present_trial, present_break, show_resp_rules,
-	present_feedback, present_training, textscreen,
-	give_training_db, Instructions, Stepwise, trim)
+from stimutils import (exp, db, stim, present_trial,
+	present_break, show_resp_rules, textscreen,
+	present_feedback, present_training, trim,
+	give_training_db, Instructions, Stepwise,
+	TimeShuffle)
 
 if os.name == 'nt' and exp['use trigger']:
 	from ctypes import windll
