@@ -55,7 +55,8 @@ if exp['run instruct']:
 
 
 # show response rules:
-show_resp_rules(exp=exp)
+show_resp_rules(exp=exp, text=(u"Zaraz rozpocznie się trening." +
+	u"\nPrzygotuj się.\nPamiętaj o pozycji palców na klawiaturze."))
 
 # TRAINING
 # --------
