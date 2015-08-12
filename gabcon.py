@@ -269,5 +269,39 @@ db.to_excel(dm.give_path('c'))
 # EXPERIMENT - part t
 # -------------------
 
+# fit weibull
+# TODO - load last db_c from disk if not present in locals
+w = fitw(db, db.index)
+opacity = w.get_threshold([0.7])[0]
+
+times = TimeShuffle(start=1., end=5., every=0.2,
+			times=4).all()
+db_t = create_database(exp, combine_with=('fixTime', times))
+db_t.loc[:, 'opacity'] = opacity
+
+# signal that another proc is about to begin
+if exp['use trigger']:
+	windll.inpout32.Out32(exp['port']['port address'], 255)
+	core.wait(0.01)
+	clear_port(exp['port'])
+
+# main loop
+for i in range(1, db_t.shape[0] + 1):
+	present_trial(i, exp=exp, db=db_t)
+	stim['window'].flip()
+
+	# present break
+	if (i) % exp['break after'] == 0:
+		# save data before every break
+		db_t.to_excel(dm.give_path('c'))
+		# break and refresh keyboard mapping
+		present_break(i)
+		show_resp_rules(exp=exp)
+
+	# inter-trial interval
+	stim['window'].flip()
+	core.wait(0.5) # pre-fixation time is always the same
+
+db_t.to_excel(dm.give_path('t'))
 # goodbye!
 core.quit()
