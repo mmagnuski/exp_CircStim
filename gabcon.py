@@ -17,7 +17,8 @@ import os
 import numpy  as np
 import pandas as pd
 from exputils  import (plot_Feedback, create_database,
-	ContrastInterface, DataManager, ExperimenterInfo)
+	ContrastInterface, DataManager, ExperimenterInfo,
+	AnyQuestionsGUI)
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim,
@@ -46,7 +47,11 @@ if exp['run instruct']:
 	instr = Instructions('instructions.yaml')
 	instr.present(stop=8)
 	show_resp_rules(exp=exp, text=u"Tak wygląda ekran przerwy.")
-	instr.present()
+	instr.present(stop=12)
+	# "are there any questions" GUI:
+	qst_gui = AnyQuestionsGUI(exp, stim)
+	qst_gui.run()
+	instr.present(stop=13)
 
 
 # show response rules:
