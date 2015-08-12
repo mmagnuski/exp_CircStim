@@ -1,0 +1,16 @@
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
