@@ -307,25 +307,35 @@ class ExperimenterInfo(Interface):
 		self.main_text = visual.TextStim(self.win, pos=(0, 0.5), units='norm')
 		self.sub_text  = visual.TextStim(self.win, pos=(0, 0.25), units='norm')
 		self.detail_text = visual.TextStim(self.win, pos=(0, 0), units='norm')
+		self.textObjs = [self.main_text, self.sub_text, self.detail_text]
 
 	def refresh(self):
 		self.main_text.draw()
 		self.sub_text.draw()
 		self.win.flip()
 
-	def update_text(self, text1, text2):
-		if self.two_windows:
-			if text1:
-				self.main_text.setText(text1)
-			if text2:
-				self.sub_text.setText(text2)
-			if text1 or text2:
+	def update_text(self, texts):
+		if self.two_windows and texts:
+			update = False
+			while len(texts) < len(self.textObjs):
+				texts.append(None)
+			for t, o in zip(texts, self.textObjs):
+				if t:
+					update = True
+					o.setText(t)
+			if update:
 				self.refresh()
 
 	def training_info(self, blockinfo, corr):
 		text1 = u'Ukończono blok {0} \\ {1} treningu.'.format(*blockinfo)
 		text2 = u'Uzyskano poprawność: {}'.format(corr)
-		self.update_text(text1, text2)
+		self.update_text([text1, text2])
+
+	def blok_info(self, name, blockinfo):
+		tx = list()
+		tx.append(u'Trwa {}'.format(name))
+		tx.append(u'Ukończono {} \ {} powtórzeń'.format(*blockinfo[:2]))
+		self.update_text(tx)
 
 
 class AnyQuestionsGUI(Interface):
