@@ -38,18 +38,21 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 class Interface(object):
 	exp = None
 	stim = None
-	def __init__(self, exp, stim):
+	def __init__(self, exp, stim, main_win=2):
 		self.exp = exp
 		self.stim =self.stim
 		self.two_windows = 'window2' in stim
 		if self.two_windows:
-			self.win = stim['window2']
+			main_w = 'window2' if main_win == 2 else 'window'
+			sec_w  = 'window'  if main_win == 2 else 'window2'
+			self.win = stim[main_w]
+			self.win2 = stim[sec_w]
 
 			if self.wait_text:
-				self.wait_txt = visual.TextStim(stim['window'],
+				self.wait_txt = visual.TextStim(stim[sec_w],
 					text=self.wait_text)
 				self.wait_txt.draw()
-				stim['window'].flip()
+				stim[sec_w].flip()
 		else:
 			self.win = stim['window']
 
