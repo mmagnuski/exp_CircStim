@@ -40,7 +40,7 @@ class Interface(object):
 	stim = None
 	def __init__(self, exp, stim, main_win=2):
 		self.exp = exp
-		self.stim =self.stim
+		self.stim = stim
 		self.two_windows = 'window2' in stim
 		if self.two_windows:
 			main_w = 'window2' if main_win == 2 else 'window'
