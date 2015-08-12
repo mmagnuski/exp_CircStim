@@ -33,6 +33,7 @@ if os.name == 'nt' and exp['use trigger']:
 # set logging
 dm = DataManager(exp)
 exp = dm.update_exp(exp)
+exp['numTrials'] = 500
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
