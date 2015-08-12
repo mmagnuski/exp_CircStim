@@ -59,7 +59,7 @@ class Interface(object):
 
 class ContrastInterface(Interface):
 
-	def __init__(self, exp=None, stim=None):
+	def __init__(self, exp=None, stim=None, trial=None):
 		self.contrast = []
 
 		# monitor setup
