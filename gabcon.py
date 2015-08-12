@@ -108,19 +108,24 @@ if exp['run training']:
 # Contrast fitting - stepwise
 # ---------------------------
 if exp['run fitting']:
-	if exp['run instructions']:
+	if exp['run instruct']:
 		instr.present(stop=15)
 
-	continue_fitting = True
+	# update experimenters view:
+	block_name = 'schodkowe dopasowywanie kontrastu'
+	exp_info.blok_info(block_name, [0, 100])
+
 	# init stepwise contrast adjustment
-	fitting_db = give_training_db(db, slowdown=1)
 	num_fail = 0
+	continue_fitting = True
 	step = exp['step until']
-	s = Stepwise(corr_ratio=[1,1])
 	exp['opacity'] = [1., 1.]
+	s = Stepwise(corr_ratio=[1,1])
+	fitting_db = give_training_db(db, slowdown=1)
 
 	while s.trial <= step[0] and len(s.reversals) < 3:
 		present_trial(s.trial, db=fitting_db, exp=exp)
+		exp_info.blok_info(block_name, [s.trial, 100])
 		stim['window'].flip()
 
 		s.add(fitting_db.loc[s.trial, 'ifcorrect'])
@@ -137,11 +142,16 @@ if exp['run fitting']:
 	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.025,
 		step=[0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.025, 0.025, 0.025])
 
-	while s.trial <= step[1]:
+	trial = s.trial + last_trial
+	while trial <= step[1]:
 		trial = s.trial + last_trial
 		present_trial(trial, db=fitting_db, exp=exp)
 		stim['window'].flip()
 
+		# update experimenter
+		exp_info.blok_info(block_name, [trial, 100])
+
+		# get contrast from Stepwise
 		s.add(fitting_db.loc[trial, 'ifcorrect'])
 		c = s.next()
 		exp['opacity'] = [c, c]
@@ -202,7 +212,7 @@ if exp['run fitting']:
 
 		# show weibull fit
 		stim = plot_Feedback(stim, w, exp['data'])
-		interf = ContrastInterface(stim=stim)
+		interf = ContrastInterface(stim=stim, trial=trial)
 
 		interfaceLoop = True
 		# stim['window'].units = 'norm'
@@ -228,58 +238,67 @@ if exp['run fitting']:
 
 # stop here if not running final proc:
 if not exp['run main c']:
-	core.quit()
+	# EXPERIMENT - part c
+	# -------------------
+	if exp['run instruct']:
+		instr.present(stop=16)
+	# get contrast from training
+	if 'contrast_range' not in locals():
+		contrast_range = [0.95, 0.1]
 
+	contrast_steps = np.linspace(contrast_range[0],
+		contrast_range[1], exp['opac steps'])
+	db_c = create_database(exp, combine_with=('opacity',
+		contrast_steps), rep=13)
+	print "exp['fixTimeLim']", exp['fixTimeLim']
+	print "exp['frm']['time']", exp['frm']['time']
+	print db_c.head()
+	exp['numTrials'] = len(db_c.index)
 
-# EXPERIMENT - part c
-# -------------------
+	# signal that main proc is about to begin
+	if exp['use trigger']:
+		windll.inpout32.Out32(exp['port']['port address'], 255)
+		core.wait(0.01)
+		clear_port(exp['port'])
 
-# get contrast from training
-if 'contrast_range' not in locals():
-	contrast_range = [0.05, 0.35]
+	# main loop
+	for i in range(1, db_c.shape[0] + 1):
+		present_trial(i, exp=exp, db=db_c)
+		stim['window'].flip()
 
-contrast_steps = np.linspace(contrast_range[0], contrast_range[1],
-	exp['opac steps'])
-db = create_database(exp, combine_with=('opacity', contrast_steps), rep=13)
+		# present break
+		if (i) % exp['break after'] == 0:
+			# save data before every break
+			db_c.to_excel(dm.give_path('c'))
+			# break and refresh keyboard mapping
+			present_break(i, exp=exp)
+			show_resp_rules(exp=exp)
 
-# signal that main proc is about to begin
-if exp['use trigger']:
-	windll.inpout32.Out32(exp['port']['port address'], 255)
-	core.wait(0.01)
-	clear_port(exp['port'])
+		# inter-trial interval
+		stim['window'].flip()
+		core.wait(0.5) # pre-fixation time is always the same
 
-# main loop
-for i in range(1, db.shape[0] + 1):
-	present_trial(i, exp=exp, db=db)
-	stim['window'].flip()
-
-	# present break
-	if (i) % exp['break after'] == 0:
-		# save data before every break
-		db.to_excel(dm.give_path('c'))
-		# break and refresh keyboard mapping
-		present_break(i)
-		show_resp_rules(exp=exp)
-
-	# inter-trial interval
-	stim['window'].flip()
-	core.wait(0.5) # pre-fixation time is always the same
-
-db.to_excel(dm.give_path('c'))
+	db_c.to_excel(dm.give_path('c'))
 
 
 # EXPERIMENT - part t
 # -------------------
 
+# if 'contrast_range' not in locals():
 # fit weibull
 # TODO - load last db_c from disk if not present in locals
-w = fitw(db, db.index)
-opacity = w.get_threshold([0.7])[0]
+# w = fitw(db, db.index)
+# opacity = w.get_threshold([0.7])[0]
+opacity = 0.45 # temp fix
 
 times = TimeShuffle(start=1., end=5., every=0.2,
 			times=4).all()
+times = ms2frames(times * 1000, exp['frm']['time'])
 db_t = create_database(exp, combine_with=('fixTime', times))
 db_t.loc[:, 'opacity'] = opacity
+
+if exp['run instruct']:
+	instr.present()
 
 # signal that another proc is about to begin
 if exp['use trigger']:
@@ -295,9 +314,9 @@ for i in range(1, db_t.shape[0] + 1):
 	# present break
 	if (i) % exp['break after'] == 0:
 		# save data before every break
-		db_t.to_excel(dm.give_path('c'))
+		db_t.to_excel(dm.give_path('t'))
 		# break and refresh keyboard mapping
-		present_break(i)
+		present_break(i, exp=exp)
 		show_resp_rules(exp=exp)
 
 	# inter-trial interval
