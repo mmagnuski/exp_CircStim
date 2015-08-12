@@ -329,7 +329,7 @@ class TimeShuffle(object):
 	example
 	-------
 	>>> times = TimeShuffle(start=1.5, end=3., every=0.5,
-			times=2, shuffle=False)
+			times=2, shuffle=False).all()
 	[ 1.5  2.   2.5  3.   1.5  2.   2.5  3. ]
 	'''
 	def __init__(self, start=1.5, end=5.0, every=0.05, times=6, shuffle=True):
