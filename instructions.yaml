@@ -369,7 +369,12 @@
 - item     : text
   value    : 
     text   : >
-      Info o zwiększaniu prędkości prezentacji.
+      Trening rozpocznie się od stosunkowo wolnego
+      tempa wyświetlania bodźców. Gdy będzie Ci dobrze
+      szło tempo prezentacji bodźców będzie zwiększane.
+      Informacje o Twojej poprawności oraz poprawności
+      wymaganej by przejsć do kolejnej prędkości będą
+      pojawiać się na ekranie.
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
@@ -395,7 +400,13 @@
 - item     : text
   value    : 
     text   : >
-      Info o poprawnej pozycji łapek. (+zdjęcie)
+      Bardzo ważne jest abyś odpowiada[ł/ła] palcami
+      wskazującymi obu rąk. Palec wskazujący lewej ręki
+      połóż na klawiszu f, natomiast palec wskazujący
+      ręki prawej - na klawiszu j.\n Staraj się nie
+      patrzeć na klawiaturę - podczas prezentacji
+      bodźców cały czas patrz na środek ekranu oznaczony
+      kropką.
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
@@ -421,10 +432,117 @@
 - item     : text
   value    : 
     text   : >
-      Czy jakieś pytania?
+      Za chwilę rozpocznie się pierwsza część badania.
+      W tej części kontrast (widoczność) bodźców będzie dobierany
+      w taki sposób aby zadanie było odpowiednio trudne.
+      Poniżej, dla przykładu, możesz zobaczyć bodźce o różnym
+      kontraście:
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
+- item      : gabor
+  value     : 
+    ori     : 0
+    opa     : 0.9
+    pos     : [-10, -0.5]
+- item      : gabor
+  value     : 
+    ori     : 45
+    opa     : 0.7
+    pos     : [-3.33, -0.5]
+- item      : gabor
+  value     : 
+    ori     : 90
+    opa     : 0.5
+    pos     : [3.33, -0.5]
+- item      : gabor
+  value     : 
+    ori     : 135
+    opa     : 0.3
+    pos     : [10, -0.5]
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+
+---
+# page 15
+- item     : text
+  value    : 
+    text   : >
+      Czasami prezentowane bodźce będą tak słabo
+      widoczne, że nie będziesz pew[ien/na] jaki
+      bodziec się właśnie pojawił. Kieruj się wtedy
+      intuicją, bądź po prostu zgaduj. Nawet gdy nie
+      widzia[łeś/łaś] bodźca udzielaj odpowiedzi.
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+
+---
+# page 16
+- item     : text
+  value    : 
+    text   : >
+      Zakres widoczności bodźców został ustalony.\nRozpoczynamy
+      pierwszą (główną) część badania.\nInstrukcje do tej
+      części są takie same jak do poprzedniej. Widoczność bodźców
+      będzie losowana z ustalonego zakresu, więc czasem bodźce
+      będą stosunkowo łatwe do dostrzeżenia, a czasem trudne.\nOdpowiadaj
+      nawet gdy masz wrażenie, że nie widział[eś/aś] bodźca.
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+
+---
+# page 17
+- item     : text
+  value    : 
+    text   : >
+      Skończył[eś/aś] pierwszą część badania. Hurra!\nW drugiej
+      (ostatniej) części widoczność bodźców będzie stała, zmieniać
+      się będzie za to czas oczekiwania. Czasami bodźce będą pojawiać
+      się zaraz po pojawieniu się kropki, a czasami będzie trzeba na
+      nie trochę poczekać.\nPamiętaj aby utrzymywać wzrok na kropce
+      kiedy tylko jest obecna na ekranie.\n
 # bottom navigation info
 - item     : text
   value    : 

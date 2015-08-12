@@ -106,6 +106,9 @@ if exp['run training']:
 # Contrast fitting - stepwise
 # ---------------------------
 if exp['run fitting']:
+	if exp['run instructions']:
+		instr.present(stop=15)
+
 	continue_fitting = True
 	# init stepwise contrast adjustment
 	fitting_db = give_training_db(db, slowdown=1)
