@@ -69,18 +69,18 @@ class ContrastInterface(Interface):
 
 		self.win.setMouseVisible(True)
 		self.mouse = event.Mouse(win=self.win)
+
+		# change units, size and position of centerImage:
 		self.origunits = self.win.units
 		self.win.units = 'norm'
 
-		# postion ImageStim:
+		win_pix_size = self.window.size
+		pic_pix_size = self.stim['centerImage'].size
+		pic_nrm_size = [p / (w * 1.) for (p, w) in
+			zip(pic_pix_size, win_pix_size)]
 		self.stim['centerImage'].units = 'norm'
 		self.stim['centerImage'].setPos((-0.4, 0.4))
-		size = np.array(self.stim['centerImage'].size)
-		print 'size pre: ', size
-		if np.any(size > 1.5):
-			prop = size[1]/size[0]
-			self.stim['centerImage'].setSize((1.2, 1.2*prop))
-			print 'size post: ', self.stim['centerImage'].size
+		self.stim['centerImage'].setSize([pic_nrm_size])
 
 
 		button_pos = np.zeros([4,2])
