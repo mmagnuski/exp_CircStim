@@ -263,7 +263,7 @@ if exp['run main c']:
 
 	# main loop
 	for i in range(1, db_c.shape[0] + 1):
-		present_trial(i, exp=exp, db=db_c)
+		present_trial(i, exp=exp, db=db_c, use_exp=False)
 		stim['window'].flip()
 
 		# present break
@@ -308,7 +308,7 @@ if exp['use trigger']:
 
 # main loop
 for i in range(1, db_t.shape[0] + 1):
-	present_trial(i, exp=exp, db=db_t)
+	present_trial(i, exp=exp, db=db_t, use_exp=False)
 	stim['window'].flip()
 
 	# present break
