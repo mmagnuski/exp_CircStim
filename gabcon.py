@@ -8,6 +8,22 @@
 #     -> start (and end?) of each break
 #     ->
 
+# monkey-patch pyglet shaders:
+# ----------------------------
+fragFBOtoFramePatched = '''
+    uniform sampler2D texture;
+
+    float rand(vec2 seed){
+        return fract(sin(dot(seed.xy ,vec2(12.9898,78.233))) * 43758.5453);
+    }
+
+    void main() {
+        vec4 textureFrag = texture2D(texture,gl_TexCoord[0].st);
+        gl_FragColor.rgb = textureFrag.rgb;
+    }
+    '''
+from psychopy import _shadersPyglet
+_shadersPyglet.fragFBOtoFrame = fragFBOtoFramePatched
 
 # imports
 # -------
@@ -33,7 +49,7 @@ if os.name == 'nt' and exp['use trigger']:
 # set logging
 dm = DataManager(exp)
 exp = dm.update_exp(exp)
-exp['numTrials'] = 500
+exp['numTrials'] = 500 # ugly hack, change
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
