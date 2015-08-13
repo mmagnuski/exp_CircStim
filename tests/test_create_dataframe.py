@@ -1,9 +1,5 @@
-import os
-
-# set dir
-os.chdir(r'D:\DATA\experiments\gabcon 2015')
-
 from exputils import create_database
+import numpy as np
 
 # construct exp
 exp = dict()
@@ -17,3 +13,13 @@ exp['frm'] = dict()
 exp['frm']['time'] = 10
 
 df = create_database(exp, trials=100)
+print '100 trials:'
+print df.head(n=10)
+print df.shape
+
+contrast = np.linspace(0.1, 0.5, num=10)
+df = create_database(exp, rep=2, combine_with=('opacity', contrast))
+print '2 repetitions of combinations with contrast'
+print 'contast: ', contrast
+print df.head(n=20)
+print df.shape
