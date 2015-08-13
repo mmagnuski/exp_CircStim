@@ -74,9 +74,9 @@ class ContrastInterface(Interface):
 		self.origunits = self.win.units
 		self.win.units = 'norm'
 
-		win_pix_size = self.window.size
+		win_pix_size = self.win.size
 		pic_pix_size = self.stim['centerImage'].size
-		pic_nrm_size = [p / (w * 1.) for (p, w) in
+		pic_nrm_size = [(p / (w * 1.)) * 2. for (p, w) in
 			zip(pic_pix_size, win_pix_size)]
 		self.stim['centerImage'].units = 'norm'
 		self.stim['centerImage'].setPos((-0.4, 0.4))
