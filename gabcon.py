@@ -237,7 +237,7 @@ if exp['run fitting']:
 	trim_df(fitting_db).to_excel(dm.give_path('b'))
 
 # stop here if not running final proc:
-if not exp['run main c']:
+if exp['run main c']:
 	# EXPERIMENT - part c
 	# -------------------
 	if exp['run instruct']:
