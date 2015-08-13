@@ -382,7 +382,7 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	cmb = ['orientation']
 
 	# how many times each combination should be presented
-	if not trials:
+	if not trials and not rep:
 		trials = 140
 
 	# generate trial combinations
@@ -407,6 +407,8 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 
 	# exp['numTrials'] = len(db)
 	num_trials = db.shape[0]
+	if not trials:
+		trials = num_trials
 
 	# fill the data frame from lst
 	for i, r in enumerate(cmb):
