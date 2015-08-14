@@ -73,6 +73,7 @@ portdict['codes'] = {'fix' : 1, 'mask' : 2}
 portdict['codes'].update({'target_'+str(ori) : 4+i \
 						   for i,ori in enumerate(exp['orientation'])
 						   })
+portdict['codes'].update({'breakStart': 100, 'breakStop': 102})
 exp['port'] = portdict
 
 # subject info
