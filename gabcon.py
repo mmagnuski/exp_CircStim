@@ -285,9 +285,9 @@ if exp['run main c']:
 # if 'contrast_range' not in locals():
 # fit weibull
 # TODO - load last db_c from disk if not present in locals
-# w = fitw(db, db.index)
-# opacity = w.get_threshold([0.7])[0]
-opacity = 0.45 # temp fix
+w = fitw(db_c, db_c.index)
+opacity = w.get_threshold([0.7])[0]
+# opacity = 0.45 # temp fix
 
 times = TimeShuffle(start=1., end=5., every=0.2,
 			times=4).all()
