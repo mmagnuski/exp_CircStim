@@ -250,9 +250,6 @@ if exp['run main c']:
 		contrast_range[1], exp['opac steps'])
 	db_c = create_database(exp, combine_with=('opacity',
 		contrast_steps), rep=13)
-	print "exp['fixTimeLim']", exp['fixTimeLim']
-	print "exp['frm']['time']", exp['frm']['time']
-	print db_c.head()
 	exp['numTrials'] = len(db_c.index)
 
 	# signal that main proc is about to begin
