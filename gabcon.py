@@ -276,6 +276,7 @@ if exp['run main c']:
 
 		# inter-trial interval
 		stim['window'].flip()
+		exp_info.blok_info(u'główne badanie, część I', [i, exp['numTrials']])
 		core.wait(0.5) # pre-fixation time is always the same
 
 	db_c.to_excel(dm.give_path('c'))
@@ -296,6 +297,8 @@ times = TimeShuffle(start=1., end=5., every=0.2,
 times = ms2frames(times * 1000, exp['frm']['time'])
 db_t = create_database(exp, combine_with=('fixTime', times))
 db_t.loc[:, 'opacity'] = opacity
+
+exp['numTrials'] = len(db_t.index)
 
 if exp['run instruct']:
 	instr.present()
@@ -321,6 +324,7 @@ for i in range(1, db_t.shape[0] + 1):
 
 	# inter-trial interval
 	stim['window'].flip()
+	exp_info.blok_info(u'główne badanie, część II', [i, exp['numTrials']])
 	core.wait(0.5) # pre-fixation time is always the same
 
 db_t.to_excel(dm.give_path('t'))
