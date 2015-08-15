@@ -112,6 +112,7 @@ if exp['run training']:
 # Contrast fitting - stepwise
 # ---------------------------
 if exp['run fitting']:
+	# some instructions
 	if exp['run instruct']:
 		instr.present(stop=15)
 
@@ -244,10 +245,10 @@ if exp['run fitting']:
 	# save fitting dataframe
 	trim_df(fitting_db).to_excel(dm.give_path('b'))
 
-# stop here if not running final proc:
+# EXPERIMENT - part c
+# -------------------
 if exp['run main c']:
-	# EXPERIMENT - part c
-	# -------------------
+	# instructions
 	if exp['run instruct']:
 		instr.present(stop=16)
 
@@ -340,6 +341,8 @@ for i in range(1, db_t.shape[0] + 1):
 	exp_info.blok_info(u'główne badanie, część II', [i, exp['numTrials']])
 	core.wait(0.5) # pre-fixation time is always the same
 
+# save data before quit
 db_t.to_excel(dm.give_path('t'))
+
 # goodbye!
 core.quit()
