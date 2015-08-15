@@ -169,6 +169,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	for f in np.arange(db.loc[tr]['fixTime']):
 		stim['fix'].draw()
 		win.flip()
+	clear_port(exp['port'])
 
 	# clear keyboard buffer
 	event.getKeys()
@@ -179,6 +180,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	for f in np.arange(db.loc[tr]['targetTime']):
 		stim['target'].draw()
 		win.flip()
+	clear_port(exp['port'])
 
 	# interval
 	for f in np.arange(db.loc[tr]['SMI']):
@@ -190,6 +192,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		for m in stim['mask']:
 			m.draw()
 		win.flip()
+	clear_port(exp['port'])
 
 
 	# RESPONSE
