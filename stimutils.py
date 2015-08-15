@@ -128,7 +128,8 @@ def onflip_work(portdict, code='', clock=None):
 # we do not need to clear port on the new amplifier
 # so this short def is 'just-in-case'
 def clear_port(portdict):
-	windll.inpout32.Out32(portdict['port address'], 0)
+	if portdict['send']:
+		windll.inpout32.Out32(portdict['port address'], 0)
 
 
 # PRESENTATION

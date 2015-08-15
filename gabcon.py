@@ -63,6 +63,10 @@ show_resp_rules(exp=exp, text=(u"Zaraz rozpocznie się trening." +
 # TRAINING
 # --------
 if exp['run training']:
+	# send start trigger:
+	onflip_work(exp['port'], code='training')
+	clear_port(exp['port'])
+
 	# set things up
 	slow = exp.copy()
 	df_train = []
@@ -110,6 +114,10 @@ if exp['run training']:
 if exp['run fitting']:
 	if exp['run instruct']:
 		instr.present(stop=15)
+
+	# send start trigger:
+	onflip_work(exp['port'], code='fitting')
+	clear_port(exp['port'])
 
 	# update experimenters view:
 	block_name = 'schodkowe dopasowywanie kontrastu'
@@ -242,6 +250,11 @@ if exp['run main c']:
 	# -------------------
 	if exp['run instruct']:
 		instr.present(stop=16)
+
+	# send trigger
+	onflip_work(exp['port'], 'contrast')
+	clear_port(exp['port'])
+
 	# get contrast from training
 	if 'contrast_range' not in locals():
 		contrast_range = [0.95, 0.1]
@@ -299,6 +312,9 @@ exp['numTrials'] = len(db_t.index)
 
 if exp['run instruct']:
 	instr.present()
+
+onflip_work(exp['port'], 'time')
+clear_port(exp['port'])
 
 # signal that another proc is about to begin
 if exp['use trigger']:
