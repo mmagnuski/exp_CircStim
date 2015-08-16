@@ -208,6 +208,7 @@ class Instructions:
 stim['window'].close()
 win = visual.Window(monitor='testMonitor', fullscr=True, units='deg', 
     useFBO=True, blendMode='add')
+print 'winType:', win.winType
 
 
 # instr = Instructions('instructions.yaml', win=win)
@@ -216,14 +217,17 @@ win = visual.Window(monitor='testMonitor', fullscr=True, units='deg',
 g = gabor(win = win)
 #t = txt(win=win, text=u'Śliwka, główka, rączka')
 t = visual.TextStim(win=win, text=u'Sliwka, glowka, raczka')
+print 'winType:', win.winType
 t.draw()
 g.draw()
 win.flip()
+print 'winType:', win.winType
 event.waitKeys()
 
 win.close()
 win = visual.Window(monitor='testMonitor', fullscr=True, units='deg', 
     useFBO=True, blendMode='add')
+print 'winType:', win.winType
 
 gab = Gabor(win=win, mask='gauss', ori=0, sf=1.5, size=5,
    contrast=1.5)
