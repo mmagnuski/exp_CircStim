@@ -155,7 +155,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	# set target properties (takes less than 1 ms)
 	stim['target'].ori = db.loc[tr]['orientation']
 	stim['target'].opacity = db.loc[tr]['opacity']
-	target_code = 'target_' + str(db.loc[tr]['orientation'])
+	target_code = 'target_' + str(int(db.loc[tr]['orientation']))
 
 	# get trial start time
 	db.loc[tr, 'time'] = core.getTime()
@@ -180,11 +180,11 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	for f in np.arange(db.loc[tr]['targetTime']):
 		stim['target'].draw()
 		win.flip()
-	clear_port(exp['port'])
 
 	# interval
 	for f in np.arange(db.loc[tr]['SMI']):
 		win.flip()
+	clear_port(exp['port'])
 
 	# mask
 	win.callOnFlip(onflip_work, exp['port'], code='mask')

@@ -25,7 +25,7 @@ from stimutils import (exp, db, stim, present_trial,
 	present_break, show_resp_rules, textscreen,
 	present_feedback, present_training, trim,
 	give_training_db, Instructions, Stepwise,
-	TimeShuffle)
+	TimeShuffle, onflip_work, clear_port)
 
 if os.name == 'nt' and exp['use trigger']:
 	from ctypes import windll
