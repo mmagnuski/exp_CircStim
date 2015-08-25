@@ -254,6 +254,7 @@ if exp['run main c']:
 
 	# send trigger
 	onflip_work(exp['port'], 'contrast')
+	core.wait(0.1)
 	clear_port(exp['port'])
 
 	# get contrast from training
@@ -315,6 +316,7 @@ if exp['run instruct']:
 	instr.present()
 
 onflip_work(exp['port'], 'time')
+core.wait(0.1)
 clear_port(exp['port'])
 
 # signal that another proc is about to begin
