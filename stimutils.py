@@ -105,6 +105,9 @@ class Gabor(object):
 					break
 
 	def draw(self):
+		# make sure window is in blendMode 'add':
+		# if self.win.blendMode == 'add':
+		# 	self.win.blendMode = 'add'
 		for g in range(self.draw_which):
 			self.gabors[g].draw()
 
@@ -317,9 +320,11 @@ def present_feedback(i, db=db, stim=stim):
 		stim['feedback'].setFillColor([0.9, 0.1, 0.1])
 		stim['feedback'].setLineColor([0.9, 0.1, 0.1])
 
+	stim['window'].blendMode = 'avg'
 	for f in range(0, exp['fdb time'][0]):
 		stim['feedback'].draw()
 		stim['window'].flip()
+	stim['window'].blendMode = 'add'
 
 
 # class for stepwise constrast adjustment
@@ -447,12 +452,16 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 	# draw all:
 	for t in txStim:
 		t.draw()
+	# fix window blendMode:
+	win.blendMode = 'add'
 	for g in stims:
 		g.draw()
 
 	# draw text if necessary:
 	if text:
 		visual.TextStim(win, text=text).draw()	
+		# fix window blendMode:
+		win.blendMode = 'add'
 
 	win.flip()
 
@@ -466,6 +475,8 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 
 def textscreen(text, win=stim['window'], exp=exp):
 	visual.TextStim(win, text = text, units = 'norm').draw()
+	# fix window blendMode:
+	win.blendMode = 'add'
 	win.flip()
 	event.waitKeys()
 
@@ -477,6 +488,8 @@ def present_break(t, exp = exp, win = stim['window']):
 	info = visual.TextStim(win, text = tex, pos = [0, 0], units = 'norm')
 
 	info.draw()
+	# fix window blendMode:
+	win.blendMode = 'add'
 	win.flip()
 
 	# wait for space key:
@@ -528,7 +541,13 @@ class Instructions:
 			self.create_page()
 			# draw page elements
 			for it in self.pageitems:
+				is_text = isinstance(it, visual.TextStim)
+				is_circle = isinstance(it, visual.Circle)
+				if is_circle:
+					self.win.blemdMode = 'avg'
 				it.draw()
+				if is_text or is_circle:
+					self.win.blendMode = 'add'
 			self.win.flip()
 
 			# wait for response
