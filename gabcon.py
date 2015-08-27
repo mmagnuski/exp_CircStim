@@ -89,7 +89,7 @@ if exp['run training']:
 	num_training_blocks = len(exp['train slow'])
 	current_block = 0
 
-	slow['opacity'] = [1.0, 1.0]
+	slow['opacity'] = np.array([1.0, 1.0])
 	txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
 	addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.' +
 		u'\nAby przejść dalej naciśnij spację.')

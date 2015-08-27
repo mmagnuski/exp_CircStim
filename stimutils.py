@@ -289,6 +289,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
 	train_corr = 0
 	train_db = give_training_db(db, slowdown=slowdown)
+	exp['opacity'] = np.array([1., 1.])
 
 	while train_corr < corr or i < mintrials:
 		present_trial(i, exp=exp, db=train_db)
@@ -304,11 +305,9 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 			textscreen(thistxt)
 			show_resp_rules()
 
-			# if this is the last training block - increase contrast
-			if slowdown == 1:
-				exp['opacity'] += 0.2
+			exp['opacity'] += 0.2
 		i += 1
-	# save training db!
+	# return db so it can be saved
 	return train_db, train_corr
 
 
