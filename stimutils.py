@@ -147,8 +147,8 @@ else:
 stim['target'] = dict()
 for o in exp['orientation']:
 	stim['target'][o] = Gabor(win=stim['window'],
-		size = exp['gabor size'], units = 'deg',
-		sf = exp['gabor freq'])
+		size=exp['gabor size'], units='deg',
+		sf=exp['gabor freq'], ori=o)
 
 stim['centerImage'] = visual.ImageStim(imgwin, image=None,
 	pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
