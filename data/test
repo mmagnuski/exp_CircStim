@@ -1,0 +1,4 @@
+ID: !!python/unicode 'test'
+age: 30
+key-mapping: {0: f, 45: j, 90: f, 135: j}
+sex: !!python/unicode 'm'

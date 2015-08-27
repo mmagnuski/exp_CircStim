@@ -1,5 +1,24 @@
 # -*- coding: utf-8 -*-
 
+# monkey-patch pyglet shaders:
+# ----------------------------
+# fragFBOtoFramePatched = '''
+#     uniform sampler2D texture;
+
+#     float rand(vec2 seed){
+#         return fract(sin(dot(seed.xy ,vec2(12.9898,78.233))) * 43758.5453);
+#     }
+
+#     void main() {
+#         vec4 textureFrag = texture2D(texture,gl_TexCoord[0].st);
+#         gl_FragColor.rgb = textureFrag.rgb;
+#     }
+#     '''
+# from psychopy import _shadersPyglet
+# _shadersPyglet.fragFBOtoFrame = fragFBOtoFramePatched
+
+# imports
+# -------
 from psychopy import core, visual, event, monitors
 from settings import exp, db
 from exputils import getFrameRate
@@ -20,11 +39,13 @@ if "BENQ-XL2411" in monitors:
 
 # create a window
 # ---------------
-winkeys = {'units' : 'deg', 'fullscr' : True,
-	'color' : [-0.2, -0.2, -0.2], 'monitor' : monitorName}
+winkeys = {'units' : 'deg', 'fullscr' : True, 'useFBO' : True,
+	'blendMode' : 'add', 'monitor' : monitorName}
 if exp['two screens']:
 	winkeys.update({'screen' : 0})	
-win = visual.Window(**winkeys)
+# win = visual.Window(**winkeys)
+win = visual.Window(monitor='testMonitor', fullscr=True, units='deg', 
+    useFBO=True, blendMode='add')
 win.setMouseVisible(False)
 
 
@@ -67,6 +88,44 @@ def gabor(win = win, ori = 0, opa = 1.0,
 							  opacity = opa,  units = units)
 
 
+class Gabor(object):
+	'''Simple gabor class that allows the contrast to go
+	up to 3.0 (clipping the out of bound rgb values).
+	Requires window to be set with useFBO=True and 
+	blendMode='add' as well as a monkey-patch for
+	pyglet shaders.'''
+
+	def __init__(self, **kwargs):
+		self.draw_which = 0
+		win = kwargs.pop('win')
+		self.contrast = kwargs.pop('contrast', 1.)
+		kwargs.update({'contrast': 0.})
+
+		# generate gabors:
+		self.gabors = list()
+		self.gabors.append(visual.GratingStim(win, **kwargs))
+		self.gabors.append(visual.GratingStim(win, **kwargs))
+		self.gabors.append(visual.GratingStim(win, **kwargs))
+		self.set_contrast(self.contrast)
+
+	def set_contrast(self, val):
+		self.contrast = val
+		self.draw_which = 0
+		for g in self.gabors:
+			if val > 0.:
+				self.draw_which += 1
+				if val > 1.:
+					g.contrast = 1.
+					val = val - 1.
+				else:
+					g.contrast = val
+					break
+
+	def draw(self):
+		for g in range(self.draw_which):
+			self.gabors[g].draw()
+
+
 def fix(color=(0.5, 0.5, 0.5)):
 	dot = visual.Circle(stim['window'], radius=0.15,
 		edges=16, units='deg')
@@ -92,13 +151,19 @@ stim['window'] = win
 
 # resolve multiple screens stuff
 if exp['two screens']:
-	winkeys.update({'screen' : 1})	
+	winkeys.update({'screen' : 1, 'blendMode' : 'avg'})
 	stim['window2'] = visual.Window(**winkeys)
 	imgwin = stim['window2']
 else:
 	imgwin = stim['window']
 
-stim['target'] = gabor()
+# create all target orientations
+stim['target'] = dict()
+for o in exp['orientation']:
+	stim['target'][o] = Gabor(win=stim['window'],
+		size = exp['gabor size'], units = 'deg',
+		sf = exp['gabor freq'])
+
 stim['centerImage'] = visual.ImageStim(imgwin, image=None,
 	pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
 
@@ -152,9 +217,11 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 					size = 1
 					)[0], decimals = 3)
 
-	# set target properties (takes less than 1 ms)
-	stim['target'].ori = db.loc[tr]['orientation']
-	stim['target'].opacity = db.loc[tr]['opacity']
+	# set target properties
+	orientation = db.loc[tr]['orientation']
+	contrast = db.loc[tr]['opacity']
+	target = stim['target'][orientation]
+	target.set_contrast(contrast)
 	target_code = 'target_' + str(int(db.loc[tr]['orientation']))
 
 	# get trial start time
@@ -178,7 +245,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 		clock=exp['clock'])
 	for f in np.arange(db.loc[tr]['targetTime']):
-		stim['target'].draw()
+		target.draw()
 		win.flip()
 
 	# interval
@@ -236,20 +303,24 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
 	train_corr = 0
 	train_db = give_training_db(db, slowdown=slowdown)
+
 	while train_corr < corr or i < mintrials:
 		present_trial(i, exp=exp, db=train_db)
-
-		# feedback:
 		present_feedback(i, db=train_db)
+
 		# check correctness
 		train_corr = train_db.loc[max(1,
 			i-mintrials+1):i, 'ifcorrect'].mean()
 
 		if (i % mintrials) == 0 and train_corr < corr:
-			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
 			# show info about correctness and remind key mapping
+			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
 			textscreen(thistxt)
 			show_resp_rules()
+
+			# if this is the last training block - increase contrast
+			if slowdown == 1:
+				exp['opacity'] += 0.2
 		i += 1
 	# save training db!
 	return train_db, train_corr
@@ -495,5 +566,6 @@ class Instructions:
 	def parse_item(self, item):
 		# currently: gabor or text:
 		fun = self.mapdict.get(item['item'], [])
-
+		args = item['value']
+		args.update({'win' : self.win})
 		if fun: return fun(**item['value'])
