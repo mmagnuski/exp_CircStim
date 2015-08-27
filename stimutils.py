@@ -112,8 +112,8 @@ class Gabor(object):
 			self.gabors[g].draw()
 
 
-def fix(color=(0.5, 0.5, 0.5)):
-	dot = visual.Circle(stim['window'], radius=0.15,
+def fix(win=win, color=(0.5, 0.5, 0.5)):
+	dot = visual.Circle(win, radius=0.15,
 		edges=16, units='deg')
 	dot.setFillColor(color)
 	dot.setLineColor(color)
