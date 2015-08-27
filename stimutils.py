@@ -82,7 +82,7 @@ class Gabor(object):
 		self.draw_which = 0
 		win = kwargs.pop('win')
 		self.contrast = kwargs.pop('contrast', 1.)
-		kwargs.update({'contrast': 0.})
+		kwargs.update({'contrast': 0., 'mask': 'gauss'})
 
 		# generate gabors:
 		self.gabors = list()
