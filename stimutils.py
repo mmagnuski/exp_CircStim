@@ -538,14 +538,16 @@ class Instructions:
 		while self.nextpage < stop:
 			# create page elements
 			self.create_page()
+
 			# draw page elements
+			any_circle = np.any([isinstance(x, visual.Circle)
+				for x in self.pageitems])
+			if any_circle:
+				self.win.blemdMode = 'avg'
+
 			for it in self.pageitems:
-				is_text = isinstance(it, visual.TextStim)
-				is_circle = isinstance(it, visual.Circle)
-				if is_circle:
-					self.win.blemdMode = 'avg'
 				it.draw()
-				if is_text or is_circle:
+				if isinstance(it, visual.TextStim) and not any_circle:
 					self.win.blendMode = 'add'
 			self.win.flip()
 
