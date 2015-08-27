@@ -21,6 +21,7 @@ class Gabor(object):
 	def __init__(self, **kwargs):
 		self.draw_which = 0
 		win = kwargs.pop('win')
+		self.win = win
 		self.contrast = kwargs.pop('contrast', 1.)
 		kwargs.update({'contrast': 0.})
 
@@ -45,6 +46,10 @@ class Gabor(object):
 					break
 
 	def draw(self):
+		# make sure window is in blendMode 'add':
+		if self.win.blendMode == 'add':
+			self.win.blendMode = 'add'
+		# draw all gabors that need to be drawn:
 		for g in range(self.draw_which):
 			self.gabors[g].draw()
 
@@ -55,11 +60,14 @@ gab = Gabor(win=win, mask='gauss', ori=0, sf=1.5, size=5,
     contrast=1.5)
 gab2 = Gabor(win=win, mask='gauss', ori=0,
     sf=1.5, size=5, pos=(-8, 0))
+text = visual.TextStim(win, pos=(0,6), text='Hello!')
 gabors = [gab, gab2]
 
 steps = [-0.01, 0.01]
 while True:
-	[g.draw() for g in gabors]
+	for g in gabors:
+		g.draw()
+	text.draw()
 	win.flip()
 	k = event.getKeys()
 	if k:
