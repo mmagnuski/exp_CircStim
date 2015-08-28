@@ -145,7 +145,7 @@ if exp['run fitting']:
 	continue_fitting = True
 	step = exp['step until']
 	exp['opacity'] = [1., 1.]
-	s = Stepwise(corr_ratio=[1,1])
+	s = Stepwise(corr_ratio=[1,1], vmax=3.)
 	fitting_db = give_training_db(db, slowdown=1)
 
 	while s.trial <= step[0] and len(s.reversals) < 3:
@@ -164,7 +164,7 @@ if exp['run fitting']:
 	last_trial = s.trial - 1
 	start_param = np.mean(s.reversals) if \
 		len(s.reversals) > 1 else s.param
-	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.025,
+	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.025, vmax=3.,
 		step=[0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.025, 0.025, 0.025])
 
 	trial = s.trial + last_trial
