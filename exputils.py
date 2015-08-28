@@ -244,7 +244,7 @@ class Button:
 class ClickScale(object):
 
 	def __init__(self, win=None, size=(0.5, 0.15), pos=(0, 0), 
-		color=(-0.3, -0.3, -0.3), units='norm'):
+		color=(-0.3, -0.3, -0.3), units='norm', length=2.):
 		self.win = win
 		# maybe - raise ValueError if win is none
 		self.points = []
@@ -252,6 +252,7 @@ class ClickScale(object):
 		self.units = units
 		self.color = color
 		self.pos = pos
+		self.length = length
 		self.line_color = (1.0, -0.3, -0.3)
 		self.scale = visual.Rect(win, pos=pos, width=size[0],
 				height=size[1], fillColor=color, lineColor=color,
@@ -274,6 +275,7 @@ class ClickScale(object):
 		if self.scale.contains(mouse):
 			mouse_pos = mouse.getPos()
 			val = self.xpos2point(mouse_pos[0])
+			val *= self.length
 			self.add_point(val)
 
 
