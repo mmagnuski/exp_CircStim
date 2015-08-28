@@ -273,9 +273,14 @@ if exp['run main c']:
 	core.wait(0.1)
 	clear_port(exp['port'])
 
-	# get contrast from training
-	if 'contrast_range' not in locals():
-		contrast_range = [0.95, 0.1]
+	# get contrast from fitting
+	if 'fitting_db' not in locals():
+		fitting_db = pd.read_excel(dm.give_previous_path('b'))
+	# fit
+	num_trials = fitting_db.shape[0]
+	w = fitw(fitting_db, range(num_trials-100, num_trials))
+	contrast_range = w.get_threshold(exp['corrLims'])
+	# get range
 
 	contrast_steps = np.linspace(contrast_range[0],
 		contrast_range[1], exp['opac steps'])
