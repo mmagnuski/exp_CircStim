@@ -96,11 +96,13 @@ class Weibull:
 
 		# aesthetics
 		gab99 = self.get_threshold([0.99])[0]
-		if gab99 < 0. or gab99 > 1.:
-			maxval = 1.
+		if gab99 < 0. or gab99 > 2.:
+			maxval = 2.
 		else:
 			maxval = gab99 + 0.1
-		uplim = min([1.0, np.round(maxval, decimals = 1)])
+		if self.params[0] <= 0:
+			maxval = np.max(np.x) + 0.1
+		uplim = min([2.0, np.round(maxval, decimals = 1)])
 		plt.xlim([0.0, uplim])
 		plt.ylim([-0.1, 1.1])
 		plt.xlabel('stimulus intensity')
@@ -284,11 +286,11 @@ def correct_weibull(model, num_fail, df=None):
 		num_fail = 0
 		contrast_range = None
 		contrast_lims = model.get_threshold([0.55, 0.9])
-		if contrast_lims[1] > 1.:
+		if contrast_lims[1] > 2.:
 			# 0.9 is off the contrast limits
 			binval, bins = cut_df_corr(df, num_bins=7)
 			contrast_range = get_new_range(binval, bins)
-		if contrast_lims[1] - contrast_lims[0] > 0.75:
+		if contrast_lims[1] - contrast_lims[0] > 0.85:
 			# the curve is very non-s-like, probably needs correction
 			corr75 = model.get_threshold([0.75])
 			if (contrast_lims[1] - corr75) > (corr75 - contrast_lims[0]):

@@ -8,6 +8,22 @@
 #     -> start (and end?) of each break
 #     ->
 
+# monkey-patch pyglet shaders:
+# ----------------------------
+fragFBOtoFramePatched = '''
+    uniform sampler2D texture;
+
+    float rand(vec2 seed){
+        return fract(sin(dot(seed.xy ,vec2(12.9898,78.233))) * 43758.5453);
+    }
+
+    void main() {
+        vec4 textureFrag = texture2D(texture,gl_TexCoord[0].st);
+        gl_FragColor.rgb = textureFrag.rgb;
+    }
+    '''
+from psychopy import _shadersPyglet
+_shadersPyglet.fragFBOtoFrame = fragFBOtoFramePatched
 
 # imports
 # -------
@@ -33,7 +49,7 @@ if os.name == 'nt' and exp['use trigger']:
 # set logging
 dm = DataManager(exp)
 exp = dm.update_exp(exp)
-exp['numTrials'] = 500
+exp['numTrials'] = 500 # ugly hack, change
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
@@ -73,7 +89,7 @@ if exp['run training']:
 	num_training_blocks = len(exp['train slow'])
 	current_block = 0
 
-	slow['opacity'] = [1.0, 1.0]
+	slow['opacity'] = np.array([1.0, 1.0])
 	txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
 	addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.' +
 		u'\nAby przejść dalej naciśnij spację.')
@@ -129,7 +145,7 @@ if exp['run fitting']:
 	continue_fitting = True
 	step = exp['step until']
 	exp['opacity'] = [1., 1.]
-	s = Stepwise(corr_ratio=[1,1])
+	s = Stepwise(corr_ratio=[1,1], vmax=3.)
 	fitting_db = give_training_db(db, slowdown=1)
 
 	while s.trial <= step[0] and len(s.reversals) < 3:
@@ -148,7 +164,7 @@ if exp['run fitting']:
 	last_trial = s.trial - 1
 	start_param = np.mean(s.reversals) if \
 		len(s.reversals) > 1 else s.param
-	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.025,
+	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.025, vmax=3.,
 		step=[0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.025, 0.025, 0.025])
 
 	trial = s.trial + last_trial
@@ -254,11 +270,17 @@ if exp['run main c']:
 
 	# send trigger
 	onflip_work(exp['port'], 'contrast')
+	core.wait(0.1)
 	clear_port(exp['port'])
 
-	# get contrast from training
-	if 'contrast_range' not in locals():
-		contrast_range = [0.95, 0.1]
+	# get contrast from fitting
+	if 'fitting_db' not in locals():
+		fitting_db = pd.read_excel(dm.give_previous_path('b'))
+	# fit
+	num_trials = fitting_db.shape[0]
+	w = fitw(fitting_db, range(num_trials-100, num_trials))
+	contrast_range = w.get_threshold(exp['corrLims'])
+	# get range
 
 	contrast_steps = np.linspace(contrast_range[0],
 		contrast_range[1], exp['opac steps'])
@@ -315,6 +337,7 @@ if exp['run instruct']:
 	instr.present()
 
 onflip_work(exp['port'], 'time')
+core.wait(0.1)
 clear_port(exp['port'])
 
 # signal that another proc is about to begin

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# imports
+# -------
 from psychopy import core, visual, event, monitors
 from settings import exp, db
 from exputils import getFrameRate
@@ -20,11 +22,13 @@ if "BENQ-XL2411" in monitors:
 
 # create a window
 # ---------------
-winkeys = {'units' : 'deg', 'fullscr' : True,
-	'color' : [-0.2, -0.2, -0.2], 'monitor' : monitorName}
+winkeys = {'units' : 'deg', 'fullscr' : True, 'useFBO' : True,
+	'blendMode' : 'add', 'monitor' : monitorName}
 if exp['two screens']:
 	winkeys.update({'screen' : 0})	
-win = visual.Window(**winkeys)
+# win = visual.Window(**winkeys)
+win = visual.Window(monitor='testMonitor', fullscr=True, units='deg', 
+    useFBO=True, blendMode='add')
 win.setMouseVisible(False)
 
 
@@ -67,8 +71,49 @@ def gabor(win = win, ori = 0, opa = 1.0,
 							  opacity = opa,  units = units)
 
 
-def fix(color=(0.5, 0.5, 0.5)):
-	dot = visual.Circle(stim['window'], radius=0.15,
+class Gabor(object):
+	'''Simple gabor class that allows the contrast to go
+	up to 3.0 (clipping the out of bound rgb values).
+	Requires window to be set with useFBO=True and 
+	blendMode='add' as well as a monkey-patch for
+	pyglet shaders.'''
+
+	def __init__(self, **kwargs):
+		self.draw_which = 0
+		win = kwargs.pop('win')
+		self.contrast = kwargs.pop('contrast', 1.)
+		kwargs.update({'contrast': 0., 'mask': 'gauss'})
+
+		# generate gabors:
+		self.gabors = list()
+		self.gabors.append(visual.GratingStim(win, **kwargs))
+		self.gabors.append(visual.GratingStim(win, **kwargs))
+		self.gabors.append(visual.GratingStim(win, **kwargs))
+		self.set_contrast(self.contrast)
+
+	def set_contrast(self, val):
+		self.contrast = val
+		self.draw_which = 0
+		for g in self.gabors:
+			if val > 0.:
+				self.draw_which += 1
+				if val > 1.:
+					g.contrast = 1.
+					val = val - 1.
+				else:
+					g.contrast = val
+					break
+
+	def draw(self):
+		# make sure window is in blendMode 'add':
+		# if self.win.blendMode == 'add':
+		# 	self.win.blendMode = 'add'
+		for g in range(self.draw_which):
+			self.gabors[g].draw()
+
+
+def fix(win=win, color=(0.5, 0.5, 0.5)):
+	dot = visual.Circle(win, radius=0.15,
 		edges=16, units='deg')
 	dot.setFillColor(color)
 	dot.setLineColor(color)
@@ -92,13 +137,19 @@ stim['window'] = win
 
 # resolve multiple screens stuff
 if exp['two screens']:
-	winkeys.update({'screen' : 1})	
+	winkeys.update({'screen' : 1, 'blendMode' : 'avg'})
 	stim['window2'] = visual.Window(**winkeys)
 	imgwin = stim['window2']
 else:
 	imgwin = stim['window']
 
-stim['target'] = gabor()
+# create all target orientations
+stim['target'] = dict()
+for o in exp['orientation']:
+	stim['target'][o] = Gabor(win=stim['window'],
+		size=exp['gabor size'], units='deg',
+		sf=exp['gabor freq'], ori=o)
+
 stim['centerImage'] = visual.ImageStim(imgwin, image=None,
 	pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
 
@@ -152,9 +203,11 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 					size = 1
 					)[0], decimals = 3)
 
-	# set target properties (takes less than 1 ms)
-	stim['target'].ori = db.loc[tr]['orientation']
-	stim['target'].opacity = db.loc[tr]['opacity']
+	# set target properties
+	orientation = db.loc[tr]['orientation']
+	contrast = db.loc[tr]['opacity']
+	target = stim['target'][orientation]
+	target.set_contrast(contrast)
 	target_code = 'target_' + str(int(db.loc[tr]['orientation']))
 
 	# get trial start time
@@ -178,7 +231,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 		clock=exp['clock'])
 	for f in np.arange(db.loc[tr]['targetTime']):
-		stim['target'].draw()
+		target.draw()
 		win.flip()
 
 	# interval
@@ -236,22 +289,25 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
 	train_corr = 0
 	train_db = give_training_db(db, slowdown=slowdown)
+	exp['opacity'] = np.array([1., 1.])
+
 	while train_corr < corr or i < mintrials:
 		present_trial(i, exp=exp, db=train_db)
-
-		# feedback:
 		present_feedback(i, db=train_db)
+
 		# check correctness
 		train_corr = train_db.loc[max(1,
 			i-mintrials+1):i, 'ifcorrect'].mean()
 
 		if (i % mintrials) == 0 and train_corr < corr:
-			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
 			# show info about correctness and remind key mapping
+			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
 			textscreen(thistxt)
 			show_resp_rules()
+
+			exp['opacity'] += 0.2
 		i += 1
-	# save training db!
+	# return db so it can be saved
 	return train_db, train_corr
 
 
@@ -263,9 +319,11 @@ def present_feedback(i, db=db, stim=stim):
 		stim['feedback'].setFillColor([0.9, 0.1, 0.1])
 		stim['feedback'].setLineColor([0.9, 0.1, 0.1])
 
+	stim['window'].blendMode = 'avg'
 	for f in range(0, exp['fdb time'][0]):
 		stim['feedback'].draw()
 		stim['window'].flip()
+	stim['window'].blendMode = 'add'
 
 
 # class for stepwise constrast adjustment
@@ -393,12 +451,16 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 	# draw all:
 	for t in txStim:
 		t.draw()
+	# fix window blendMode:
+	win.blendMode = 'add'
 	for g in stims:
 		g.draw()
 
 	# draw text if necessary:
 	if text:
 		visual.TextStim(win, text=text).draw()	
+		# fix window blendMode:
+		win.blendMode = 'add'
 
 	win.flip()
 
@@ -412,6 +474,8 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 
 def textscreen(text, win=stim['window'], exp=exp):
 	visual.TextStim(win, text = text, units = 'norm').draw()
+	# fix window blendMode:
+	win.blendMode = 'add'
 	win.flip()
 	event.waitKeys()
 
@@ -423,6 +487,8 @@ def present_break(t, exp = exp, win = stim['window']):
 	info = visual.TextStim(win, text = tex, pos = [0, 0], units = 'norm')
 
 	info.draw()
+	# fix window blendMode:
+	win.blendMode = 'add'
 	win.flip()
 
 	# wait for space key:
@@ -472,9 +538,17 @@ class Instructions:
 		while self.nextpage < stop:
 			# create page elements
 			self.create_page()
+
 			# draw page elements
+			any_circle = np.any([isinstance(x, visual.Circle)
+				for x in self.pageitems])
+			if any_circle:
+				self.win.blendMode = 'avg'
+
 			for it in self.pageitems:
 				it.draw()
+				if isinstance(it, visual.TextStim) and not any_circle:
+					self.win.blendMode = 'add'
 			self.win.flip()
 
 			# wait for response
@@ -495,5 +569,6 @@ class Instructions:
 	def parse_item(self, item):
 		# currently: gabor or text:
 		fun = self.mapdict.get(item['item'], [])
-
+		args = item['value']
+		args.update({'win' : self.win})
 		if fun: return fun(**item['value'])

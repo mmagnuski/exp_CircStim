@@ -1,3 +1,4 @@
+# imports
 import os
 import numpy  as np
 import pandas as pd
@@ -11,7 +12,7 @@ from exputils  import (ms2frames, getSubject,
 # -------------------
 exp = {}
 exp['debug']        = True
-exp['two screens']  = True
+exp['two screens']  = False
 exp['clock']        = core.Clock()
 exp['use trigger']  = True
 exp['port address'] = '0xDC00' # string, for example '0xD05'
@@ -24,6 +25,7 @@ exp['break after']  = 15  # how often subjects have a break
 exp['corrLims']    = [0.55, 0.9]
 exp['opacity']     = [0.05, 0.8]
 exp['min opac']    = 0.01
+exp['max opac']    = 2.0
 exp['opac steps']  = 10
 
 # training settings
