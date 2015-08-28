@@ -543,7 +543,7 @@ class Instructions:
 			any_circle = np.any([isinstance(x, visual.Circle)
 				for x in self.pageitems])
 			if any_circle:
-				self.win.blemdMode = 'avg'
+				self.win.blendMode = 'avg'
 
 			for it in self.pageitems:
 				it.draw()
