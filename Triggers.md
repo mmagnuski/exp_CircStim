@@ -7,10 +7,10 @@ stimuli
 fixation   - 1  
 mask       - 2  
 target:  
-       0   - 4  
-       45  - 5  
-       90  - 6  
-       135 - 7  
+  - 0   - 4  
+  - 45  - 5  
+  - 90  - 6  
+  - 135 - 7  
 
 breaks
 ------
