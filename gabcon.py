@@ -235,6 +235,8 @@ if exp['run fitting']:
 			method=exp['search method'], contrast_lims=contrast_range)
 		print check_contrast
 
+		# Interface
+		# ---------
 		# show weibull fit
 		stim = plot_Feedback(stim, w, exp['data'])
 		interf = ContrastInterface(stim=stim, trial=trial)
