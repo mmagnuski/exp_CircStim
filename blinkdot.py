@@ -7,7 +7,14 @@
 # 0.5 - 4 seconds before each flick, 1 second after
 
 from psychopy import visual, event, core
-from random import randrange
+from random import randint
+import pandas as pd
+
+# try importing ctypes.windll
+try:
+	from ctypes import windll
+except:
+	pass
 
 # example sequence
 frame_range = (70, 200)
