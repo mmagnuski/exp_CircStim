@@ -32,9 +32,9 @@ def dot(win, color=(1,1,1)):
 
 def give_dot_stim(win):
 	stim = dict()
-	stim['text'] = visual.TextStim(win, pos=(6,0))
 	stim['dot_gray'] = dot(win, color = [0.3, 0.3, 0.3])
 	stim['dot_white'] = dot(win, color = [1., 1., 1.])
+	stim['text'] = visual.TextStim(win, pos=(0,6))
 	stim['text type'] = visual.TextStim(win)
 	return stim
 
