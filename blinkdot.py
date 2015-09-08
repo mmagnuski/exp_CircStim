@@ -13,12 +13,18 @@ from random import randrange
 frame_range = (70, 200)
 trials_in_block = (5, 15)
 
+def dot(win, color=(1,1,1)):
+    circ = visual.Circle(win, radius=0.15, edges=64, units='deg')
+    circ.setFillColor(color)
+    circ.setLineColor(color)
+    return circ
+
 
 def give_dot_stim(win):
 	stim = dict()
-	stim['dot_gray'] = visual.Circle(win, color = [0.3, 0.3, 0.3])
-	stim['dot_white'] = visual.Circle(win, color = [1., 1., 1.])
 	stim['text'] = visual.TextStim(win, pos=(6,0))
+	stim['dot_gray'] = dot(win, color = [0.3, 0.3, 0.3])
+	stim['dot_white'] = dot(win, color = [1., 1., 1.])
 	stim['text type'] = visual.TextStim(win)
 	return stim
 
