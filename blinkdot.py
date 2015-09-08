@@ -1,4 +1,10 @@
+# -*- coding: utf-8 -*-
 # count flicker task - simple visual responses
+
+# we need about 70 flicks (per condition if more than one)
+# 5 - 15 flicks gives us average of 10 - so 7 trial should
+# be ok
+# 0.5 - 4 seconds before each flick, 1 second after
 
 from psychopy import visual, event, core
 from random import randrange
