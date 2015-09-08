@@ -86,7 +86,39 @@ def get_num_resp(win, stim, trigger=False):
 			typed_str += k[0]
 		stim['text type'].setText(typed_str)
 		stim['text type'].draw()
+		stim['text'].draw()
 		win.flip()
 	return int(typed_str)
+
+
+def give_trial_times(blink_lims, times):
+	# testing:
+	num_blinks = randint(*blink_lims)
+	pre_rng = (times['pre min'], times['pre max'])
+	return [ [randint(*pre_rng), times['stim'], 
+		times['post']] for _ in range(num_blinks)]
+
+
+def all_trials(win, stim, time, blink_lims=trials_in_block,
+	min_blinks=100, trigger=False):
+	num_all_blinks = 0
+	tri = 0
+	df = pd.DataFrame({'num_blinks' : [], 'num_typed' : [],
+		'ifcorrect' : []})
+	while num_all_blinks < min_blinks:
+		# get wait times for each blink:
+		trial_times = give_trial_times(blink_lims, time)
+
+		# check how many blinks
+		num_blinks = len(trial_times)
+		num_all_blinks += num_blinks
+
+		# present
+		present_dot_trial(win, stim, trial_times, trigger=trigger)
+		num_typed = get_num_resp(win, stim, trigger=trigger)
+		df.loc[tri, :] = [num_blinks, num_typed,
+			num_blinks == num_typed]
+		tri += 1
+	return df
 
 
