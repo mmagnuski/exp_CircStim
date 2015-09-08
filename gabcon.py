@@ -35,7 +35,7 @@ import pandas as pd
 import blinkdot as blnk
 from exputils  import (plot_Feedback, create_database,
 	ContrastInterface, DataManager, ExperimenterInfo,
-	AnyQuestionsGUI, ms2frames)
+	AnyQuestionsGUI, ms2frames, getFrameRate)
 from utils     import to_percent, round2step, trim_df
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim, present_trial,
@@ -63,8 +63,10 @@ exp_info = ExperimenterInfo(exp, stim)
 # blinking dot
 # ------------
 if exp['run blinkdot']:
+	stim['window'].blendMode = 'avg'
 	instr = Instructions('dot_instructions.yaml')
 	instr.present()
+	stim['window'].blendMode = 'avg'
 	frms = getFrameRate(stim['window'])
 	dotstim = blnk.give_dot_stim(stim['window'])
 
@@ -83,6 +85,7 @@ if exp['run blinkdot']:
 	df = blnk.all_trials(stim['window'], dotstim, time,
 		trigger=trigger)
 	df.to_excel(dm.give_path('0'))
+	stim['window'].blendMode = 'add'
 
 
 # INSTRUCTIONS
@@ -138,11 +141,14 @@ if exp['run training']:
 		show_resp_rules(exp=exp)
 
 		# concatenate training db's (and change indexing)
-		if df_train:
-			df_train = pd.concat([df_train, trim_df(df)])
-			df_train.index = np.r_[1:df_train.shape[0]+1]
-		else:
-			df_train = trim_df(df)
+		try:
+			if 'df_train' in locals():
+				df_train = pd.concat([df_train, trim_df(df)])
+				df_train.index = np.r_[1:df_train.shape[0]+1]
+			else:
+				df_train = trim_df(df)
+		except:
+			pass
 
 	# save training database:
 	df_train.to_excel(dm.give_path('a'))
@@ -264,6 +270,8 @@ if exp['run fitting']:
 		# Interface
 		# ---------
 		# show weibull fit
+		if not 'window2' in stim:
+			stim['window'].blendMode = 'avg'
 		stim = plot_Feedback(stim, w, exp['data'])
 		interf = ContrastInterface(stim=stim, trial=trial)
 
@@ -283,6 +291,8 @@ if exp['run fitting']:
 		interf.quit()
 		if len(interf.contrast) > 0:
 			check_contrast = interf.contrast
+		if not 'window2' in stim:
+			stim['window'].blendMode = 'add'
 		print 'interface contrast: ', interf.contrast
 
 

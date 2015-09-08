@@ -74,7 +74,7 @@ class Weibull:
 	def plot(self, pth='', points=True, line=True):
 		# get predicted data
 		numpnts = 1000
-		x = np.linspace(0., 1., num = numpnts)
+		x = np.linspace(0., 2., num = numpnts)
 		y = self._fun(self.params, x)
 
 		# add noise to data to increase visibility
@@ -101,7 +101,7 @@ class Weibull:
 		else:
 			maxval = gab99 + 0.1
 		if self.params[0] <= 0:
-			maxval = np.max(np.x) + 0.1
+			maxval = np.max(self.x) + 0.1
 		uplim = min([2.0, np.round(maxval, decimals = 1)])
 		plt.xlim([0.0, uplim])
 		plt.ylim([-0.1, 1.1])

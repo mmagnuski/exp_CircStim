@@ -105,19 +105,22 @@ def all_trials(win, stim, time, blink_lims=trials_in_block,
 	tri = 0
 	df = pd.DataFrame({'num_blinks' : [], 'num_typed' : [],
 		'ifcorrect' : []})
+	df = df.loc[:, ['num_blinks', 'num_typed', 'ifcorrect']]
 	while num_all_blinks < min_blinks:
 		# get wait times for each blink:
 		trial_times = give_trial_times(blink_lims, time)
 
 		# check how many blinks
 		num_blinks = len(trial_times)
+		print num_blinks
 		num_all_blinks += num_blinks
 
 		# present
 		present_dot_trial(win, stim, trial_times, trigger=trigger)
 		num_typed = get_num_resp(win, stim, trigger=trigger)
-		df.loc[tri, :] = [num_blinks, num_typed,
-			num_blinks == num_typed]
+		df.loc[tri, 'num_blinks'] = num_blinks
+		df.loc[tri, 'num_typed'] = num_typed
+		df.loc[tri, 'ifcorrect'] = num_blinks == num_typed
 		tri += 1
 	return df
 
