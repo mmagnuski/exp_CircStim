@@ -41,18 +41,24 @@ def give_dot_stim(win):
 
 def present_dot_trial(win, stim, times, trigger=False):
 	for t in times:
-		for _ in t[0]:
+		# wait for blink
+		for _ in range(t[0]):
 			stim['dot_gray'].draw()
 			win.flip()
-		for _ in t[1]:
 		# if trigger - onflip
 		if trigger:
 			win.callOnFlip(onflip_trigger, trigger)
+		# present blink
+		for _ in range(t[1]):
 			stim['dot_white'].draw()
 			win.flip()
 		# clear port
 		if trigger:
 			win.callOnFlip(onflip_trigger, [trigger[0], 0])
+		# post wait
+		for _ in range(t[2]):
+			stim['dot_gray'].draw()
+			win.flip()
 
 
 def get_num_resp(win, stim, trigger=False):
