@@ -32,6 +32,7 @@ from psychopy  import visual, core, event, logging
 import os
 import numpy  as np
 import pandas as pd
+import blinkdot as blnk
 from exputils  import (plot_Feedback, create_database,
 	ContrastInterface, DataManager, ExperimenterInfo,
 	AnyQuestionsGUI, ms2frames)
@@ -58,6 +59,31 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # if c part done -> use data
 # check via dm.give_previous_path('b') etc.
 exp_info = ExperimenterInfo(exp, stim)
+
+# blinking dot
+# ------------
+if exp['run blinkdot']:
+	instr = Instructions('dot_instructions.yaml')
+	instr.present()
+	frms = getFrameRate(stim['window'])
+	dotstim = blnk.give_dot_stim(stim['window'])
+
+	# times in ms to get trial times
+	time = dict()
+	time['pre min'] = 500
+	time['pre max'] = 4000
+	time['stim'] = 100
+	time['post'] = 1000
+
+	trigger = False
+	if exp['use trigger']:
+		trigger = [exp['port address'], 123]
+
+	time = ms2frames(time, frms['time'])
+	df = blnk.all_trials(stim['window'], dotstim, time,
+		trigger=trigger)
+	df.to_excel(dm.give_path('0'))
+
 
 # INSTRUCTIONS
 # ------------
