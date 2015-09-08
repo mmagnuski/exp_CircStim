@@ -20,6 +20,9 @@ except:
 frame_range = (70, 200)
 trials_in_block = (5, 15)
 
+def onflip_trigger(trig):
+	windll.inpout32.Out32(trig[0], trig[1])
+
 def dot(win, color=(1,1,1)):
     circ = visual.Circle(win, radius=0.15, edges=64, units='deg')
     circ.setFillColor(color)
@@ -36,21 +39,37 @@ def give_dot_stim(win):
 	return stim
 
 
-def present_dot_trial(win, stim, times):
+def present_dot_trial(win, stim, times, trigger=False):
 	for t in times:
 		for _ in t[0]:
 			stim['dot_gray'].draw()
 			win.flip()
 		for _ in t[1]:
+		# if trigger - onflip
+		if trigger:
+			win.callOnFlip(onflip_trigger, trigger)
 			stim['dot_white'].draw()
 			win.flip()
+		# clear port
+		if trigger:
+			win.callOnFlip(onflip_trigger, [trigger[0], 0])
 
 
-def get_num_resp(win, stim):
+def get_num_resp(win, stim, trigger=False):
 	finished_typing = False
 	stim['text'].setText(u'Proszę wpisać ile razy mignęła kropka:')
 	keys = list('0123456789') + ['return', 'backspace']
 	typed_str = ''
+
+	if trigger:
+		win.callOnFlip(onflip_trigger, [trigger[0], 222])
+
+	stim['text'].draw()
+	win.flip()
+
+	if trigger:
+		win.callOnFlip(onflip_trigger, [trigger[0], 0])
+
 	while not finished_typing:
 		k = event.waitKeys(keyList=keys)
 		if 'return' in k and typed_str:
