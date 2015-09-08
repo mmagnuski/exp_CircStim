@@ -1,0 +1,117 @@
+---
+- item     : text
+  value    : 
+    text   : >
+      Witaj,\ndziękujemy że zgodzi[łeś/łaś] się wziąć udział w
+      eksperymencie.\nEksperyment dotyczy neuronalnych
+      mechanizmów percepcji.\nTwoim pierwszym zadaniem będzie
+      oglądanie mrugającej\nkropki i liczenie ile razy mrugnęła.
+      \nKropka będzie widoczna na środku ekranu, ale będzie
+      mrugać tylko od\nczasu do czasu więc patrz się na nią
+      uważnie.
+    pos    : [0, 0.5]
+    height : 0.07
+    wrapWidth: 1.5
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+
+---
+# page 2
+- item     : text
+  value    : 
+    text   : >
+      Po kilku-kilkunastu mrugnięciach na
+      ekranie pojawi się prośba\nabyś wpisa[ł/ła] za pomocą klawiatury
+      ile razy mrugnęła kropka.\nOdpowiedź zatwierdzasz klawiszem
+      enter.\nMożesz też kasować znaki klawiszem backspace.
+    pos    : [0, 0.5]
+    height : 0.07
+    wrapWidth: 1.5
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+
+---
+# page 3
+- item     : text
+  value    : 
+    text   : >
+      Po wpisaniu ile razy kropka mrugnęła i
+      zatwierdzeniu\nklawiszem enter kropka zacznie
+      ponownie mrugać. Zacznij wtedy liczyć od
+      początku.\nCała sekwencja (kropka mruga, Ty
+      liczysz, pojawia się pytanie,\nwpisujesz ile razy
+      mrugnęła kropka) powtórzy się kilka do kilkunastu razy.
+    pos    : [0, 0.5]
+    height : 0.07
+    wrapWidth: 1.5
+- item     : gabor
+  value    : 
+    ori    : 135
+    pos    : [0, -0.5]
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby przejść dalej 
+      naciśnij strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+
+---
+# page 4
+- item     : text
+  value    : 
+    text   : >
+      Przez cały czas gdy kropka jest widoczna\nna ekranie
+      - utrzymuj na niej wzrok.\nStaraj się również nie mrugać
+      zbyt często.\n\nTo już koniec instrukcji do tej części
+      badania - przygotuj się do liczenia. :)
+    pos    : [0, 0.5]
+    height : 0.07
+    wrapWidth: 1.5
+# bottom navigation info
+- item     : text
+  value    : 
+    text   : >
+      Jeśli potrzebujesz wrócić do poprzedniej instrukcji 
+      naciśnij strzałkę w lewo
+    pos    : [-0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
+- item     : text
+  value    : 
+    text   : >
+      Aby zacząć liczyć mrugnięcia kropki naciśnij
+      strzałkę w prawo
+    pos    : [0.6, -0.7]
+    height : 0.07
+    wrapWidth: 0.5
