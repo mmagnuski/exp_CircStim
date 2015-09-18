@@ -13,16 +13,19 @@ from exputils  import (ms2frames, getSubject,
 exp = {}
 exp['debug']        = True
 exp['two screens']  = False
-exp['clock']        = core.Clock()
-exp['use trigger']  = True
-exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['run blinkdot'] = False
 exp['run instruct'] = True
 exp['run training'] = False
 exp['run fitting']  = True
-exp['run main c']   = True
+exp['run main c']   = False
 exp['run main t']   = False
 exp['break after']  = 15  # how often subjects have a break
+
+exp['use trigger']  = False
+exp['port address'] = '0xDC00' # string, for example '0xD05'
+exp['clock']        = core.Clock()
+
+# contrast settings
 exp['corrLims']    = [0.55, 0.9]
 exp['opacity']     = [0.05, 0.8]
 exp['min opac']    = 0.01
