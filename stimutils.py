@@ -423,6 +423,7 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 
 	# set up triggers for the break:
 	win.callOnFlip(onflip_work, exp['port'], code='breakStart')
+
 	# create diagonal on one side and cardinal on the other
 	ch    = int(exp['keymap'][45] == exp['use keys'][0])
 
