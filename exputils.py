@@ -100,14 +100,18 @@ class ContrastInterface(Interface):
 
 		# scale
 		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1))
+		self.scale_text = visual.TextStim(self.win, pos=(0.,-0.65), text="")
 		self.edit_mode = False
 		self.last_pressed = False
+
 
 
 	def draw(self):
 		[b.draw() for b in self.buttons]
 		if self.buttons[-2].clicked:
+			self.set_scale_text()
 			self.scale.draw()
+			self.scale_text.draw()
 			# TODO: this might be moved to refresh:
 			if self.last_pressed:
 				step = self.grain_vals[self.current_grain_val]
@@ -140,6 +144,20 @@ class ContrastInterface(Interface):
 		self.win.flip()
 		if if_click:
 			core.wait(0.1)
+
+
+	def set_scale_text(self):
+		val = self.scale.test_pos(self.mouse)
+		if val:
+			step = self.grain_vals[self.current_grain_val]
+			val = round2step(val, step=step)
+			get_chars = 2 + np.sum(np.array([1., 0.1, 0.01, 0.001]) <= val)
+			val = str(val)
+			get_chars = min(get_chars, len(val))
+			val = val[:get_chars]
+		else:
+			val = ""
+		self.scale_text.setText(val)
 
 
 	def check_mouse_click(self):
@@ -276,6 +294,15 @@ class ClickScale(object):
 			mouse_pos = mouse.getPos()
 			val = self.xpos2point(mouse_pos[0])
 			self.add_point(val)
+
+
+	def test_pos(self, mouse):
+		if self.scale.contains(mouse):
+			mouse_pos = mouse.getPos()
+			val = self.xpos2point(mouse_pos[0])
+			return val * self.length
+		else:
+			return None
 
 
 	def add_point(self, val):
