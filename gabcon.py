@@ -141,14 +141,11 @@ if exp['run training']:
 		show_resp_rules(exp=exp)
 
 		# concatenate training db's (and change indexing)
-		try:
-			if 'df_train' in locals():
-				df_train = pd.concat([df_train, trim_df(df)])
-				df_train.index = np.r_[1:df_train.shape[0]+1]
-			else:
-				df_train = trim_df(df)
-		except:
-			pass
+		if 'df_train' in locals():
+			df_train = pd.concat([df_train, trim_df(df)])
+			df_train.index = np.r_[1:df_train.shape[0]+1]
+		else:
+			df_train = trim_df(df)
 
 	# save training database:
 	df_train.to_excel(dm.give_path('a'))
