@@ -275,12 +275,11 @@ class ClickScale(object):
 		if self.scale.contains(mouse):
 			mouse_pos = mouse.getPos()
 			val = self.xpos2point(mouse_pos[0])
-			val *= self.length
 			self.add_point(val)
 
 
 	def add_point(self, val):
-		self.points.append(val)
+		self.points.append(val * self.length)
 		pos = [0., self.pos[1]]
 		pos[0] = self.point2xpos(val)
 		ln = visual.Rect(self.win, pos=pos, width=0.01,
