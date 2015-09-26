@@ -13,10 +13,10 @@ from exputils  import (ms2frames, getSubject,
 exp = {}
 exp['debug']        = True
 exp['two screens']  = False
-exp['run blinkdot'] = False
+exp['run blinkdot'] = True
 exp['run instruct'] = True
 exp['run training'] = False
-exp['run fitting']  = True
+exp['run fitting']  = False
 exp['run main c']   = False
 exp['run main t']   = False
 exp['break after']  = 15  # how often subjects have a break
