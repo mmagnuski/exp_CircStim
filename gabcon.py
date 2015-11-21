@@ -81,7 +81,7 @@ if exp['run blinkdot']:
 
 	trigger = False
 	if exp['use trigger']:
-		trigger = [exp['port address'], 123]
+		trigger = [exp['port']['port address'], 123]
 
 	time = ms2frames(time, frms['time'])
 	df = blnk.all_trials(stim['window'], dotstim, time,
