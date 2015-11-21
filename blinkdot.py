@@ -60,6 +60,9 @@ def present_dot_trial(win, stim, times, trigger=False):
 			stim['dot_gray'].draw()
 			win.flip()
 
+		if 'q' in event.getKeys():
+			core.quit()
+
 
 def get_num_resp(win, stim, trigger=False):
 	finished_typing = False
@@ -82,6 +85,8 @@ def get_num_resp(win, stim, trigger=False):
 			finished_typing = True
 		elif 'backspace' in k and typed_str:
 			typed_str = typed_str[:-1]
+		elif 'q' in k:
+			core.quit()
 		else:
 			typed_str += k[0]
 		stim['text type'].setText(typed_str)
