@@ -64,10 +64,6 @@
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
-- item     : gabor
-  value    : 
-    ori    : 135
-    pos    : [0, -0.5]
 # bottom navigation info
 - item     : text
   value    : 
