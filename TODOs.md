@@ -1,12 +1,12 @@
 TODOs
 =====
 
-trial:
-[ ] - send marker on response?
-[ ] - 
+## trial:
+- [ ] send marker on response?
 
-instructions:
+## instructions:
+- [ ] check what needs to be done
 
-fitting:
-[ ] - accept fitting steps, some menu
-[x] - load relevant data if not present in locals
+## fitting part:
+ - [ ] accept fitting steps, some menu (?)
+ - [x] load relevant data if not present in locals
