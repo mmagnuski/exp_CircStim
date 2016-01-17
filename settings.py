@@ -15,12 +15,12 @@ exp['debug']        = True
 exp['two screens']  = False
 exp['use trigger']  = False
 
-exp['run blinkdot'] = True
+exp['run blinkdot'] = False
 exp['run instruct'] = True
 exp['run training'] = False
-exp['run fitting']  = False
-exp['run main c']   = False
-exp['run main t']   = False
+exp['run fitting']  = True
+exp['run main c']   = True
+exp['run main t']   = True
 exp['break after']  = 15  # how often subjects have a break
 
 exp['port address'] = '0xDC00' # string, for example '0xD05'
