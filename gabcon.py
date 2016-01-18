@@ -3,7 +3,7 @@
 # add description
 
 # TODOs:
-# [.] add instructions to whole proc (blinkdot, resting)
+# [.] add instructions to whole proc (blinkdot, _resting_)
 # [ ] add markers to:
 #     -> start (and end? - fixation point at the same time
 #        no need to put marker at the end of each break)
@@ -60,6 +60,8 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # if fitting completed -> use data
 # if c part done -> use data
 # check via dm.give_previous_path('b') etc.
+
+# create object for updating experimenter about progress
 exp_info = ExperimenterInfo(exp, stim)
 
 # blinking dot

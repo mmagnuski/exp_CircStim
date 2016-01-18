@@ -371,7 +371,7 @@ class AnyQuestionsGUI(Interface):
 	def __init__(self, exp, stim):
 		self.wait_text = False
 		super(AnyQuestionsGUI, self).__init__(exp, stim, main_win=1)
-		tx = (u'Jeżeli masz jakieś pytania - naciśnij f albo j.\n' +
+		tx = (u'Jeżeli masz jakieś pytania - naciśnij f.\n' +
 			u'Jeżeli nie masz pytań - naciśnij spację.')
 		self.tx1 = visual.TextStim(self.win, text=tx)
 		if self.two_windows:
@@ -386,7 +386,7 @@ class AnyQuestionsGUI(Interface):
 			self.win2.flip()
 		self.tx1.draw()
 		self.win.flip()
-		self.pressed = event.waitKeys(keyList=['space', 'j', 'k'])
+		self.pressed = event.waitKeys(keyList=['space', 'f'])
 
 		if not ('space' in self.pressed):
 			if self.two_windows:
