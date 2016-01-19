@@ -35,8 +35,9 @@ class FinalFitGUI(Interface):
 
 		self.win.setMouseVisible(True)
 		self.mouse = event.Mouse(win=self.win)
-		self.db = db
+		self.db = trim_df(db)
 		self.weibull = weibull
+		self.params = weibull.params
 
 		# centerImage (weibull fit plot):
 		self.origunits = self.win.units
@@ -67,6 +68,16 @@ class FinalFitGUI(Interface):
 		self.stim['centerImage'].draw()
 
 	def refresh_weibull(self):
+		# fit weibull
+		nrow = self.db.shape[0]
+		look_back = min(nrow, self.num_trials)
+		look_back = max(5, look_back)
+		ind = np.r_[nrow-look_back:nrow]
+		w = fitw(self.db, ind)
+		self.params = w.params
+
+		self.stim = plot_Feedback(self.stim, self.weibull,
+			exp['data']) # exp['data'] will only work from gabcon.py
 
 		
 	def test_keys(self, k):
