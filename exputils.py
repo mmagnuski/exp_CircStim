@@ -404,7 +404,6 @@ class FinalFitGUI(Interface):
 
 	def __init__(self, exp=None, stim=None, db=None,
 			weibull=None, fitfun=None):
-		self.contrast = []
 
 		# setup
 		# -----
@@ -426,18 +425,17 @@ class FinalFitGUI(Interface):
 
 		# centerImage (weibull fit plot):
 		self.origunits = self.win.units
-		self.win.units = 'norm'
 		win_pix_size = self.win.size
 		pic_pix_size = self.stim['centerImage'].size
-		pic_nrm_size = [(p / (w * 1.)) * 2. for (p, w) in
-			zip(pic_pix_size, win_pix_size)]
-		self.stim['centerImage'].units = 'norm'
-		self.stim['centerImage'].setPos((0., 0.2))
-		self.stim['centerImage'].setSize([pic_nrm_size])
+
+		pic = self.stim['centerImage']
+
+		self.win.units = 'norm'
+		self.stim['centerImage'].setPos((0., 0.3 * win_pix_size[1]))
 
 		# OK button
 		pos = [0., -0.8]
-		txt = ['OK']
+		txt = 'OK'
 		self.OKbutton = Button(win=self.win, pos=pos, text=txt, size=(0.35, 0.12))
 		self.OKbutton.click_fun = self.accept
 		self.notfinished = True

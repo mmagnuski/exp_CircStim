@@ -11,17 +11,19 @@ from weibull import fitw
 
 # read data
 pth = exp['data']
-fl = 'new_test_01_b_1.xls'
+# fl = 'new_test_01_b_1.xls'
+fl = 'Alexis01_b.xls'
 flpth = os.path.join(pth, fl)
 df = pd.read_excel(flpth)
 
 print(df.head())
 
-print(exp)
-print(stim)
+if not 'window2' in stim:
+    stim['window'].blendMode = 'avg'
 
-stim['window'].blendMode = 'avg'
+stim['target'][0].draw()
 stim['window'].flip()
+core.wait(1.)
 
 
 # stim['centerImage'] = visual.ImageStim(stim['window'], image=r'data\T004_weibull_fit_temp.png')
