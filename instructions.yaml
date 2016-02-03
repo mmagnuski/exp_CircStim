@@ -12,7 +12,7 @@
       Witaj,\ndziękujemy że zgodzi[łeś/łaś] się wziąć udział w
       eksperymencie.\nEksperyment dotyczy neuronalnych
       mechanizmów percepcji.\nTwoim zadaniem będzie odpowiadanie
-      jakie nachylenie miał prezentowany wzorek (bodziec).\nPrzykładowy
+      jakie nachylenie miał\nprezentowany wzorek (bodziec).\nPrzykładowy
       wzorek możesz zobaczyć poniżej:
     pos    : [0, 0.5]
     height : 0.07
@@ -214,7 +214,7 @@
   value    : 
     text   : >
       Wszystkie bodźce będą pojawiać się na środku ekranu.\nPrzed pojawieniem
-      się bodźca środek ekranu\nbędzie oznaczony kropką (taką jak poniżej).\nDla
+      się bodźca środek ekranu będzie\noznaczony kropką (taką jak poniżej).\nDla
       poprawnego przebiegu eksperymentu ważne jest abyś patrzy[ł/ła] cały czas na
       środek ekranu. W związku z tym podczas eksperymentu należy utrzymywać wzrok na kropce, kiedy tylko
       będzie obecna na ekranie.
