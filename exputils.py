@@ -441,10 +441,10 @@ class FinalFitGUI(Interface):
 		self.OKbutton = Button(win=self.win, pos=pos, text=txt, size=(0.35, 0.12))
 		self.OKbutton.click_fun = self.accept
 		self.notfinished = True
-		
+
 		# edit box
 		self.text = visual.TextStim(win=self.win, text=str(self.num_trials),
-			pos=(0.0, -0.5), units='norm', height=0.16)
+			pos=(0.0, -0.6), units='norm', height=0.16)
 
 	def draw(self):
 		self.OKbutton.draw()
