@@ -421,7 +421,9 @@ class FinalFitGUI(Interface):
 			self.weibull = []
 			self.params = []
 
+		self.num_trials = 40
 		self.fitfun = fitfun
+		self.refresh_weibull()
 
 		# centerImage (weibull fit plot):
 		self.origunits = self.win.units
@@ -441,7 +443,6 @@ class FinalFitGUI(Interface):
 		self.notfinished = True
 		
 		# edit box
-		self.num_trials = 40
 		self.text = visual.TextStim(win=self.win, text=str(self.num_trials),
 			pos=(0.0, -0.5), units='norm', height=0.16)
 
@@ -461,8 +462,8 @@ class FinalFitGUI(Interface):
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
 			self.exp['data'])
-		self.draw()
-		
+		self.stim['centerImage'].draw()
+
 	def test_keys(self, k):
 		if k:
 			current_str = str(self.num_trials)
