@@ -468,6 +468,7 @@ class FinalFitGUI(Interface):
 
 	def test_keys(self, k):
 		if k:
+			k = k[0]
 			current_str = str(self.num_trials)
 			# backspace - remove char from num_trials
 			if k == 'backspace':
