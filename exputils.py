@@ -427,13 +427,11 @@ class FinalFitGUI(Interface):
 
 		# centerImage (weibull fit plot):
 		self.origunits = self.win.units
-		win_pix_size = self.win.size
-		pic_pix_size = self.stim['centerImage'].size
-
 		pic = self.stim['centerImage']
+		ypos = scale_img(self.win, pic, (0.1, -0.45))
 
 		self.win.units = 'norm'
-		self.stim['centerImage'].setPos((0., 0.3 * win_pix_size[1]))
+		pic.setPos((0., ypos))
 
 		# OK button
 		pos = [0., -0.8]
@@ -502,6 +500,24 @@ class FinalFitGUI(Interface):
 
 	def accept(self):
 		self.notfinished = False
+
+
+def scale_img(win, img, y_margin):
+	winsize = win.size
+	imsize = img.size
+	imh_norm = imsize[1] / winsize[1]
+	ypos = 1. - y_margin[0] - imh_norm
+	low_margin = ypos - imh_norm
+	ypos = int(ypos * winsize[1] / 2.)
+	print('im size', img.size)
+	print('set ypos to:', ypos)
+
+	if low_margin < y_margin[1]:
+		too_long_prop = (y_margin[1] - low_margin) / imh_norm
+		img.size = np.array(imsize) * (1-too_long_prop)
+		ypos = scale_img(win, img, y_margin)
+
+	return ypos
 
 
 def create_database(exp, trials=None, rep=None, combine_with=None):
