@@ -470,6 +470,8 @@ class FinalFitGUI(Interface):
 		if k:
 			k = k[0]
 			current_str = str(self.num_trials)
+			if current_str == '0':
+				current_str = ''
 			# backspace - remove char from num_trials
 			if k == 'backspace':
 				if len(current_str) > 0:
@@ -479,8 +481,10 @@ class FinalFitGUI(Interface):
 			if k in list('1234567890'):
 				current_str += k
 
+			self.num_trials = int(current_str) if\
+				len(current_str) > 0 else 0
+			txt = current_str if self.num_trials > 0 else ''
 			self.text.setText(current_str)
-			self.num_trials = int(current_str)
 
 			# return - refresh weibull
 			if k == 'return':
