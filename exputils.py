@@ -421,6 +421,7 @@ class FinalFitGUI(Interface):
 			self.weibull = []
 			self.params = []
 
+		self.img_size = []
 		self.num_trials = 40
 		self.fitfun = fitfun
 		self.refresh_weibull()
@@ -429,6 +430,7 @@ class FinalFitGUI(Interface):
 		self.origunits = self.win.units
 		pic = self.stim['centerImage']
 		ypos = scale_img(self.win, pic, (0.1, -0.45))
+		self.img_size = list(pic.size)
 
 		self.win.units = 'norm'
 		pic.setPos((0., ypos))
@@ -460,6 +462,8 @@ class FinalFitGUI(Interface):
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
 			self.exp['data'])
+		if self.img_size:
+			self.stim['centerImage'].size = self.img_size
 		self.stim['centerImage'].draw()
 
 	def test_keys(self, k):
