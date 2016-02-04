@@ -152,7 +152,8 @@ for o in exp['orientation']:
 		sf=exp['gabor freq'], ori=o)
 
 stim['centerImage'] = visual.ImageStim(imgwin, image=None,
-	pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix')
+	pos=(0.0, 0.0), size=(14*80,6*80), units = 'pix',
+	interpolate=True)
 
 # mask - all gabor directions superposed
 mask_ori = [0, 45, 90, 135]

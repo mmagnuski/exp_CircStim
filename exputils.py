@@ -31,8 +31,8 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 		k = event.getKeys()
 
 		# set image
-		stim['centerImage'].size = np.round(imgsize * resize)
 		stim['centerImage'].setImage(im)
+		stim['centerImage'].size = np.round(imgsize * resize)
 		return stim
 
 
