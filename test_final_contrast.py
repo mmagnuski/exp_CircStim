@@ -16,14 +16,13 @@ fl = 'Alexis01_b.xls'
 flpth = os.path.join(pth, fl)
 df = pd.read_excel(flpth)
 
-print(df.head())
 
 if not 'window2' in stim:
     stim['window'].blendMode = 'avg'
 
 stim['target'][0].draw()
 stim['window'].flip()
-core.wait(1.)
+core.wait(.15)
 
 
 # stim['centerImage'] = visual.ImageStim(stim['window'], image=r'data\T004_weibull_fit_temp.png')
