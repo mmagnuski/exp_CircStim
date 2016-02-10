@@ -432,8 +432,8 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 	ornt      = [[0, 90], [45, 135]]
 	ornt      = ornt[ch] + ornt[1- ch]
 
-	positions = [[-1, -0.5], [-1, 0.5], \
-				 [1, -0.5],  [1, 0.5]]
+	positions = [[-1, -0.43], [-1, 0.43], \
+				 [1, -0.43],  [1, 0.43]]
 	positions = np.array(positions) * 10
 
 	for o, p in zip(ornt, positions):
@@ -444,12 +444,13 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 	tx = [ u'naciśnij  ' + exp['keymap'][ornt[0]],
 		   u'naciśnij  ' + exp['keymap'][ornt[2]],
 		   u'aby przejść dalej naciśnij spację' ]
-	positions = [[-0.5, 0.75], [0.5, 0.75], [0, -0.85]]
+	positions = [[-1, 0.85], [1, 0.85], [0, -0.9]]
+	positions = np.array(positions) * 10
 	txStim = []
 
 	for t, p in zip(tx, positions):
 		txStim.append(visual.TextStim(win, text = t,
-			pos = p, units = 'norm'))
+			pos = p, units = 'deg'))
 
 	# draw all:
 	for t in txStim:
