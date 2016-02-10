@@ -2,13 +2,6 @@
 
 # add description
 
-# TODOs:
-# [.] add instructions to whole proc (blinkdot, _resting_)
-# [ ] add markers to:
-#     -> start (and end? - fixation point at the same time
-#        no need to put marker at the end of each break)
-#        of each break
-#     ->
 
 # monkey-patch pyglet shaders:
 # ----------------------------
