@@ -184,6 +184,19 @@ class ContrastInterface(Interface):
 		self.win.setMouseVisible(False)
 		self.win.units = self.origunits
 
+	def loop(self):
+		self.runLoop = True
+		while self.runLoop:
+			self.refresh()
+			if self.buttons[1].clicked:
+				self.runLoop = False
+				continue_fitting = False
+			elif self.buttons[0].clicked:
+				self.runLoop = False
+				continue_fitting = True
+		self.quit()
+		return continue_fitting
+
 
 class Button:
 	'''
