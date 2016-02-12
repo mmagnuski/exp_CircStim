@@ -104,10 +104,15 @@ class ContrastInterface(Interface):
 		self.edit_mode = False
 		self.last_pressed = False
 
-
+		# back in how many trials:
+		self.next_trials = 4
+		self.trials_text = visual.TextStim(win=self.win,
+			text=u'wróć po {} trialach'.format(self.next_trials),
+			pos=(0., -0.45), units='norm', height=0.1)
 
 	def draw(self):
 		[b.draw() for b in self.buttons]
+		self.trials_text.draw()
 		if self.buttons[-2].clicked:
 			self.set_scale_text()
 			self.scale.draw()
@@ -136,6 +141,7 @@ class ContrastInterface(Interface):
 
 
 	def refresh(self):
+		self.check_key_press()
 		if_click = self.check_mouse_click()
 		self.last_pressed = if_click
 		if not self.edit_mode and self.buttons[-1].clicked:
@@ -179,6 +185,18 @@ class ContrastInterface(Interface):
 			self.scale.remove_point(-1)
 		return m1 or m3
 
+	def check_key_press(self):
+		k = event.getKeys()
+		if k:
+			if 'minus' in k:
+				self.next_trials -= 1
+				self.next_trials = max(3, self.next_trials)
+			if 'equal' in k:
+				self.next_trials += 1
+			if 'q' in k or 'return' in k:
+				self.runLoop = False
+			self.trials_text.setText(u'wróć po {} trialach'.format(
+				self.next_trials))
 
 	def quit(self):
 		self.win.setMouseVisible(False)
