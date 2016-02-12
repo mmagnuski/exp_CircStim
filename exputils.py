@@ -83,7 +83,7 @@ class ContrastInterface(Interface):
 		self.stim['centerImage'].setPos((-0.4, 0.4))
 		self.stim['centerImage'].setSize([pic_nrm_size])
 
-
+		# button
 		button_pos = np.zeros([4,2])
 		button_pos[:,0] = 0.7
 		button_pos[:,1] = np.linspace(-0.25, -0.8, num=4)
@@ -131,14 +131,12 @@ class ContrastInterface(Interface):
 			self.text.draw()
 		self.stim['centerImage'].draw()
 
-
 	def cycle_vals(self):
 		self.current_grain_val += 1
 		if self.current_grain_val >= len(self.grain_vals):
 			self.current_grain_val = 0
 		self.buttons[-1].setText(str(self.grain_vals[self.current_grain_val]))
 		# TODO: change contrast values
-
 
 	def refresh(self):
 		self.check_key_press()
@@ -150,7 +148,6 @@ class ContrastInterface(Interface):
 		self.win.flip()
 		if if_click:
 			core.wait(0.1)
-
 
 	def set_scale_text(self):
 		val = self.scale.test_pos(self.mouse)
@@ -165,13 +162,11 @@ class ContrastInterface(Interface):
 			val = ""
 		self.scale_text.setText(val)
 
-
 	def check_mouse_click(self):
 		m1, m2, m3 = self.mouse.getPressed()
 		if m1:
 			self.mouse.clickReset()
 			# test buttons
-			print "mouse click pos: ", self.mouse.getPos()
 			ifclicked = [b.contains(self.mouse) for b in self.buttons]
 			which_clicked = np.where(ifclicked)[0]
 			if which_clicked.size > 0:
