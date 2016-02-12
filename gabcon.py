@@ -228,8 +228,9 @@ if exp['run fitting']:
 	# make sure to trim and 'granularize' check_contrast
 	check_contrast = np.array( [trim(x, exp['min opac'], 
 		1.) for x in check_contrast] )
+	num_contrast_steps = 4
 
-	while (trial <= exp['fit until'] or
+	while (trial <= exp['fit until'] and
 		continue_fitting) and trial <= exp['max fit']:
 
 		# remind about the button press mappings
@@ -258,8 +259,8 @@ if exp['run fitting']:
 		# contrast corrections, choosing new contrast samples
 		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
 		check_contrast, contrast_range = get_new_contrast(w, corr_lims=exp['fitCorrLims'],
-			method=exp['search method'], contrast_lims=contrast_range)
-		print check_contrast
+			method='{}steps'.format(num_contrast_steps), contrast_lims=contrast_range)
+		# maybe better log instead of printing it out...
 
 		# Interface
 		# ---------
@@ -268,21 +269,10 @@ if exp['run fitting']:
 			stim['window'].blendMode = 'avg'
 		stim = plot_Feedback(stim, w, exp['data'])
 		interf = ContrastInterface(stim=stim, trial=trial)
+		continue_fitting = interf.loop()
 
-		interfaceLoop = True
-		# stim['window'].units = 'norm'
-		while interfaceLoop:
-			interf.refresh()
-			k = event.getKeys()
-			if k and 'q' in k or 'return' in k:
-				interfaceLoop = False
-			if interf.buttons[1].clicked:
-				interfaceLoop = False
-				continue_fitting = False
-			elif interf.buttons[0].clicked:
-				interfaceLoop = False
-				continue_fitting = True
-		interf.quit()
+		# check ContrastInterface output
+		# TODO - should also return num trials
 		if len(interf.contrast) > 0:
 			check_contrast = interf.contrast
 		if not 'window2' in stim:

@@ -39,10 +39,10 @@ exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.95]
 
 # fitting settings
 exp['step until']   = [10, 35]  # continue stepwise until this trial
-exp['fit until']    = 100 # continue fitting until this trial
+exp['fit until']    = 60 # continue fitting until this trial
 exp['fitCorrLims']  = [0.55, 0.9]
 exp['search method']= '4steps'
-exp['max fit']      = 300
+exp['max fit']      = 150
 
 # timing settings
 exp['targetTime']  = [1]
