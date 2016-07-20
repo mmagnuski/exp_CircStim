@@ -139,8 +139,11 @@ if exp['run training']:
 
 		# concatenate training db's (and change indexing)
 		if 'df_train' in locals():
-			df_train = pd.concat([df_train, trim_df(df)])
-			df_train.index = np.r_[1:df_train.shape[0]+1]
+			if isinstance(df_train, list):
+				df_train = trim_df(df)
+			else:
+				df_train = pd.concat([df_train, trim_df(df)])
+				df_train.index = np.r_[1:df_train.shape[0]+1]
 		else:
 			df_train = trim_df(df)
 
