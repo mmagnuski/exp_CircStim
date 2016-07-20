@@ -10,7 +10,7 @@ from exputils  import (ms2frames, getSubject,
 
 # experiment settings
 # -------------------
-exp = {}
+exp = dict()
 exp['debug']        = True
 exp['two screens']  = False
 exp['use trigger']  = False
@@ -60,7 +60,7 @@ exp['use keys']    = ['f', 'j']
 
 # response mapping
 # ----------------
-resp = {}
+resp = dict()
 choose_resp = randint(0, 1)
 resp[0]   = exp['use keys'][choose_resp]
 resp[90]  = exp['use keys'][choose_resp]
@@ -71,7 +71,7 @@ exp['choose_resp'] = choose_resp
 
 # port settings
 # -------------
-portdict = {}
+portdict = dict()
 portdict['send'] = exp['use trigger']
 portdict['port address'] = int(exp['port address'], base=16) \
 						   if exp['port address'] and portdict['send'] \

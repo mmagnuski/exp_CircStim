@@ -27,6 +27,7 @@ from psychopy  import visual, core, event, logging
 import os
 import numpy  as np
 import pandas as pd
+
 import blinkdot as blnk
 from exputils  import (plot_Feedback, create_database,
 	ContrastInterface, DataManager, ExperimenterInfo,
@@ -111,7 +112,7 @@ if exp['run training']:
 
 	# set things up
 	slow = exp.copy()
-	df_train = []
+	df_train = list()
 	num_training_blocks = len(exp['train slow'])
 	current_block = 0
 
@@ -275,7 +276,8 @@ if exp['run fitting']:
 		continue_fitting = interf.loop()
 
 		# check ContrastInterface output
-		# TODO - should also return num trials
+		# !TODO - should also return num trials
+		# !TODO - add FinalFitGUI at the end to accept psychometric functio fit
 		if len(interf.contrast) > 0:
 			check_contrast = interf.contrast
 		if not 'window2' in stim:
