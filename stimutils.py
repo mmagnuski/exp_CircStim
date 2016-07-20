@@ -307,7 +307,8 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 			textscreen(thistxt)
 			show_resp_rules()
 
-			exp['opacity'] += 0.2
+			if exp['opacity'][0] < 3.:
+				exp['opacity'] += 0.5
 		i += 1
 	# return db so it can be saved
 	return train_db, train_corr

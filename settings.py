@@ -12,12 +12,12 @@ from exputils  import (ms2frames, getSubject,
 # -------------------
 exp = dict()
 exp['debug']        = True
-exp['two screens']  = False
+exp['two screens']  = True
 exp['use trigger']  = False
 
 exp['run blinkdot'] = False
 exp['run instruct'] = True
-exp['run training'] = False
+exp['run training'] = True
 exp['run fitting']  = True
 exp['run main c']   = True
 exp['run main t']   = True
@@ -30,22 +30,22 @@ exp['clock']        = core.Clock()
 exp['corrLims']    = [0.55, 0.9]
 exp['opacity']     = [0.05, 0.8]
 exp['min opac']    = 0.01
-exp['max opac']    = 2.0
+exp['max opac']    = 3.0
 exp['opac steps']  = 10
 
 # training settings
-exp['train slow']   = [5, 4, 3, 2, 1]
-exp['train corr']   = [0.85, 0.85, 0.85, 0.9, 0.95]
+exp['train slow']   = [8, 5, 4, 3, 2, 1]
+exp['train corr']   = [0.8, 0.8, 0.8, 0.8, 0.9, 0.9]
 
 # fitting settings
 exp['step until']   = [10, 35]  # continue stepwise until this trial
 exp['fit until']    = 60 # continue fitting until this trial
 exp['fitCorrLims']  = [0.55, 0.9]
 exp['search method']= '4steps'
-exp['max fit']      = 150
+exp['max fit']      = 200
 
 # timing settings
-exp['targetTime']  = [1]
+exp['targetTime']  = [1] # maybe test with targetTime == 2?
 exp['SMI']         = [2] # Stimulus Mask Interval
 exp['fixTimeLim']  = [0.75, 2.5]
 exp['maskTime']    = [20]
