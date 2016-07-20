@@ -50,6 +50,8 @@ exp['numTrials'] = 500 # ugly hack, change
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
+
+# TODO: add eeg baseline (resting-state)!
 # TODO: check for continue?
 # if fitting completed -> use data
 # if c part done -> use data
@@ -234,8 +236,7 @@ if exp['run fitting']:
 		1.) for x in check_contrast] )
 	num_contrast_steps = 4
 
-	while (trial <= exp['fit until'] and
-		continue_fitting) and trial <= exp['max fit']:
+	while (trial <= exp['fit until']) or continue_fitting:
 
 		# remind about the button press mappings
 		show_resp_rules(exp=exp)
@@ -276,7 +277,7 @@ if exp['run fitting']:
 		continue_fitting = interf.loop()
 
 		# check ContrastInterface output
-		# !TODO - should also return num trials
+		# !TODO - should also use interf.next_trials !
 		# !TODO - add FinalFitGUI at the end to accept psychometric functio fit
 		if len(interf.contrast) > 0:
 			check_contrast = interf.contrast
