@@ -166,10 +166,6 @@ if exp['run fitting']:
 	onflip_work(exp['port'], code='fitting')
 	clear_port(exp['port'])
 
-	# update experimenters view:
-	block_name = 'schodkowe dopasowywanie kontrastu'
-	exp_info.blok_info(block_name, [0, 100])
-
 	# init stepwise contrast adjustment
 	num_fail = 0
 	continue_fitting = True
@@ -178,9 +174,13 @@ if exp['run fitting']:
 	s = Stepwise(corr_ratio=[1,1], vmax=3.)
 	fitting_db = give_training_db(db, slowdown=1)
 
+	# update experimenters view:
+	block_name = 'schodkowe dopasowywanie kontrastu'
+	exp_info.blok_info(block_name, [0, step[0]])
+
 	while s.trial <= step[0] and len(s.reversals) < 3:
 		present_trial(s.trial, db=fitting_db, exp=exp)
-		exp_info.blok_info(block_name, [s.trial, 100])
+		exp_info.blok_info(block_name, [s.trial, step[0]])
 		stim['window'].flip()
 
 		s.add(fitting_db.loc[s.trial, 'ifcorrect'])
@@ -204,7 +204,7 @@ if exp['run fitting']:
 		stim['window'].flip()
 
 		# update experimenter
-		exp_info.blok_info(block_name, [trial, 100])
+		exp_info.blok_info(block_name, [trial, step[1]])
 
 		# get contrast from Stepwise
 		s.add(fitting_db.loc[trial, 'ifcorrect'])
