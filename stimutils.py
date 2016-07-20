@@ -25,10 +25,10 @@ if "BENQ-XL2411" in monitors:
 winkeys = {'units' : 'deg', 'fullscr' : True, 'useFBO' : True,
 	'blendMode' : 'add', 'monitor' : monitorName}
 if exp['two screens']:
-	winkeys.update({'screen' : 0})	
-# win = visual.Window(**winkeys)
-win = visual.Window(monitor='testMonitor', fullscr=True, units='deg', 
-    useFBO=True, blendMode='add')
+	winkeys.update({'screen' : 1})	
+win = visual.Window(**winkeys)
+# win = visual.Window(monitor='testMonitor', fullscr=True, units='deg', 
+#     useFBO=True, blendMode='add')
 win.setMouseVisible(False)
 
 
@@ -138,7 +138,7 @@ stim['window'] = win
 
 # resolve multiple screens stuff
 if exp['two screens']:
-	winkeys.update({'screen' : 1, 'blendMode' : 'avg'})
+	winkeys.update({'screen' : 0, 'blendMode' : 'avg'})
 	stim['window2'] = visual.Window(**winkeys)
 	imgwin = stim['window2']
 else:
