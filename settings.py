@@ -34,8 +34,8 @@ exp['max opac']    = 3.0
 exp['opac steps']  = 10
 
 # training settings
-exp['train slow']   = [8, 5, 4, 3, 2, 1]
-exp['train corr']   = [0.8, 0.8, 0.8, 0.8, 0.9, 0.9]
+exp['train slow']   = [8, 5, 3, 2, 1]
+exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 
 # fitting settings
 exp['step until']   = [10, 35]  # continue stepwise until this trial
