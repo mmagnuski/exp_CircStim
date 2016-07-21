@@ -1,5 +1,7 @@
 import os
 import re
+import random
+
 import numpy as np
 import pandas as pd
 
@@ -13,9 +15,10 @@ def trim(val, vmin, vmax):
 
 
 def to_percent(val):
-	# currently assumes val is 0 - 1 
+	# currently assumes val is 0 - 1
 	s = str(val * 100)
 	return s.split('.')[0] + '%'
+
 
 def trim_df(df):
 	# find last trial
@@ -24,6 +27,29 @@ def trim_df(df):
 		fin = fin[0]
 		df = df[0:fin]
 	return df
+
+
+# TODO - maybe add shuffle=False
+def grow_sample(smp, num):
+	"""take `num` elements from sample `smp` similar to
+	random.sample but even if `num` > len(`smp`).
+
+	Example:
+	--------
+	> grow_sample([0.2, 0.4], 5)
+	array([0.2, 0.4, 0.2, 0.4, 0.4])
+	"""
+	smp = np.asarray(smp)
+	smp_len = len(smp)
+	if smp_len > num:
+		return np.array(random.sample(list(smp), num))
+
+	div = int(np.floor(num / smp_len))
+	rem = num - div * smp_len
+	rem_el = np.array(random.sample(list(smp), rem))
+	base_el = np.tile(smp, div)
+	return np.concatenate((base_el, rem_el))
+
 
 def fillz(val, num, addpos='front'):
     '''
@@ -66,7 +92,7 @@ def continue_dataframe(pth, fl):
 			sht_nm = xl.sheet_names[0]  # see all sheet names
 			df = xl.parse(sht_nm, convert_float=False)
 		# some columns have to be converted to float now
-		colnames = ['fixTime', 'targetTime', 'SMI', 'maskTime', 
+		colnames = ['fixTime', 'targetTime', 'SMI', 'maskTime',
 			'orientation', 'ifcorrect']
 		df.loc[:, colnames] = df.loc[:, colnames].astype('Int32')
 
