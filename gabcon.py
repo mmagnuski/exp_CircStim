@@ -31,8 +31,8 @@ import pandas as pd
 import blinkdot as blnk
 from exputils  import (plot_Feedback, create_database,
 	ContrastInterface, DataManager, ExperimenterInfo,
-	AnyQuestionsGUI, ms2frames, getFrameRate)
-from utils     import to_percent, round2step, trim_df
+	AnyQuestionsGUI, ms2frames, getFrameRate, FinalFitGUI)
+from utils     import to_percent, round2step, trim_df, grow_sample
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim, present_trial,
 	present_break, show_resp_rules, textscreen,
@@ -154,9 +154,6 @@ if exp['run training']:
 	df_train.to_excel(dm.give_path('a'))
 
 
-# ADD some more instructions here
-# TODO - info that main experiment is about to begin
-
 # Contrast fitting - stepwise
 # ---------------------------
 if exp['run fitting']:
@@ -277,10 +274,15 @@ if exp['run fitting']:
 		continue_fitting = interf.loop()
 
 		# check ContrastInterface output
-		# !TODO - should also use interf.next_trials !
+		# 1. take contrast values if set
+		# 2. grow_sample if next_trials were set
 		# !TODO - add FinalFitGUI at the end to accept psychometric functio fit
 		if len(interf.contrast) > 0:
 			check_contrast = interf.contrast
+			if interf.next_trials > len(check_contrast):
+				check_contrast = grow_sample(check_contrast, interf.next_trials)
+		elif not interf.next_trials == 4:
+			check_contrast = grow_sample(check_contrast, interf.next_trials)
 		if not 'window2' in stim:
 			stim['window'].blendMode = 'add'
 		print 'interface contrast: ', interf.contrast
@@ -288,6 +290,12 @@ if exp['run fitting']:
 
 	# save fitting dataframe
 	trim_df(fitting_db).to_excel(dm.give_path('b'))
+
+	# accept final fit:
+	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
+	fgui.refresh_weibull()
+	fgui.loop()
+
 
 # EXPERIMENT - part c
 # -------------------
