@@ -518,7 +518,9 @@ class FinalFitGUI(Interface):
 			if k == 'return':
 				self.refresh_weibull()
 
-	def GUI_loop(self):
+	def loop(self):
+		"""runs main GUI loop"""
+
 		while self.notfinished:
 			k = event.getKeys(keyList=list('1234567890')+['return', 'backspace'])
 			self.test_keys(k)
