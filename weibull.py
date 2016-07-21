@@ -6,22 +6,25 @@
 #       -> do not have to pass additional args 
 #          if they are in the model 
 #       -> but allow to pass these args if needed
+#       -> think about mirroring sklearn API
 # [ ] - predict (now performed by _fun but could change names)
-# [ ] - ! think about adding params to to predictors for both slope and position
+# [ ] - ! think about adding params to predictors for both slope and position
 
-# imports
-from scipy.optimize import minimize
-from matplotlib import pyplot as plt
-from utils import trim, trim_df, round2step
+
+import os
+
 import numpy as np
 import pandas as pd
-import os
+from matplotlib import pyplot as plt
+from scipy.optimize import minimize
+
+from utils import trim, trim_df, round2step
 
 
 class Weibull:
 	'''
 	Weibull is a simple class for fitting and
-	evaluating Weibull function.
+	evaluating Weibull psychometric function.
 
 	example:
 	--------
@@ -177,7 +180,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None
 	    steps is defined at the beginning of the string.
 	'6logsteps' - six logaritmic steps
 	'4midlogsteps' - four log steps from the middle point
-		of the contrast range to each direction (left and
+		of the contrast range in each direction (left and
 			right)
 
 	'''
