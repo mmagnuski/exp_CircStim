@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-# imports
-from psychopy       import visual, event, gui, core
-from PIL            import Image
-from utils          import round2step
-
 import os
 import re
 import yaml
+
 import numpy  as np
 import pandas as pd
+
+from psychopy       import visual, event, gui, core
+from PIL            import Image
+from utils          import round2step
 
 
 def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
@@ -37,6 +37,8 @@ def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
 
 
 class Interface(object):
+	"""core Interface constructor - enables handling
+	two screen displays"""
 	exp = None
 	stim = None
 	def __init__(self, exp, stim, main_win=2):
@@ -61,12 +63,12 @@ class Interface(object):
 class ContrastInterface(Interface):
 
 	def __init__(self, exp=None, stim=None, trial=None):
-		self.contrast = []
+		self.contrast = list()
 
 		# monitor setup
 		# -------------
-		self.wait_text = u'Proszę czekać, trwa dobieranie kontrastu...'	
-		super(ContrastInterface, self).__init__(exp, stim)	
+		self.wait_text = u'Proszę czekać, trwa dobieranie kontrastu...'
+		super(ContrastInterface, self).__init__(exp, stim)
 
 		self.win.setMouseVisible(True)
 		self.mouse = event.Mouse(win=self.win)
@@ -136,7 +138,7 @@ class ContrastInterface(Interface):
 		if self.current_grain_val >= len(self.grain_vals):
 			self.current_grain_val = 0
 		self.buttons[-1].setText(str(self.grain_vals[self.current_grain_val]))
-		# TODO: change contrast values
+		# TODO: change contrast values?
 
 	def refresh(self):
 		self.check_key_press()
@@ -174,7 +176,7 @@ class ContrastInterface(Interface):
 
 			# test scale
 			self.scale.test_click(self.mouse)
-			
+
 		elif m3:
 			self.mouse.clickReset()
 			self.scale.remove_point(-1)
@@ -287,7 +289,7 @@ class Button:
 
 class ClickScale(object):
 
-	def __init__(self, win=None, size=(0.5, 0.15), pos=(0, 0), 
+	def __init__(self, win=None, size=(0.5, 0.15), pos=(0, 0),
 		color=(-0.3, -0.3, -0.3), units='norm', length=2.):
 		self.win = win
 		# maybe - raise ValueError if win is none
@@ -336,7 +338,7 @@ class ClickScale(object):
 		pos = [0., self.pos[1]]
 		pos[0] = self.point2xpos(val)
 		ln = visual.Rect(self.win, pos=pos, width=0.01,
-				height=self.h, fillColor=self.line_color, 
+				height=self.h, fillColor=self.line_color,
 				lineColor=self.line_color, units=self.units)
 		self.lines.append(ln)
 
@@ -408,7 +410,7 @@ class AnyQuestionsGUI(Interface):
 
 	def run(self):
 		if self.two_windows:
-			self.tx2.draw() 
+			self.tx2.draw()
 			self.win2.flip()
 		self.tx1.draw()
 		self.win.flip()
@@ -416,7 +418,7 @@ class AnyQuestionsGUI(Interface):
 
 		if not ('space' in self.pressed):
 			if self.two_windows:
-				self.tx2.setText(u'!!!!!!!!') 
+				self.tx2.setText(u'!!!!!!!!')
 				self.circ.draw()
 				self.tx2.draw()
 				self.win2.flip()
@@ -433,8 +435,8 @@ class FinalFitGUI(Interface):
 
 		# setup
 		# -----
-		self.wait_text = u'Proszę czekać, trwa dobieranie kontrastu...'	
-		super(FinalFitGUI, self).__init__(exp, stim)	
+		self.wait_text = u'Proszę czekać, trwa dobieranie kontrastu...'
+		super(FinalFitGUI, self).__init__(exp, stim)
 
 		self.win.setMouseVisible(True)
 		self.mouse = event.Mouse(win=self.win)
@@ -684,7 +686,7 @@ class DataManager(object):
 	def __init__(self, exp):
 		self.keymap = exp['keymap']
 		self.choose_resp = exp['choose_resp']
-		self.ID = exp['participant']['ID'] 
+		self.ID = exp['participant']['ID']
 		self.age = exp['participant']['age']
 		self.sex = exp['participant']['sex']
 		self.val = dict()
