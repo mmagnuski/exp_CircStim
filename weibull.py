@@ -133,17 +133,22 @@ def fit_weibull(db, i):
 
 	
 def set_opacity_if_fit_fails(corr, exp):
+	"""correct contrast obtained from Weibull if the fit
+	was not correct. Modifies `exp` dict in-place."""
 	mean_corr = np.mean(corr)
 	if mean_corr > 0.8:
 		exp['opacity'][0] *= 0.5
-		exp['opacity'][1] *= 0.5 
+		exp['opacity'][1] *= 0.5
 		exp['opacity'][0] = np.max([exp['opacity'][0], 0.01])
 	elif mean_corr < 0.6:
-		exp['opacity'][0] = np.min([exp['opacity'][1]*2, 0.8])
-		exp['opacity'][1] = np.min([exp['opacity'][1]*2, 1.0])
+		exp['opacity'][0] = np.min([exp['opacity'][1] * 2, 0.8])
+		exp['opacity'][1] = np.min([exp['opacity'][1] * 2, 1.0])
 
 
 def correct_Weibull_fit(w, exp, newopac):
+	"""correct contrast obtained from Weibull if the fit
+	was not correct. Return new contrast and logs"""
+
 	# log weibul fit and contrast
 	logs = []
 	logs.append( 'Weibull params:  {} {}'.format( *w.params ) )
@@ -172,71 +177,74 @@ def correct_Weibull_fit(w, exp, newopac):
 
 	return exp, logs
 
+
+# TODO:
+# - check if model is necessary, if not - simplify
+# - maybe add 'random' to steps method this would shift the contrast points
+#   randomly from -0.5 to 0.5 of respective bin width (asymmteric in logsteps)
 def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None, method='random'):
 	'''
-	Methods:
-	'5steps', '6steps', '12steps' - divides the contrast
-	    range to equally spaced steps. The number of the
-	    steps is defined at the beginning of the string.
-	'6logsteps' - six logaritmic steps
-	'4midlogsteps' - four log steps from the middle point
-		of the contrast range in each direction (left and
-			right)
+	method : string
+		* '5steps', '6steps', '12steps' - divides the contrast
+		  range to equally spaced steps. The number of the
+		  steps is defined at the beginning of the string.
+		* '6logsteps' - six logaritmic steps
+		* '4midlogsteps' - four log steps from the middle point
+		  of the contrast range in each direction (left and
+		  right)
 
 	'''
-	# TODO - maybe add 'random' to steps method
-	#        this would shift the contrast points
-	#        randomly from -0.5 to 0.5 of respective
-	#        bin width (asymmteric in logsteps)
-	if 'steps' in method:
-		# get method details from string
-		log = 'log' in method
-		steps = ''
-		for c in method:
-			if c.isdigit():
-				steps += c
-			else:
-				break
-		steps = int(steps) if steps else 5
-
-		# take contrast for specified correctness levels
-		if not contrast_lims:
-			if model.params[0] <= 0: # should be some small positive value
-				contrast_lims = [vmin, vmin+0.2]
-			else:
-				contrast_lims = model.get_threshold(corr_lims)
-
-		# get N values from the contrast range
-		if log:
-			if 'mid' in method:
-				# add midpoint
-				pnts = [contrast_lims[0], np.mean(contrast_lims),
-					contrast_lims[1]]
-				pw = np.log10(pnts)
-				lft = np.logspace(pw[1], pw[0], num=steps+1)
-				rgt = np.logspace(pw[1], pw[2], num=steps+1)
-				check_contrast = np.hstack([lft[len(lft)::-1], rgt[1:]])
-			else:
-				pw = np.log10(contrast_lims)
-				check_contrast = np.logspace(*pw, num=steps)
+	
+	assert 'steps' in method
+	
+	# get method details from string
+	log = 'log' in method
+	steps = ''
+	for c in method:
+		if c.isdigit():
+			steps += c
 		else:
-			check_contrast = np.linspace(*contrast_lims, num=steps)
+			break
+	steps = int(steps) if steps else 5
 
-		# trim all points
-		check_contrast = np.array([trim(c, vmin, 1.)
-			for c in check_contrast])
+	# take contrast for specified correctness levels
+	if not contrast_lims:
+		if model.params[0] <= 0: # should be some small positive value
+			contrast_lims = [vmin, vmin+0.2]
+		else:
+			contrast_lims = model.get_threshold(corr_lims)
 
-		# try different contrast steps for best granularity
-		steps = [0.1, 0.05, 0.01, 0.005]
-		base_nonrep = not (len(check_contrast) == len(np.unique(check_contrast)))
-		for s in steps:
-			this_contrast = round2step(check_contrast, step=s)
-			this_contrast = np.array([trim(x, vmin, 1.)
-				for x in this_contrast])
-			new_nonrep = len(this_contrast) == len(np.unique(this_contrast))
-			if base_nonrep or new_nonrep:
-				break
-		return this_contrast, contrast_lims
+	# get N values from the contrast range
+	if log:
+		if 'mid' in method:
+			# add midpoint
+			pnts = [contrast_lims[0], np.mean(contrast_lims),
+				contrast_lims[1]]
+			pw = np.log10(pnts)
+			lft = np.logspace(pw[1], pw[0], num=steps+1)
+			rgt = np.logspace(pw[1], pw[2], num=steps+1)
+			check_contrast = np.hstack([lft[len(lft)::-1], rgt[1:]])
+		else:
+			pw = np.log10(contrast_lims)
+			check_contrast = np.logspace(*pw, num=steps)
+	else:
+		check_contrast = np.linspace(*contrast_lims, num=steps)
+
+	# trim all points
+	check_contrast = np.array([trim(c, vmin, 1.)
+		for c in check_contrast])
+
+	# try different contrast steps for best granularity
+	steps = [0.1, 0.05, 0.01, 0.005]
+	base_nonrep = not (len(check_contrast) == len(np.unique(check_contrast)))
+	for s in steps:
+		this_contrast = round2step(check_contrast, step=s)
+		this_contrast = np.array([trim(x, vmin, 1.)
+			for x in this_contrast])
+		new_nonrep = len(this_contrast) == len(np.unique(this_contrast))
+		if base_nonrep or new_nonrep:
+			break
+	return this_contrast, contrast_lims
 
 
 def cut_df_corr(df, num_bins=7):
