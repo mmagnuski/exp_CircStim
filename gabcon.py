@@ -296,6 +296,11 @@ if exp['run fitting']:
 	fgui.refresh_weibull()
 	fgui.loop()
 
+	# check the fit and weibull params
+	print('final weibull: ', fgui.weibull)
+	print('final params: ', fgui.params)
+	print('final num_trials: ', fgui.num_trials)
+
 
 # EXPERIMENT - part c
 # -------------------
@@ -311,15 +316,38 @@ if exp['run main c']:
 
 	# get contrast from fitting
 	if 'fitting_db' not in locals():
-		fitting_db = pd.read_excel(dm.give_previous_path('b'))
-	# fit
-	num_trials = fitting_db.shape[0]
-	w = fitw(fitting_db, range(num_trials-100, num_trials))
-	contrast_range = w.get_threshold(exp['corrLims'])
-	# get range
+		# fitting_db = pd.read_excel(dm.give_previous_path('b'))
+		fitting_db = pd.read_excel(os.path.join('data', 'testing_miko_01_b_1.xls'))
 
+	# accept final fit:
+	if not 'window2' in stim:
+	    stim['window'].blendMode = 'avg'
+	stim['target'][0].draw()
+	stim['window'].flip()
+	core.wait(.15)
+
+	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
+	fgui.refresh_weibull()
+	fgui.loop()
+
+	if not 'window2' in stim:
+		stim['window'].blendMode = 'add'
+
+	# check the fit and weibull params
+	print('final weibull: ', fgui.weibull)
+	print('final params: ', fgui.params)
+	print('final num_trials: ', fgui.num_trials)
+
+
+	# num_trials = fitting_db.shape[0]
+	# w = fitw(fitting_db, range(num_trials-100, num_trials))
+	contrast_range = fgui.weibull.get_threshold(exp['corrLims'])
 	contrast_steps = np.linspace(contrast_range[0],
 		contrast_range[1], exp['opac steps'])
+
+	print('contrast range: ', contrast_range)
+	print('contrast steps: ', contrast_steps)
+	
 	db_c = create_database(exp, combine_with=('opacity',
 		contrast_steps), rep=13)
 	exp['numTrials'] = len(db_c.index)
