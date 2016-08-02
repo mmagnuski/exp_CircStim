@@ -431,7 +431,7 @@ class AnyQuestionsGUI(Interface):
 class FinalFitGUI(Interface):
 
 	def __init__(self, exp=None, stim=None, db=None,
-			weibull=None, fitfun=None):
+			weibull=None, fitfun=None, corr_steps=[0.55, 0.75, 0.95]):
 
 		# setup
 		# -----
@@ -449,9 +449,28 @@ class FinalFitGUI(Interface):
 			self.weibull = []
 			self.params = []
 
+		# weibull-related options:
 		self.img_size = []
 		self.num_trials = 40
+		self.corr_steps = corr_steps
+		self.contrast_for_corr = []
 		self.fitfun = fitfun
+
+		# OK button
+		pos = [0., -0.85]
+		txt = 'OK'
+		self.OKbutton = Button(win=self.win, pos=pos, text=txt, size=(0.35, 0.12))
+		self.OKbutton.click_fun = self.accept
+		self.notfinished = True
+
+		# edit box
+		self.text = visual.TextStim(win=self.win, text=str(self.num_trials),
+			pos=(0.0, -0.5), units='norm', height=0.1)
+		# contrast for % corr:
+		self.text2 = visual.TextStim(win=self.win, text='Contrast for correctness: ',
+			pos=(0.0, -0.65), units='norm', height=0.08)
+
+		# refresh weibull
 		self.refresh_weibull()
 
 		# centerImage (weibull fit plot):
@@ -463,20 +482,11 @@ class FinalFitGUI(Interface):
 		self.win.units = 'norm'
 		pic.setPos((0., ypos))
 
-		# OK button
-		pos = [0., -0.8]
-		txt = 'OK'
-		self.OKbutton = Button(win=self.win, pos=pos, text=txt, size=(0.35, 0.12))
-		self.OKbutton.click_fun = self.accept
-		self.notfinished = True
-
-		# edit box
-		self.text = visual.TextStim(win=self.win, text=str(self.num_trials),
-			pos=(0.0, -0.6), units='norm', height=0.16)
 
 	def draw(self):
 		self.OKbutton.draw()
 		self.text.draw()
+		self.text2.draw()
 		self.stim['centerImage'].draw()
 
 	def refresh_weibull(self):
@@ -493,6 +503,13 @@ class FinalFitGUI(Interface):
 		if self.img_size:
 			self.stim['centerImage'].size = self.img_size
 		self.stim['centerImage'].draw()
+
+		# update contrast for specified correctness
+		self.contrast_for_corr = self.weibull.get_threshold(self.corr_steps)
+		txt = ['{}% - {:05.3f}'.format(str(corr * 100).split('.')[0], cntr)
+			for corr, cntr in zip(self.corr_steps, self.contrast_for_corr)]
+		txt = '; '.join(txt)
+		self.text2.setText(txt)
 
 	def test_keys(self, k):
 		if k:
@@ -548,8 +565,6 @@ def scale_img(win, img, y_margin):
 	ypos = 1. - y_margin[0] - imh_norm
 	low_margin = ypos - imh_norm
 	ypos = int(ypos * winsize[1] / 2.)
-	print('im size', img.size)
-	print('set ypos to:', ypos)
 
 	if low_margin < y_margin[1]:
 		too_long_prop = (y_margin[1] - low_margin) / imh_norm
