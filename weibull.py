@@ -74,13 +74,13 @@ class Weibull:
 	def get_threshold(self, corr):
 		return map(self._inverse, corr)
 	
-	def plot(self, pth='', points=True, line=True):
+	def plot(self, pth='', points=True, line=True, mean_points=False):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num = numpnts)
 		y = self._fun(self.params, x)
 
-		# add noise to data to increase visibility
+		# add noise to y data to increase visibility
 		l = len(self.x)
 		yrnd = np.random.uniform(-0.05, 0.05, l)
 
@@ -91,14 +91,32 @@ class Weibull:
 		plt.grid(True, color=(1.,1.,1.), lw=1.5, linestyle='-', zorder = -1)
 
 		# plot line
+		if mean_points:
+			from scipy import stats
+
+			# check mean and sem for contrast buckets:
+			x_pnts = self.x.copy()
+			y_pnts = self.orig_y.copy()
+			x_buckets = np.unique(x_pnts)
+			n_pnts_in_bucket = np.array([np.sum(x_pnts == b) for b in x_buckets])
+			good_buckets = n_pnts_in_bucket >= 3
+			x_buckets = x_buckets[good_buckets]
+			bucket_mean = np.array([(y_pnts[x_pnts == b]).mean() for b in x_buckets])
+			bucket_sem = np.array([stats.sem(y_pnts[x_pnts == b]) for b in x_buckets])
+
+			# plot
+			plt.scatter(x_buckets, bucket_mean, lw=0, zorder=4, s=32., c=[0.65, 0.65, 0.65])
+			plt.vlines(x_buckets, bucket_mean - bucket_sem, bucket_mean + bucket_sem,
+				lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
+
 		if points:
 			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, 
-				zorder=4, c=[0.3, 0.3, 0.3])
+				zorder=6, c=[0.3, 0.3, 0.3])
 		if line:
-			plt.plot(x, y, zorder = 4, lw=3, color='k')
+			plt.plot(x, y, zorder=5, lw=3, color='k')
 
 		# aesthetics
-		gab99 = self.get_threshold([0.99])[0]
+		gab99 = self.get_threshold([0.95])[0]
 		if gab99 < 0. or gab99 > 2.:
 			maxval = 2.
 		else:

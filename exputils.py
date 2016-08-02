@@ -12,12 +12,16 @@ from PIL            import Image
 from utils          import round2step
 
 
-def plot_Feedback(stim, plotter, pth, keys=None, wait_time=5, resize=1.0):
+def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={}):
 	'''
 	return feedback image in stim['centerImage']. Does not draw the image.
 	'''
 	# get file names from
-	imfls = plotter.plot(pth)
+	if isinstance(plotter_args, dict) and plotter_args:
+		imfls = plotter.plot(pth, **plotter_args)
+	else:
+		imfls = plotter.plot(pth)
+
 	if not isinstance(imfls, type([])):
 		imfls = [imfls]
 
@@ -499,7 +503,7 @@ class FinalFitGUI(Interface):
 		self.params = self.weibull.params
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
-			self.exp['data'])
+			self.exp['data'], plotter_args=dict(mean_points=True))
 		if self.img_size:
 			self.stim['centerImage'].size = self.img_size
 		self.stim['centerImage'].draw()
