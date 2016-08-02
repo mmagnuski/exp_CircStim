@@ -291,16 +291,6 @@ if exp['run fitting']:
 	# save fitting dataframe
 	trim_df(fitting_db).to_excel(dm.give_path('b'))
 
-	# accept final fit:
-	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
-	fgui.refresh_weibull()
-	fgui.loop()
-
-	# check the fit and weibull params
-	print('final weibull: ', fgui.weibull)
-	print('final params: ', fgui.params)
-	print('final num_trials: ', fgui.num_trials)
-
 
 # EXPERIMENT - part c
 # -------------------
@@ -316,10 +306,12 @@ if exp['run main c']:
 
 	# get contrast from fitting
 	if 'fitting_db' not in locals():
-		# fitting_db = pd.read_excel(dm.give_previous_path('b'))
-		fitting_db = pd.read_excel(os.path.join('data', 'testing_miko_01_b_1.xls'))
+		print('fitting_db not found, loading from disk...')
+		fitting_db = pd.read_excel(dm.give_previous_path('b'))
+		print(fitting_db.head(10))
+		# fitting_db = pd.read_excel(os.path.join('data', 'testing_miko_01_b_1.xls'))
 
-	# accept final fit:
+	# setup stuff for FinalFitGUI:
 	if not 'window2' in stim:
 	    stim['window'].blendMode = 'avg'
 	stim['target'][0].draw()
@@ -385,6 +377,8 @@ if exp['run main c']:
 # if 'contrast_range' not in locals():
 # fit weibull
 # TODO - load last db_c from disk if not present in locals
+# TODO - add final fit gui here too - now we want to know only
+#        approximatelly 75% threshold
 w = fitw(db_c, db_c.index)
 opacity = w.get_threshold([0.7])[0]
 # opacity = 0.45 # temp fix
