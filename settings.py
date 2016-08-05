@@ -76,9 +76,9 @@ portdict['send'] = exp['use trigger']
 portdict['port address'] = int(exp['port address'], base=16) \
 						   if exp['port address'] and portdict['send'] \
 						   else exp['port address']
-portdict['codes'] = {'fix' : 1, 'mask' : 2}
-portdict['codes'].update({'target_'+str(ori) : 4+i \
-						   for i,ori in enumerate(exp['orientation'])
+portdict['codes'] = {'fix': 1, 'mask': 2}
+portdict['codes'].update({'target_' + str(ori) : 4 + i \
+						   for i, ori in enumerate(exp['orientation'])
 						   })
 portdict['codes'].update({'breakStart': 100, 'breakStop': 102})
 portdict['codes'].update({'training': 10, 'fitting': 20,
@@ -89,9 +89,9 @@ exp['port'] = portdict
 # ------------
 sub_data = getSubject()
 exp['participant']  = dict()
-exp['participant']['ID'] = sub_data[0] 
-exp['participant']['age'] = sub_data[1] 
-exp['participant']['sex'] = sub_data[2][0] 
+exp['participant']['ID'] = sub_data[0]
+exp['participant']['age'] = sub_data[1]
+exp['participant']['sex'] = sub_data[2][0]
 
 # get path
 pth   = os.path.dirname(os.path.abspath(__file__))
