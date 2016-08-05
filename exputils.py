@@ -7,9 +7,9 @@ import yaml
 import numpy  as np
 import pandas as pd
 
-from psychopy       import visual, event, gui, core
-from PIL            import Image
-from utils          import round2step
+from psychopy import visual, event, gui, core
+from PIL      import Image
+from utils    import round2step
 
 
 def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={}):
@@ -132,7 +132,8 @@ class ContrastInterface(Interface):
 			# TODO: this might be moved to refresh:
 			if self.last_pressed:
 				step = self.grain_vals[self.current_grain_val]
-				self.contrast = round2step(np.array(self.scale.points), step=step)
+				self.contrast = round2step(np.array(self.scale.points),
+										   step=step)
 				txt = 'kontrast:\n' + '\n'.join(map(str, self.contrast))
 				num_cntrst = len(self.contrast)
 				k = np.sort(self.text_height.keys())
@@ -290,19 +291,15 @@ class Button:
 		self.click_color = click_color
 		self.click_fun = self.default_click_fun
 
-
 	def draw(self):
 		self.rect_stim.draw()
 		self.text_stim.draw()
 
-
 	def contains(self, obj):
 		return self.rect_stim.contains(obj)
 
-
 	def setText(self, text):
 		self.text_stim.setText(text)
-
 
 	def default_click_fun(self):
 		if self.clicked:
@@ -313,7 +310,6 @@ class Button:
 			self.clicked = True
 			self.rect_stim.setFillColor(self.click_color)
 			self.rect_stim.setLineColor(self.click_color)
-
 
 	def click(self):
 		self.click_fun()
@@ -342,10 +338,12 @@ class ClickScale(object):
 		self.h = size[1]
 
 	def point2xpos(self, point):
-		return self.x_extent[0] + (point - self.lims[0]) / self.length * self.x_len
+		return (self.x_extent[0] + (point - self.lims[0]) / self.length *
+				self.x_len)
 
 	def xpos2point(self, xpos):
-		return self.lims[0] + (xpos - self.x_extent[0]) / self.x_len * self.length
+		return (self.lims[0] + (xpos - self.x_extent[0]) / self.x_len *
+				self.length)
 
 	def test_click(self, mouse, clicktype='add'):
 		clicked = False
@@ -495,15 +493,17 @@ class FinalFitGUI(Interface):
 		# OK button
 		pos = [0., -0.85]
 		txt = 'OK'
-		self.OKbutton = Button(win=self.win, pos=pos, text=txt, size=(0.35, 0.12))
+		self.OKbutton = Button(win=self.win, pos=pos, text=txt,
+							   size=(0.35, 0.12))
 		self.OKbutton.click_fun = self.accept
 		self.notfinished = True
 
 		# edit box
 		self.text = visual.TextStim(win=self.win, text=str(self.num_trials),
-			pos=(0.0, -0.5), units='norm', height=0.1)
+									pos=(0.0, -0.5), units='norm', height=0.1)
 		# contrast for % corr:
-		self.text2 = visual.TextStim(win=self.win, text='Contrast for correctness: ',
+		self.text2 = visual.TextStim(
+			win=self.win, text='Contrast for correctness: ',
 			pos=(0.0, -0.65), units='norm', height=0.08)
 
 		# refresh weibull
@@ -517,7 +517,6 @@ class FinalFitGUI(Interface):
 
 		self.win.units = 'norm'
 		pic.setPos((0., ypos))
-
 
 	def draw(self):
 		self.OKbutton.draw()
@@ -562,7 +561,7 @@ class FinalFitGUI(Interface):
 			if k in list('1234567890'):
 				current_str += k
 
-			self.num_trials = int(current_str) if\
+			self.num_trials = int(current_str) if \
 				len(current_str) > 0 else 0
 			txt = current_str if self.num_trials > 0 else ''
 			self.text.setText(current_str)
@@ -575,7 +574,8 @@ class FinalFitGUI(Interface):
 		"""runs main GUI loop"""
 
 		while self.notfinished:
-			k = event.getKeys(keyList=list('1234567890')+['return', 'backspace'])
+			k = event.getKeys(
+				keyList=list('1234567890') + ['return', 'backspace'])
 			self.test_keys(k)
 			self.check_mouse_click()
 

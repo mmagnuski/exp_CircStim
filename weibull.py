@@ -61,10 +61,12 @@ class Weibull:
 	def loglik(self, params):
 		y_pred = self.fun(params)
 		# return negative log-likelihood
-		return np.sum( np.log(y_pred)*self.orig_y + np.log(1-y_pred)*(1-self.orig_y) ) * -1.
+		return np.sum(np.log(y_pred) * self.orig_y +
+					  np.log(1 - y_pred) * (1 - self.orig_y)) * -1.
 
 	def fit(self, initparams):
-		self.params = minimize(self.loglik, initparams, method='Nelder-Mead')['x']
+		self.params = minimize(self.loglik, initparams,
+							   method='Nelder-Mead')['x']
 
 	def _inverse(self, corrinput):
 		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr))**2
@@ -98,15 +100,20 @@ class Weibull:
 			x_pnts = self.x.copy()
 			y_pnts = self.orig_y.copy()
 			x_buckets = np.unique(x_pnts)
-			n_pnts_in_bucket = np.array([np.sum(x_pnts == b) for b in x_buckets])
+			n_pnts_in_bucket = np.array([np.sum(x_pnts == b)
+										for b in x_buckets])
 			good_buckets = n_pnts_in_bucket >= 3
 			x_buckets = x_buckets[good_buckets]
-			bucket_mean = np.array([(y_pnts[x_pnts == b]).mean() for b in x_buckets])
-			bucket_sem = np.array([stats.sem(y_pnts[x_pnts == b]) for b in x_buckets])
+			bucket_mean = np.array([(y_pnts[x_pnts == b]).mean()
+									for b in x_buckets])
+			bucket_sem = np.array([stats.sem(y_pnts[x_pnts == b])
+								   for b in x_buckets])
 
 			# plot
-			plt.scatter(x_buckets, bucket_mean, lw=0, zorder=4, s=32., c=[0.65, 0.65, 0.65])
-			plt.vlines(x_buckets, bucket_mean - bucket_sem, bucket_mean + bucket_sem,
+			plt.scatter(x_buckets, bucket_mean, lw=0, zorder=4, s=32.,
+						c=[0.65, 0.65, 0.65])
+			plt.vlines(
+				x_buckets, bucket_mean - bucket_sem, bucket_mean + bucket_sem,
 				lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
 
 		if points:
@@ -177,7 +184,8 @@ def correct_Weibull_fit(w, exp, newopac):
 		or newopac[1] < 0.01 or newopac[0] > 1.0:
 
 		set_opacity_if_fit_fails(w.orig_y, exp)
-		logs.append( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(*exp['opacity']) )
+		logs.append( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(
+			*exp['opacity']) )
 	else:
 		exp['opacity'] = newopac
 
@@ -191,7 +199,8 @@ def correct_Weibull_fit(w, exp, newopac):
 		exp['opacity'][0] = exp['opacity'][1]/2
 
 	if not (exp['opacity'] == precheck_opacity):
-		logs.append('Opacity limits corrected to:  {0} - {1}'.format(*exp['opacity']))
+		logs.append('Opacity limits corrected to:  {0} - {1}'.format(
+			*exp['opacity']))
 
 	return exp, logs
 
@@ -200,7 +209,8 @@ def correct_Weibull_fit(w, exp, newopac):
 # - check if model is necessary, if not - simplify
 # - maybe add 'random' to steps method this would shift the contrast points
 #   randomly from -0.5 to 0.5 of respective bin width (asymmteric in logsteps)
-def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9], contrast_lims=None, method='random'):
+def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
+					 contrast_lims=None, method='random'):
 	'''
 	method : string
 		* '5steps', '6steps', '12steps' - divides the contrast

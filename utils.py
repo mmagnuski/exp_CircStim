@@ -132,7 +132,8 @@ def free_filename(pth, subj, givenew = True):
 	reg = re.compile(subject_pattern)
 	used_files = [reg.match(itm).group() for ind, itm in enumerate(fls) \
 		if not (reg.match(itm) == None)]
-	used_files_int = [int(f.split('_')[1 + n_undsc_in_subj][0:2]) for f in used_files]
+	used_files_int = [int(f.split('_')[1 + n_undsc_in_subj][0:2])
+					  for f in used_files]
 
 	if givenew:
 		if len(used_files) == 0:

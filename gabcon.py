@@ -52,7 +52,6 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
 
 # TODO: add eeg baseline (resting-state)!
-# TODO: check for continue?
 # if fitting completed -> use data
 # if c part done -> use data
 # check via dm.give_previous_path('b') etc.
