@@ -191,6 +191,7 @@ if exp['run fitting']:
 		s.add(fitting_db.loc[s.trial, 'ifcorrect'])
 		c = s.next()
 		exp['opacity'] = [c, c]
+		# FIX/CHECK - break every 10 trials here?
 		if (s.trial % 10) == 0:
 			show_resp_rules(exp=exp)
 
@@ -270,9 +271,11 @@ if exp['run fitting']:
 
 		# contrast corrections, choosing new contrast samples
 		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
-		check_contrast, contrast_range = get_new_contrast(w, corr_lims=exp['fitCorrLims'],
-			method='{}steps'.format(num_contrast_steps), contrast_lims=contrast_range)
-		# maybe better log instead of printing it out...
+		check_contrast, contrast_range = get_new_contrast(
+			w, corr_lims=exp['fitCorrLims'],
+			method='{}steps'.format(num_contrast_steps),
+			contrast_lims=contrast_range)
+		# FIX/CHECK maybe better log instead of printing it out...
 
 		# Interface
 		# ---------
@@ -286,7 +289,7 @@ if exp['run fitting']:
 		# check ContrastInterface output
 		# 1. take contrast values if set
 		# 2. grow_sample if next_trials were set
-		# !TODO - add FinalFitGUI at the end to accept psychometric functio fit
+		# !TODO - add FinalFitGUI at the end to accept psychometric function fit
 		if len(interf.contrast) > 0:
 			check_contrast = interf.contrast
 			if interf.next_trials > len(check_contrast):
@@ -388,6 +391,7 @@ if exp['run main c']:
 
 # if 'contrast_range' not in locals():
 # fit weibull
+# TODO - run this part if specified in settings
 # TODO - load last db_c from disk if not present in locals
 # TODO - add final fit gui here too - now we want to know only
 #        approximatelly 75% threshold

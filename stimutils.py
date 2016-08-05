@@ -309,6 +309,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim):
 			textscreen(thistxt)
 			show_resp_rules()
 
+			# FIX/CHECK - save opacity to db?
 			if exp['opacity'][0] < 3.:
 				exp['opacity'] += 0.5
 		i += 1
