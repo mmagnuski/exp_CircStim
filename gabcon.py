@@ -182,6 +182,8 @@ if exp['run fitting']:
 	exp_info.blok_info(block_name, [0, step[0]])
 
 	while s.trial <= step[0] and len(s.reversals) < 3:
+		stim['window'].flip()
+		core.wait(0.5)
 		present_trial(s.trial, db=fitting_db, exp=exp)
 		exp_info.blok_info(block_name, [s.trial, step[0]])
 		stim['window'].flip()
@@ -203,6 +205,8 @@ if exp['run fitting']:
 	trial = s.trial + last_trial
 	while trial <= step[1]:
 		trial = s.trial + last_trial
+		stim['window'].flip()
+		core.wait(0.5) # fixed pre-fix interval
 		present_trial(trial, db=fitting_db, exp=exp)
 		stim['window'].flip()
 
@@ -241,11 +245,13 @@ if exp['run fitting']:
 
 		# remind about the button press mappings
 		show_resp_rules(exp=exp)
+		stim['window'].flip()
 
 		# shuffle trials and present them all
 		np.random.shuffle(check_contrast)
 		for c in check_contrast:
 			exp['opacity'] = [c, c]
+			core.wait(0.5) # fixed pre-fix interval
 			present_trial(trial, db=fitting_db, exp=exp)
 			stim['window'].flip()
 			trial += 1
@@ -351,12 +357,14 @@ if exp['run main c']:
 
 	# signal that main proc is about to begin
 	if exp['use trigger']:
+		core.wait(0.01)
 		windll.inpout32.Out32(exp['port']['port address'], 255)
 		core.wait(0.01)
 		clear_port(exp['port'])
 
 	# main loop
 	for i in range(1, db_c.shape[0] + 1):
+		core.wait(0.5) # pre-fixation time is always the same
 		present_trial(i, exp=exp, db=db_c, use_exp=False)
 		stim['window'].flip()
 
@@ -367,11 +375,10 @@ if exp['run main c']:
 			# break and refresh keyboard mapping
 			present_break(i, exp=exp)
 			show_resp_rules(exp=exp)
+			stim['window'].flip()
 
-		# inter-trial interval
-		stim['window'].flip()
+		# update experimenter
 		exp_info.blok_info(u'główne badanie, część I', [i, exp['numTrials']])
-		core.wait(0.5) # pre-fixation time is always the same
 
 	db_c.to_excel(dm.give_path('c'))
 
@@ -413,6 +420,7 @@ if exp['use trigger']:
 
 # main loop
 for i in range(1, db_t.shape[0] + 1):
+	core.wait(0.5) # pre-fixation time is always the same
 	present_trial(i, exp=exp, db=db_t, use_exp=False)
 	stim['window'].flip()
 
@@ -423,11 +431,10 @@ for i in range(1, db_t.shape[0] + 1):
 		# break and refresh keyboard mapping
 		present_break(i, exp=exp)
 		show_resp_rules(exp=exp)
+		stim['window'].flip()
 
-	# inter-trial interval
-	stim['window'].flip()
+	# update experimenter
 	exp_info.blok_info(u'główne badanie, część II', [i, exp['numTrials']])
-	core.wait(0.5) # pre-fixation time is always the same
 
 # save data before quit
 db_t.to_excel(dm.give_path('t'))

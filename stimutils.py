@@ -285,7 +285,7 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		db.loc[tr, 'ifcorrect'] = 0
 
 
-def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
+def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim):
 	i = 1
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
@@ -294,6 +294,8 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85):
 	exp['opacity'] = np.array([1., 1.])
 
 	while train_corr < corr or i < mintrials:
+		stim['window'].flip()
+		core.wait(0.5)
 		present_trial(i, exp=exp, db=train_db)
 		present_feedback(i, db=train_db)
 
