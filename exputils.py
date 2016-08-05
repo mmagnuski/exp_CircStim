@@ -66,7 +66,7 @@ class Interface(object):
 
 class ContrastInterface(Interface):
 
-	def __init__(self, exp=None, stim=None, trial=None):
+	def __init__(self, exp=None, stim=None, trial=None, contrast_lims=(0., 3.)):
 		self.contrast = list()
 
 		# monitor setup
@@ -97,6 +97,8 @@ class ContrastInterface(Interface):
 		self.buttons = [Button(win=self.win, pos=p, text=t,
 			size=(0.35, 0.12)) for p, t in zip(button_pos, button_text)]
 
+		self.orig_contrast_lims = contrast_lims
+		self.current_contrast_lims = contrast_lims
 		self.buttons[-1].click_fun = self.cycle_vals
 		self.grain_vals = [0.1, 0.05, 0.01, 0.005]
 		self.current_grain_val = 0
@@ -105,7 +107,10 @@ class ContrastInterface(Interface):
 		self.text_height = {0: 0.12, 5: 0.1, 9: 0.06, 15: 0.04, 20: 0.03}
 
 		# scale
-		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1))
+		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1),
+								lims=contrast_lims)
+		self.scale2 = ClickScale(win=self.win, pos=(0.,-0.9), size=(0.75, 0.05),
+								lims=contrast_lims)
 		self.scale_text = visual.TextStim(self.win, pos=(0.,-0.65), text="")
 		self.edit_mode = False
 		self.last_pressed = False
@@ -122,6 +127,7 @@ class ContrastInterface(Interface):
 		if self.buttons[-2].clicked:
 			self.set_scale_text()
 			self.scale.draw()
+			self.scale2.draw()
 			self.scale_text.draw()
 			# TODO: this might be moved to refresh:
 			if self.last_pressed:
@@ -156,17 +162,33 @@ class ContrastInterface(Interface):
 			core.wait(0.1)
 
 	def set_scale_text(self):
-		val = self.scale.test_pos(self.mouse)
-		if val:
-			step = self.grain_vals[self.current_grain_val]
-			val = round2step(val, step=step)
-			get_chars = 2 + np.sum(np.array([1., 0.1, 0.01, 0.001]) <= val)
-			val = str(val)
-			get_chars = min(get_chars, len(val))
-			val = val[:get_chars]
-		else:
-			val = ""
+		for obj in [self.scale, self.scale2]:
+			val = obj.test_pos(self.mouse)
+			if val:
+				step = self.grain_vals[self.current_grain_val]
+				val = round2step(val, step=step)
+				get_chars = 2 + np.sum(np.array([1., 0.1, 0.01, 0.001]) <= val)
+				val = str(val)
+				get_chars = min(get_chars, len(val))
+				val = val[:get_chars]
+				break
+			else:
+				val = ""
 		self.scale_text.setText(val)
+
+	def check_scale2(self):
+		vals = sorted(self.scale2.points)
+		if vals:
+			step = self.grain_vals[self.current_grain_val]
+			vals = round2step(np.asarray(vals), step=step)
+			if len(vals) == 1:
+				self.current_contrast_lims = (0., vals[0])
+			elif len(vals) >= 2:
+				self.current_contrast_lims = (vals[0], vals[-1])
+		else:
+			self.current_contrast_lims = self.orig_contrast_lims
+		self.scale.set_lim(self.current_contrast_lims)
+
 
 	def check_mouse_click(self):
 		m1, m2, m3 = self.mouse.getPressed()
@@ -180,10 +202,16 @@ class ContrastInterface(Interface):
 
 			# test scale
 			self.scale.test_click(self.mouse)
+			if_clicked = self.scale2.test_click(self.mouse)
+			if if_clicked:
+				self.check_scale2()
 
 		elif m3:
 			self.mouse.clickReset()
-			self.scale.remove_point(-1)
+			self.scale.test_click(self.mouse, 'remove')
+			if_clicked = self.scale2.test_click(self.mouse, 'remove')
+			if if_clicked:
+				self.check_scale2()
 		return m1 or m3
 
 	def check_key_press(self):
@@ -294,7 +322,7 @@ class Button:
 class ClickScale(object):
 
 	def __init__(self, win=None, size=(0.5, 0.15), pos=(0, 0),
-		color=(-0.3, -0.3, -0.3), units='norm', length=2.):
+		color=(-0.3, -0.3, -0.3), units='norm', lims=[0., 1.]):
 		self.win = win
 		# maybe - raise ValueError if win is none
 		self.points = []
@@ -302,7 +330,8 @@ class ClickScale(object):
 		self.units = units
 		self.color = color
 		self.pos = pos
-		self.length = length
+		self.lims = lims
+		self.length = lims[1] - lims[0]
 		self.line_color = (1.0, -0.3, -0.3)
 		self.scale = visual.Rect(win, pos=pos, width=size[0],
 				height=size[1], fillColor=color, lineColor=color,
@@ -312,40 +341,38 @@ class ClickScale(object):
 		self.x_len = size[0]
 		self.h = size[1]
 
-
 	def point2xpos(self, point):
-		return self.x_extent[0] + point*self.x_len
-
+		return self.x_extent[0] + (point - self.lims[0]) / self.length * self.x_len
 
 	def xpos2point(self, xpos):
-		return (xpos - self.x_extent[0]) / self.x_len
+		return self.lims[0] + (xpos - self.x_extent[0]) / self.x_len * self.length
 
-
-	def test_click(self, mouse):
+	def test_click(self, mouse, clicktype='add'):
+		clicked = False
 		if self.scale.contains(mouse):
-			mouse_pos = mouse.getPos()
-			val = self.xpos2point(mouse_pos[0])
-			self.add_point(val)
-
+			clicked = True
+			if clicktype == 'add':
+				mouse_pos = mouse.getPos()
+				self.add_point(self.xpos2point(mouse_pos[0]))
+			elif clicktype == 'remove':
+				self.remove_point(-1)
+		return clicked
 
 	def test_pos(self, mouse):
 		if self.scale.contains(mouse):
 			mouse_pos = mouse.getPos()
-			val = self.xpos2point(mouse_pos[0])
-			return val * self.length
+			return self.xpos2point(mouse_pos[0])
 		else:
 			return None
 
-
 	def add_point(self, val):
-		self.points.append(val * self.length)
+		self.points.append(val)
 		pos = [0., self.pos[1]]
 		pos[0] = self.point2xpos(val)
-		ln = visual.Rect(self.win, pos=pos, width=0.01,
+		ln = visual.Rect(self.win, pos=pos, width=0.005,
 				height=self.h, fillColor=self.line_color,
 				lineColor=self.line_color, units=self.units)
 		self.lines.append(ln)
-
 
 	def remove_point(self, ind):
 		try:
@@ -354,10 +381,15 @@ class ClickScale(object):
 		except:
 			pass
 
-
 	def draw(self):
 		self.scale.draw()
 		[l.draw() for l in self.lines]
+
+	def set_lim(self, newlim):
+		self.points = [];
+		self.lines = [];
+		self.lims = newlim
+		self.length = newlim[1] - newlim[0]
 
 
 class ExperimenterInfo(Interface):
