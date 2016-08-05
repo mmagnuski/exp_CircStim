@@ -107,8 +107,11 @@ show_resp_rules(exp=exp, text=(u"Zaraz rozpocznie się trening." +
 # TRAINING
 # --------
 if exp['run training']:
-	# send start trigger:
+
+	# signal onset of training
+	core.wait(0.05)
 	onflip_work(exp['port'], code='training')
+	core.wait(0.1)
 	clear_port(exp['port'])
 
 	# set things up
@@ -161,7 +164,9 @@ if exp['run fitting']:
 		instr.present(stop=15)
 
 	# send start trigger:
+	core.wait(0.05)
 	onflip_work(exp['port'], code='fitting')
+	core.wait(0.1)
 	clear_port(exp['port'])
 
 	# init stepwise contrast adjustment
@@ -299,6 +304,7 @@ if exp['run main c']:
 		instr.present(stop=16)
 
 	# send trigger
+	core.wait(0.05)
 	onflip_work(exp['port'], 'contrast')
 	core.wait(0.1)
 	clear_port(exp['port'])
@@ -393,6 +399,8 @@ exp['numTrials'] = len(db_t.index)
 if exp['run instruct']:
 	instr.present()
 
+# signal onset of 'time' part
+core.wait(0.05)
 onflip_work(exp['port'], 'time')
 core.wait(0.1)
 clear_port(exp['port'])
