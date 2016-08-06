@@ -384,17 +384,30 @@ if exp['run main c']:
 # EXPERIMENT - part t
 # -------------------
 if exp['run main t']:
-	
-	# TODO - load last db_c from disk if not present in locals
-	# if 'contrast_range' not in locals():
-	# fit weibull
 
-	# TODO - add final fit gui here too - now we want to know only
-	#        approximatelly 75% threshold
-	w = fitw(db_c, db_c.index)
-	opacity = w.get_threshold([0.7])[0]
-	# opacity = 0.45 # temp fix
+	# get contrast from contrast part
+	if 'db_c' not in locals():
+		print('contrast database not found, loading from disk...')
+		fitting_db = pd.read_excel(dm.give_previous_path('c'))
+		print(fitting_db.head(10))
 
+	# FinalFitGUI - to set about 75% thresh
+	# setup
+	if not 'window2' in stim:
+	    stim['window'].blendMode = 'avg'
+	stim['window'].flip()
+
+	# gui
+	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
+	fgui.refresh_weibull()
+	fgui.loop()
+
+	# cleanup
+	if not 'window2' in stim:
+		stim['window'].blendMode = 'add'
+
+	# get contrast and prepare trials dataframe
+	opacity = fgui.weibull.get_threshold([0.75])[0]
 	times = TimeShuffle(start=1., end=5., every=0.2,
 				times=4).all()
 	times = ms2frames(times * 1000, exp['frm']['time'])
