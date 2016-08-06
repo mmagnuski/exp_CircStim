@@ -326,9 +326,14 @@ if exp['run main c']:
 		# fitting_db = pd.read_excel(os.path.join('data', 'testing_miko_01_b_1.xls'))
 
 	# setup stuff for FinalFitGUI:
+	print(stim)
 	if not 'window2' in stim:
-	    stim['window'].blendMode = 'avg'
+		print('setting "avg" blendMode...')
+		stim['window'].blendMode = 'avg'
+	# check with drawing target...
+	stim['target'][0].draw()
 	stim['window'].flip()
+	core.wait(.15)
 
 	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
 	fgui.refresh_weibull()

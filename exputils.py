@@ -781,7 +781,7 @@ class DataManager(object):
 
 	def give_previous_path(self, path_type, file_ending='xls'):
 		# make sure current path was checked
-		self.give_path(self, path_type, file_ending=file_ending)
+		self.give_path(path_type, file_ending=file_ending)
 		# get previous:
 		prev_val = self.val[path_type] - 1
 		if prev_val == 0:
