@@ -56,6 +56,11 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # if c part done -> use data
 # check via dm.give_previous_path('b') etc.
 
+# TODO: turn prints to logging
+# TODO: add some more logging?
+# TODO: remove blinkdot to a separate repo?
+#       (blinkdot will not be used here)
+
 # create object for updating experimenter about progress
 exp_info = ExperimenterInfo(exp, stim)
 
@@ -323,9 +328,7 @@ if exp['run main c']:
 	# setup stuff for FinalFitGUI:
 	if not 'window2' in stim:
 	    stim['window'].blendMode = 'avg'
-	stim['target'][0].draw()
 	stim['window'].flip()
-	core.wait(.15)
 
 	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
 	fgui.refresh_weibull()
@@ -338,7 +341,6 @@ if exp['run main c']:
 	print('final weibull: ', fgui.weibull)
 	print('final params: ', fgui.params)
 	print('final num_trials: ', fgui.num_trials)
-
 
 	# num_trials = fitting_db.shape[0]
 	# w = fitw(fitting_db, range(num_trials-100, num_trials))
@@ -414,7 +416,7 @@ if exp['run main t']:
 	db_t = create_database(exp, combine_with=('fixTime', times))
 	db_t.loc[:, 'opacity'] = opacity
 
-	exp['numTrials'] = len(db_t.index)
+	exp['numTrials'] = len(db_t.index) # TODO/CHECK - why is this needed?
 
 	if exp['run instruct']:
 		instr.present()
