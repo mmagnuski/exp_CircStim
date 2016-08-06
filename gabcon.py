@@ -388,60 +388,61 @@ if exp['run main c']:
 
 # EXPERIMENT - part t
 # -------------------
+if exp['run main t']:
+	
+	# TODO - load last db_c from disk if not present in locals
+	# if 'contrast_range' not in locals():
+	# fit weibull
 
-# if 'contrast_range' not in locals():
-# fit weibull
-# TODO - run this part if specified in settings
-# TODO - load last db_c from disk if not present in locals
-# TODO - add final fit gui here too - now we want to know only
-#        approximatelly 75% threshold
-w = fitw(db_c, db_c.index)
-opacity = w.get_threshold([0.7])[0]
-# opacity = 0.45 # temp fix
+	# TODO - add final fit gui here too - now we want to know only
+	#        approximatelly 75% threshold
+	w = fitw(db_c, db_c.index)
+	opacity = w.get_threshold([0.7])[0]
+	# opacity = 0.45 # temp fix
 
-times = TimeShuffle(start=1., end=5., every=0.2,
-			times=4).all()
-times = ms2frames(times * 1000, exp['frm']['time'])
-db_t = create_database(exp, combine_with=('fixTime', times))
-db_t.loc[:, 'opacity'] = opacity
+	times = TimeShuffle(start=1., end=5., every=0.2,
+				times=4).all()
+	times = ms2frames(times * 1000, exp['frm']['time'])
+	db_t = create_database(exp, combine_with=('fixTime', times))
+	db_t.loc[:, 'opacity'] = opacity
 
-exp['numTrials'] = len(db_t.index)
+	exp['numTrials'] = len(db_t.index)
 
-if exp['run instruct']:
-	instr.present()
+	if exp['run instruct']:
+		instr.present()
 
-# signal onset of 'time' part
-core.wait(0.05)
-onflip_work(exp['port'], 'time')
-core.wait(0.1)
-clear_port(exp['port'])
-
-# signal that another proc is about to begin
-if exp['use trigger']:
-	windll.inpout32.Out32(exp['port']['port address'], 255)
-	core.wait(0.01)
+	# signal onset of 'time' part
+	core.wait(0.05)
+	onflip_work(exp['port'], 'time')
+	core.wait(0.1)
 	clear_port(exp['port'])
 
-# main loop
-for i in range(1, db_t.shape[0] + 1):
-	core.wait(0.5) # pre-fixation time is always the same
-	present_trial(i, exp=exp, db=db_t, use_exp=False)
-	stim['window'].flip()
+	# signal that another proc is about to begin
+	if exp['use trigger']:
+		windll.inpout32.Out32(exp['port']['port address'], 255)
+		core.wait(0.01)
+		clear_port(exp['port'])
 
-	# present break
-	if (i) % exp['break after'] == 0:
-		# save data before every break
-		db_t.to_excel(dm.give_path('t'))
-		# break and refresh keyboard mapping
-		present_break(i, exp=exp)
-		show_resp_rules(exp=exp)
+	# main loop
+	for i in range(1, db_t.shape[0] + 1):
+		core.wait(0.5) # pre-fixation time is always the same
+		present_trial(i, exp=exp, db=db_t, use_exp=False)
 		stim['window'].flip()
 
-	# update experimenter
-	exp_info.blok_info(u'główne badanie, część II', [i, exp['numTrials']])
+		# present break
+		if (i) % exp['break after'] == 0:
+			# save data before every break
+			db_t.to_excel(dm.give_path('t'))
+			# break and refresh keyboard mapping
+			present_break(i, exp=exp)
+			show_resp_rules(exp=exp)
+			stim['window'].flip()
 
-# save data before quit
-db_t.to_excel(dm.give_path('t'))
+		# update experimenter
+		exp_info.blok_info(u'główne badanie, część II', [i, exp['numTrials']])
+
+	# save data before quit
+	db_t.to_excel(dm.give_path('t'))
 
 # goodbye!
 core.quit()
