@@ -164,10 +164,11 @@ if exp['run fitting']:
 		instr.present(stop=15)
 
 	# send start trigger:
-	core.wait(0.05)
-	onflip_work(exp['port'], code='fitting')
-	core.wait(0.1)
-	clear_port(exp['port'])
+	if exp['use trigger']:
+		core.wait(0.05)
+		onflip_work(exp['port'], code='fitting')
+		core.wait(0.1)
+		clear_port(exp['port'])
 
 	# init stepwise contrast adjustment
 	num_fail = 0
@@ -312,12 +313,6 @@ if exp['run main c']:
 	if exp['run instruct']:
 		instr.present(stop=16)
 
-	# send trigger
-	core.wait(0.05)
-	onflip_work(exp['port'], 'contrast')
-	core.wait(0.1)
-	clear_port(exp['port'])
-
 	# get contrast from fitting
 	if 'fitting_db' not in locals():
 		print('fitting_db not found, loading from disk...')
@@ -360,9 +355,9 @@ if exp['run main c']:
 
 	# signal that main proc is about to begin
 	if exp['use trigger']:
-		core.wait(0.01)
-		windll.inpout32.Out32(exp['port']['port address'], 255)
-		core.wait(0.01)
+		core.wait(0.05)
+		onflip_work(exp['port'], 'contrast')
+		core.wait(0.1)
 		clear_port(exp['port'])
 
 	# main loop
@@ -412,15 +407,10 @@ if exp['run main t']:
 		instr.present()
 
 	# signal onset of 'time' part
-	core.wait(0.05)
-	onflip_work(exp['port'], 'time')
-	core.wait(0.1)
-	clear_port(exp['port'])
-
-	# signal that another proc is about to begin
 	if exp['use trigger']:
-		windll.inpout32.Out32(exp['port']['port address'], 255)
-		core.wait(0.01)
+		core.wait(0.05)
+		onflip_work(exp['port'], 'time')
+		core.wait(0.1)
 		clear_port(exp['port'])
 
 	# main loop
