@@ -50,6 +50,7 @@ class Weibull:
 
 		expo = ((k * x)/t) ** b
 		y = 1 - (1 - chance_level) * np.exp(-expo)
+		# 1 - lapse - (1 - chance_level - lapse)
 		return y
 	
 	def fun(self, params):
