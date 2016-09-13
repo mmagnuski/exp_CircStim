@@ -530,7 +530,7 @@ class FinalFitGUI(Interface):
 		look_back = min(nrow, self.num_trials)
 		look_back = max(5, look_back)
 		ind = np.r_[nrow-look_back:nrow]
-		self.weibull = self.fitfun(self.db, ind)
+		self.weibull = self.fitfun(self.db, ind, init_params=[1., 1., 0.])
 		self.params = self.weibull.params
 
 		self.stim = plot_Feedback(self.stim, self.weibull,

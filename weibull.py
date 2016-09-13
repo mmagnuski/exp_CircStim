@@ -43,13 +43,20 @@ class Weibull:
 
 	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
 		# unpack params
-		b, t = params
+		has_lapse = len(params) > 2
+		if has_lapse:
+			b, t, lapse = params
+		else:
+			b, t = params
 		
 		k = ( -np.log((1.0 - corr_at_thresh)/(1.0 - chance_level)) ) \
 			** (1.0/b)
-
 		expo = ((k * x)/t) ** b
-		y = 1 - (1 - chance_level) * np.exp(-expo)
+
+		if has_lapse:
+			y = (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
+		else:
+			y = 1 - (1 - chance_level) * np.exp(-expo)
 		return y
 	
 	def fun(self, params):
@@ -60,6 +67,9 @@ class Weibull:
 
 	def loglik(self, params):
 		y_pred = self.fun(params)
+		# if lapse used and not within bounds, return some v high value
+		if len(params) == 3 and (params[2] > 0.5 or params[2] < 0.):
+			return 10000.
 		# return negative log-likelihood
 		return np.sum(np.log(y_pred) * self.orig_y +
 					  np.log(1 - y_pred) * (1 - self.orig_y)) * -1.
