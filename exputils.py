@@ -66,7 +66,8 @@ class Interface(object):
 
 class ContrastInterface(Interface):
 
-	def __init__(self, exp=None, stim=None, trial=None, contrast_lims=(0., 3.)):
+	def __init__(self, exp=None, stim=None, trial=None, contrast_lims=(0., 3.),
+		df=None):
 		self.contrast = list()
 
 		# monitor setup
@@ -89,6 +90,8 @@ class ContrastInterface(Interface):
 		self.stim['centerImage'].setPos((-0.4, 0.4))
 		self.stim['centerImage'].setSize([pic_nrm_size])
 
+		self.df = df
+
 		# button
 		button_pos = np.zeros([4,2])
 		button_pos[:,0] = 0.7
@@ -96,6 +99,9 @@ class ContrastInterface(Interface):
 		button_text = [u'kontynuuj', u'zakończ', u'edytuj', '0.1']
 		self.buttons = [Button(win=self.win, pos=p, text=t,
 			size=(0.35, 0.12)) for p, t in zip(button_pos, button_text)]
+		self.edit_fit_button = Button(win=self.win, pos=(-0.7, -0.5),
+			text='edytuj dopasowanie',size=(0.35, 0.12))
+		self.edit_fit_button.click_fun = self.edit_fit
 
 		self.orig_contrast_lims = contrast_lims
 		self.current_contrast_lims = contrast_lims
@@ -123,6 +129,7 @@ class ContrastInterface(Interface):
 
 	def draw(self):
 		[b.draw() for b in self.buttons]
+		self.edit_fit_button.draw()
 		self.trials_text.draw()
 		if self.buttons[-2].clicked:
 			self.set_scale_text()
@@ -143,6 +150,15 @@ class ContrastInterface(Interface):
 				self.last_pressed = False
 			self.text.draw()
 		self.stim['centerImage'].draw()
+
+	def edit_fit(self):
+		from weibull import fitw
+
+		fgui = FinalFitGUI(exp=self.exp, stim=self.stim, db=self.df, fitfun=fitw)
+		fgui.refresh_weibull()
+		fgui.loop()
+
+		# get params from edit_fit and store here?
 
 	def cycle_vals(self):
 		self.current_grain_val += 1
@@ -206,6 +222,11 @@ class ContrastInterface(Interface):
 			if_clicked = self.scale2.test_click(self.mouse)
 			if if_clicked:
 				self.check_scale2()
+
+			# test fit edit
+			ifclicked = self.edit_fit_button.contains(self.mouse)
+			if ifclicked:
+				self.edit_fit_button.click()
 
 		elif m3:
 			self.mouse.clickReset()

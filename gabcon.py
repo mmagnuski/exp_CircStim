@@ -235,11 +235,10 @@ if exp['run fitting']:
 	# Contrast fitting - weibull
 	# --------------------------
 	trial += 1
-	params = [1., 1.]
 
 	# add param columns to fitting db
-	fitting_db['w1'] = np.nan
-	fitting_db['w2'] = np.nan
+	for ii in [1, 2, 3]:
+		fitting_db['w' + str(ii)] = np.nan
 
 	check_contrast = np.arange(mean_thresh-0.05,
 		mean_thresh+0.1, 0.05)
@@ -253,6 +252,7 @@ if exp['run fitting']:
 		# remind about the button press mappings
 		show_resp_rules(exp=exp)
 		stim['window'].flip()
+		fit_params = [1., 1., 0.]
 
 		# shuffle trials and present them all
 		np.random.shuffle(check_contrast)
@@ -266,12 +266,14 @@ if exp['run fitting']:
 		# fit weibull
 		look_back = min(trial-1, 75)
 		ind = np.r_[trial-look_back:trial]
-		w = fitw(fitting_db, ind, init_params=[1., 1., 0.])
-		params = w.params
+		w = fitw(fitting_db, ind, init_params=fit_params)
+		fit_params = w.params
 
 		# save weibull params in fitting_db and save to disk:
-		fitting_db.loc[trial-1, 'w1'] = params[0]
-		fitting_db.loc[trial-1, 'w2'] = params[1]
+		fitting_db.loc[trial-1, 'w1'] = fit_params[0]
+		fitting_db.loc[trial-1, 'w2'] = fit_params[1]
+		fitting_db.loc[trial-1, 'w3'] = fit_params[2] \
+			if len(fit_params) == 3 else np.nan
 		save_df = trim_df(fitting_db)
 		save_df.to_excel(dm.give_path('b'))
 
@@ -291,6 +293,7 @@ if exp['run fitting']:
 		stim = plot_Feedback(stim, w, exp['data'])
 		interf = ContrastInterface(stim=stim, trial=trial)
 		continue_fitting = interf.loop()
+		fit_params = interf.params
 
 		# check ContrastInterface output
 		# 1. take contrast values if set

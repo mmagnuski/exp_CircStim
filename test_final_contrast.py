@@ -22,9 +22,9 @@ df = pd.read_excel(flpth)
 if not 'window2' in stim:
     stim['window'].blendMode = 'avg'
 
-stim['target'][0].draw()
-stim['window'].flip()
-core.wait(.15)
+# stim['target'][0].draw()
+# stim['window'].flip()
+# core.wait(.15)
 
 
 # stim['centerImage'] = visual.ImageStim(stim['window'], image=r'data\T004_weibull_fit_temp.png')
