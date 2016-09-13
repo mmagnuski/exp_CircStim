@@ -464,8 +464,8 @@ class AnyQuestionsGUI(Interface):
 
 class FinalFitGUI(Interface):
 
-	def __init__(self, exp=None, stim=None, db=None,
-			weibull=None, fitfun=None, corr_steps=[0.55, 0.75, 0.95]):
+	def __init__(self, exp=None, stim=None, db=None, weibull=None,
+		fitfun=None, corr_steps=None, num_trials=40, use_lapse=None):
 
 		# setup
 		# -----
@@ -479,16 +479,23 @@ class FinalFitGUI(Interface):
 		if weibull is not None:
 			self.weibull = weibull
 			self.params = weibull.params
+			if use_lapse is not None:
+				correct_num_params = 3 if use_lapse else 2
+				assert len(self.params) == correct_num_params
+			else:
+				use_lapse = len(self.params) == 3
 		else:
 			self.weibull = []
 			self.params = []
 
 		# weibull-related options:
 		self.img_size = []
-		self.num_trials = 40
-		self.corr_steps = corr_steps
+		self.num_trials = num_trials
+		self.corr_steps = [0.55, 0.75, 0.95] if corr_steps is None \
+												else corr_steps
 		self.contrast_for_corr = []
 		self.fitfun = fitfun
+		self.use_lapse = False if use_lapse is None else use_lapse
 
 		# OK button
 		pos = [0., -0.85]
@@ -496,6 +503,9 @@ class FinalFitGUI(Interface):
 		self.OKbutton = Button(win=self.win, pos=pos, text=txt,
 							   size=(0.35, 0.12))
 		self.OKbutton.click_fun = self.accept
+		self.lapse_button = Button(win=self.win, pos=(0.6, -0.85), text='use lapse',
+								   size=(0.35, 0.12))
+		self.lapse_button.click_fun = self.change_lapse
 		self.notfinished = True
 
 		# edit box
@@ -520,9 +530,15 @@ class FinalFitGUI(Interface):
 
 	def draw(self):
 		self.OKbutton.draw()
+		self.lapse_button.draw()
 		self.text.draw()
 		self.text2.draw()
 		self.stim['centerImage'].draw()
+
+	def change_lapse(self):
+		self.use_lapse = False if self.use_lapse else True
+		self.lapse_button.default_click_fun()
+		self.refresh_weibull()
 
 	def refresh_weibull(self):
 		# fit weibull
@@ -530,7 +546,8 @@ class FinalFitGUI(Interface):
 		look_back = min(nrow, self.num_trials)
 		look_back = max(5, look_back)
 		ind = np.r_[nrow-look_back:nrow]
-		self.weibull = self.fitfun(self.db, ind, init_params=[1., 1., 0.])
+		params = [1., 1., 0.] if self.use_lapse else [1., 1.]
+		self.weibull = self.fitfun(self.db, ind, init_params=params)
 		self.params = self.weibull.params
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
@@ -589,6 +606,8 @@ class FinalFitGUI(Interface):
 			# test buttons
 			if self.OKbutton.contains(self.mouse):
 				self.OKbutton.click()
+			if self.lapse_button.contains(self.mouse):
+				self.lapse_button.click()
 
 	def accept(self):
 		self.notfinished = False
