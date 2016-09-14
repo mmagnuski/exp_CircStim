@@ -68,8 +68,10 @@ class Interface(object):
 
 class ContrastInterface(Interface):
 
-	def __init__(self, exp=None, stim=None, trial=None, contrast_lims=(0., 3.),
-		df=None):
+	def __init__(self, exp=None, stim=None, contrast_lims=(0., 3.),
+		df=None, weibull=None):
+		from weibull import fitw
+
 		self.contrast = list()
 
 		# monitor setup
@@ -84,6 +86,13 @@ class ContrastInterface(Interface):
 		self.origunits = self.win.units
 		self.win.units = 'norm'
 
+		self.df = df.reset_index()
+		self.use_lapse = False
+		self.fitfun = fitw
+		self.weibull = weibull
+		self.num_trials = 40
+		self.corr_steps = [0.55, 0.75, 0.9]
+
 		win_pix_size = self.win.size
 		pic_pix_size = self.stim['centerImage'].size
 		pic_nrm_size = [(p / (w * 1.)) * 2. for (p, w) in
@@ -92,36 +101,41 @@ class ContrastInterface(Interface):
 		self.stim['centerImage'].setPos((-0.4, 0.4))
 		self.stim['centerImage'].setSize([pic_nrm_size])
 
-		self.df = df
-
-		# button
+		# buttons
 		button_pos = np.zeros([4,2])
 		button_pos[:,0] = 0.7
 		button_pos[:,1] = np.linspace(-0.25, -0.8, num=4)
 		button_text = [u'kontynuuj', u'zakończ', u'edytuj', '0.1']
 		self.buttons = [Button(win=self.win, pos=p, text=t,
 			size=(0.35, 0.12)) for p, t in zip(button_pos, button_text)]
-		self.edit_fit_button = Button(win=self.win, pos=(-0.7, -0.5),
-			text='edytuj dopasowanie',size=(0.35, 0.12))
-		self.edit_fit_button.click_fun = self.edit_fit
-
-		self.orig_contrast_lims = contrast_lims
-		self.current_contrast_lims = contrast_lims
 		self.buttons[-1].click_fun = self.cycle_vals
-		self.grain_vals = [0.1, 0.05, 0.01, 0.005]
-		self.current_grain_val = 0
+		self.last_trials = Button(win=self.win, pos=(-0.7, -0.43),
+			text='{} trials'.format(self.num_trials), size=(0.35, 0.12))
+		self.use_lapse_button = Button(win=self.win, pos=(-0.7, -0.6166),
+			text='use lapse',size=(0.35, 0.12))
+		self.last_trials.click_fun = self.set_last_trials
+		self.use_lapse_button.click_fun = self.change_lapse
+
+		# text
 		self.text = visual.TextStim(win=self.win, text='kontrast:\n',
 			pos=(0.75, 0.5), units='norm', height=0.1)
 		self.text_height = {0: 0.12, 5: 0.1, 9: 0.06, 15: 0.04, 20: 0.03}
+		self.scale_text = visual.TextStim(self.win, pos=(0.,-0.65), text="")
+		self.contrast_levels_text = visual.TextStim(win=self.win, text='',
+			pos=(0., -0.43))
 
 		# scale
 		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1),
 								lims=contrast_lims)
 		self.scale2 = ClickScale(win=self.win, pos=(0.,-0.9), size=(0.75, 0.05),
-								lims=contrast_lims)
-		self.scale_text = visual.TextStim(self.win, pos=(0.,-0.65), text="")
+								 lims=contrast_lims)
 		self.edit_mode = False
 		self.last_pressed = False
+		self.orig_contrast_lims = contrast_lims
+		self.current_contrast_lims = contrast_lims
+		self.grain_vals = [0.1, 0.05, 0.01, 0.005]
+		self.current_grain_val = 0
+		self.in_loop2 = False
 
 		# back in how many trials:
 		self.next_trials = 4
@@ -131,8 +145,13 @@ class ContrastInterface(Interface):
 
 	def draw(self):
 		[b.draw() for b in self.buttons]
-		self.edit_fit_button.draw()
+		self.last_trials.draw()
+		self.use_lapse_button.draw()
 		self.trials_text.draw()
+		self.contrast_levels_text.draw()
+		self.stim['centerImage'].draw()
+
+		# edit constrast mode
 		if self.buttons[-2].clicked:
 			self.set_scale_text()
 			self.scale.draw()
@@ -151,16 +170,16 @@ class ContrastInterface(Interface):
 				self.text.setText(txt)
 				self.last_pressed = False
 			self.text.draw()
-		self.stim['centerImage'].draw()
 
-	def edit_fit(self):
-		from weibull import fitw
+	def set_last_trials(self):
+		self.in_loop2 = True
+		self.last_trials.default_click_fun()
+		self.loop2()
 
-		fgui = FinalFitGUI(exp=self.exp, stim=self.stim, db=self.df, fitfun=fitw)
-		fgui.refresh_weibull()
-		fgui.loop()
-
-		# get params from edit_fit and store here?
+	def change_lapse(self):
+		self.use_lapse_button.default_click_fun()
+		self.use_lapse = self.use_lapse_button.clicked
+		self.refresh_weibull()
 
 	def cycle_vals(self):
 		self.current_grain_val += 1
@@ -208,7 +227,6 @@ class ContrastInterface(Interface):
 			self.current_contrast_lims = self.orig_contrast_lims
 		self.scale.set_lim(self.current_contrast_lims)
 
-
 	def check_mouse_click(self):
 		m1, m2, m3 = self.mouse.getPressed()
 		if m1:
@@ -225,10 +243,12 @@ class ContrastInterface(Interface):
 			if if_clicked:
 				self.check_scale2()
 
-			# test fit edit
-			ifclicked = self.edit_fit_button.contains(self.mouse)
-			if ifclicked:
-				self.edit_fit_button.click()
+			# test trial num edit
+			if self.last_trials.contains(self.mouse):
+				self.last_trials.click()
+
+			if self.use_lapse_button.contains(self.mouse):
+				self.use_lapse_button.click()
 
 		elif m3:
 			self.mouse.clickReset()
@@ -251,12 +271,70 @@ class ContrastInterface(Interface):
 			self.trials_text.setText(u'wróć po {} trialach'.format(
 				self.next_trials))
 
+	def refresh_weibull(self):
+		# fit weibull
+		nrow = self.df.shape[0]
+		look_back = min(nrow, self.num_trials)
+		look_back = max(5, look_back)
+		self.num_trials = look_back
+		ind = np.r_[nrow-look_back:nrow]
+		params = [1., 1., 0.] if self.use_lapse else [1., 1.]
+		self.weibull = self.fitfun(self.df, ind, init_params=params)
+		# self.params = self.weibull.params
+
+		self.stim = plot_Feedback(self.stim, self.weibull,
+			self.exp['data'], plotter_args=dict(mean_points=True),
+			set_size=False)
+		self.stim['centerImage'].draw()
+
+		# update contrast for specified correctness
+		# self.contrast_for_corr = self.weibull.get_threshold(self.corr_steps)
+		# txt = ['{}% - {:05.3f}'.format(str(corr * 100).split('.')[0], cntr)
+		# 	for corr, cntr in zip(self.corr_steps, self.contrast_for_corr)]
+		# txt = '; '.join(txt)
+		# self.contrast_levels_text.setText(txt)
+
+	def test_keys_loop2(self, k):
+		if k and self.in_loop2:
+			k = k[0]
+			current_str = str(self.num_trials)
+			if current_str == '0':
+				current_str = ''
+			# backspace - remove char from num_trials
+			if k == 'backspace':
+				if len(current_str) > 0:
+					current_str = current_str[:-1]
+
+			# number - add to num_trials
+			if k in list('1234567890'):
+				current_str += k
+
+			self.num_trials = int(current_str) if \
+				len(current_str) > 0 else 0
+			txt = current_str if self.num_trials > 0 else ''
+			self.last_trials.setText(current_str + ' trials')
+
+			# return - refresh weibull
+			if k == 'return':
+				self.refresh_weibull()
+				self.in_loop2 = False
+				self.last_trials.default_click_fun()
+
+	def loop2(self):
+		while self.in_loop2:
+			k = event.getKeys(
+				keyList=list('1234567890') + ['return', 'backspace'])
+			self.test_keys_loop2(k)
+			self.draw()
+			self.win.flip()
+
 	def quit(self):
 		self.win.setMouseVisible(False)
 		self.win.units = self.origunits
 
 	def loop(self):
 		self.runLoop = True
+		continue_fitting = True
 		while self.runLoop:
 			self.refresh()
 			if self.buttons[1].clicked:
