@@ -13,7 +13,8 @@ from utils    import round2step
 from gui import Button, ClickScale
 
 
-def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={}):
+def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={},
+				  set_size=True):
 	'''
 	return feedback image in stim['centerImage']. Does not draw the image.
 	'''
@@ -27,17 +28,17 @@ def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={}):
 		imfls = [imfls]
 
 	for im in imfls:
-		# check image size:
-		img = Image.open(im)
-		imgsize = np.array(img.size)
-		del img
-
 		# clear buffer
 		k = event.getKeys()
 
 		# set image
 		stim['centerImage'].setImage(im)
-		stim['centerImage'].size = np.round(imgsize * resize)
+		if set_size:
+			# check image size:
+			img = Image.open(im)
+			imgsize = np.array(img.size)
+			del img
+			stim['centerImage'].size = np.round(imgsize * resize)
 		return stim
 
 
