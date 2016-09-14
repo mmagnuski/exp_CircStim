@@ -10,11 +10,13 @@ from weibull import fitw
 
 
 # read data
-pth = exp['data']
+# pth = exp['data']
 # fl = 'new_test_01_b_1.xls'
 # fl = 'Alexis01_b.xls'
 # fl = 'T19_b_1.xls'
-fl = 'testing_miko_01_b_1.xls'
+# fl = 'testing_miko_01_b_1.xls'
+pth = r'C:\proj\src\granprel\data\beh\pretest 02'
+fl = 'pretest_02_001b_b_1.xls'
 flpth = os.path.join(pth, fl)
 df = pd.read_excel(flpth)
 
