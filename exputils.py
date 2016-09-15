@@ -288,11 +288,11 @@ class ContrastInterface(Interface):
 		self.stim['centerImage'].draw()
 
 		# update contrast for specified correctness
-		# self.contrast_for_corr = self.weibull.get_threshold(self.corr_steps)
-		# txt = ['{}% - {:05.3f}'.format(str(corr * 100).split('.')[0], cntr)
-		# 	for corr, cntr in zip(self.corr_steps, self.contrast_for_corr)]
-		# txt = '; '.join(txt)
-		# self.contrast_levels_text.setText(txt)
+		self.contrast_for_corr = self.weibull.get_threshold(self.corr_steps)
+		txt = ['{}% - {:05.3f}'.format(str(corr * 100).split('.')[0], cntr)
+			for corr, cntr in zip(self.corr_steps, self.contrast_for_corr)]
+		txt = '; '.join(txt)
+		self.contrast_levels_text.setText(txt)
 
 	def test_keys_loop2(self, k):
 		if k and self.in_loop2:
@@ -731,14 +731,12 @@ class DataManager(object):
 		else:
 			self.write()
 
-
 	def read(self):
 		with open(self.path['ID'], 'r') as f:
 			data = yaml.load(f)
 		self.keymap = data['key-mapping']
 		self.age = data['age']
 		self.sex = data['sex']
-
 
 	def give_path(self, path_type, file_ending='xls'):
 		if path_type in self.path and self.path[path_type]:
@@ -754,7 +752,6 @@ class DataManager(object):
 				'_{}_{}.'.format(path_type, self.val[path_type]) + file_ending)
 			return self.path[path_type]
 
-
 	def give_previous_path(self, path_type, file_ending='xls'):
 		# make sure current path was checked
 		self.give_path(path_type, file_ending=file_ending)
@@ -766,13 +763,11 @@ class DataManager(object):
 			return os.path.join(self.path['data'], self.ID + '_{}_{}.'.format(
 				path_type, prev_val) + file_ending)
 
-
 	def write(self):
 		save_data = {'ID': self.ID, 'age': self.age,
 			'sex':self.sex, 'key-mapping': self.keymap}
 		with open(self.path['ID'], 'w') as f:
 			f.write(yaml.dump(save_data))
-
 
 	def update_exp(self, exp):
 		exp['choose_resp'] = self.choose_resp
@@ -780,3 +775,10 @@ class DataManager(object):
 		exp['participant']['sex'] = self.sex
 		exp['participant']['age'] = self.age
 		return exp
+
+
+def get_valid_path(paths):
+	for pth in paths:
+		if os.path.exists(pth):
+			return pth
+	raise ValueError('could not find valid path.')
