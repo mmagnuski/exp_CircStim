@@ -13,12 +13,12 @@ stim['centerImage'] = visual.ImageStim(stim['window'], image=img_pth,
 
 # read data
 df_pth = os.path.join(root_dir, 'pretest 02')
-fl = 'pretest_02_001b_b_1.xls'
-flpth = os.path.join(pth, fl)
+fl = 'pretest_02_003_b_1.xls'
+flpth = os.path.join(df_pth, fl)
 df = pd.read_excel(flpth)
 
 if not 'window2' in stim:
     stim['window'].blendMode = 'avg'
 
-interf = ContrastInterface(stim=stim, exp=exp, df=df)
+interf = ContrastInterface(stim=stim, exp=exp, df=df, timeout=5.)
 interf.loop()

@@ -69,7 +69,7 @@ class Interface(object):
 class ContrastInterface(Interface):
 
 	def __init__(self, exp=None, stim=None, contrast_lims=(0., 3.),
-		df=None, weibull=None):
+		df=None, weibull=None, timeout=False):
 		from weibull import fitw
 
 		self.contrast = list()
@@ -122,7 +122,7 @@ class ContrastInterface(Interface):
 		self.text_height = {0: 0.12, 5: 0.1, 9: 0.06, 15: 0.04, 20: 0.03}
 		self.scale_text = visual.TextStim(self.win, pos=(0.,-0.65), text="")
 		self.contrast_levels_text = visual.TextStim(win=self.win, text='',
-			pos=(0., -0.43))
+			pos=(-0.7, -0.8), height=0.06)
 
 		# scale
 		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1),
@@ -143,6 +143,16 @@ class ContrastInterface(Interface):
 			text=u'wróć po {} trialach'.format(self.next_trials),
 			pos=(0., -0.45), units='norm', height=0.1)
 
+		# timeout
+		self.in_timeout = True if timeout else False
+		if self.in_timeout:
+			self.timeout = timeout
+			self.timeout_stopped = False
+			self.timeout_val = int(round(timeout))
+			self.timeout_text = visual.TextStim(win=self.win, units='norm',
+				text=str(self.timeout_val), color=(1, -1, -1), height=1.5)
+			
+
 	def draw(self):
 		[b.draw() for b in self.buttons]
 		self.last_trials.draw()
@@ -150,6 +160,9 @@ class ContrastInterface(Interface):
 		self.trials_text.draw()
 		self.contrast_levels_text.draw()
 		self.stim['centerImage'].draw()
+
+		if self.in_timeout:
+			self.timeout_text.draw()
 
 		# edit constrast mode
 		if self.buttons[-2].clicked:
@@ -190,14 +203,28 @@ class ContrastInterface(Interface):
 
 	def refresh(self):
 		self.check_key_press()
-		if_click = self.check_mouse_click()
-		self.last_pressed = if_click
-		if not self.edit_mode and self.buttons[-1].clicked:
-			self.edit_mode = True
-		self.draw()
-		self.win.flip()
-		if if_click:
-			core.wait(0.1)
+		if self.in_timeout:
+			time = self.countdown.getTime()
+			if time > 0:
+				round_time = int(round(time))
+				if round_time < self.timeout_val:
+					self.timeout_val = round_time
+					self.timeout_text.setText(str(self.timeout_val))
+					self.draw()
+					self.win.flip()
+			else:
+				self.runLoop = False
+
+		else:
+			if_click = self.check_mouse_click()
+			self.last_pressed = if_click
+			if not self.edit_mode and self.buttons[-1].clicked:
+				self.edit_mode = True
+			self.draw()
+			self.win.flip()
+			if if_click:
+				core.wait(0.1)
+
 
 	def set_scale_text(self):
 		for obj in [self.scale, self.scale2]:
@@ -261,15 +288,24 @@ class ContrastInterface(Interface):
 	def check_key_press(self):
 		k = event.getKeys()
 		if k:
+			update_next_trials = False
 			if 'minus' in k:
 				self.next_trials -= 1
 				self.next_trials = max(3, self.next_trials)
+				update_next_trials = True
 			if 'equal' in k:
 				self.next_trials += 1
-			if 'q' in k or 'return' in k:
-				self.runLoop = False
-			self.trials_text.setText(u'wróć po {} trialach'.format(
-				self.next_trials))
+				update_next_trials = True
+			if self.in_timeout:
+				if np.any([x in k for x in ['return', 'space']]):
+					self.in_timeout = False
+					self.timeout_stopped = True
+			else:
+				if 'q' in k or 'return' in k:
+					self.runLoop = False
+			if update_next_trials:
+				self.trials_text.setText(u'wróć po {} trialach'.format(
+					self.next_trials))
 
 	def refresh_weibull(self):
 		# fit weibull
@@ -291,7 +327,7 @@ class ContrastInterface(Interface):
 		self.contrast_for_corr = self.weibull.get_threshold(self.corr_steps)
 		txt = ['{}% - {:05.3f}'.format(str(corr * 100).split('.')[0], cntr)
 			for corr, cntr in zip(self.corr_steps, self.contrast_for_corr)]
-		txt = '; '.join(txt)
+		txt = ';\n'.join(txt)
 		self.contrast_levels_text.setText(txt)
 
 	def test_keys_loop2(self, k):
@@ -335,6 +371,8 @@ class ContrastInterface(Interface):
 	def loop(self):
 		self.runLoop = True
 		continue_fitting = True
+		if self.in_timeout:
+			self.countdown = core.CountdownTimer(self.timeout)
 		while self.runLoop:
 			self.refresh()
 			if self.buttons[1].clicked:
@@ -420,7 +458,6 @@ class AnyQuestionsGUI(Interface):
 
 
 class FinalFitGUI(Interface):
-
 	def __init__(self, exp=None, stim=None, db=None, weibull=None,
 		fitfun=None, corr_steps=None, num_trials=40, use_lapse=None):
 
@@ -660,7 +697,7 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 def getFrameRate(win, frames=25):
 	# get frame rate
 	frame = {}
-	frame['rate'] = win.getActualFrameRate(nIdentical = frames)
+	frame['rate'] = win.getActualFrameRate(nIdentical=frames)
 	frame['time'] = 1000.0 / frame['rate']
 	return frame
 
