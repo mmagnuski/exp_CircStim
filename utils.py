@@ -29,6 +29,19 @@ def trim_df(df):
 	return df
 
 
+def group(vec):
+	in_grp = False
+	group_lims = list()
+	for ii, el in enumerate(vec):
+		if in_grp and not el:
+			in_grp = False
+			group_lims.append([start_ind, ii-1])
+		elif not in_grp and el:
+			in_grp = True
+			start_ind = ii
+	return np.array(group_lims)
+
+
 # TODO - maybe add shuffle=False
 def grow_sample(smp, num):
 	"""take `num` elements from sample `smp` similar to
