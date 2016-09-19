@@ -86,7 +86,7 @@ class Weibull:
 	def get_threshold(self, corr):
 		return map(self._inverse, corr)
 	
-	def plot(self, pth='', points=True, line=True, mean_points=False):
+	def plot(self, pth='', points=True, line=True, mean_points=False, min_bucket=0.005):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num = numpnts)
@@ -105,26 +105,37 @@ class Weibull:
 		# plot line
 		if mean_points:
 			from scipy import stats
+			from utils import group
 
-			# check mean and sem for contrast buckets:
+			# bucketize
+			# ---------
+			# get points and sort
 			x_pnts = self.x.copy()
 			y_pnts = self.orig_y.copy()
-			x_buckets = np.unique(x_pnts)
-			n_pnts_in_bucket = np.array([np.sum(x_pnts == b)
-										for b in x_buckets])
-			good_buckets = n_pnts_in_bucket >= 3
-			x_buckets = x_buckets[good_buckets]
-			bucket_mean = np.array([(y_pnts[x_pnts == b]).mean()
-									for b in x_buckets])
-			bucket_sem = np.array([stats.sem(y_pnts[x_pnts == b])
-								   for b in x_buckets])
+			srt = x_pnts.argsort()
+			x_pnts = x_pnts[srt]
+			y_pnts = y_pnts[srt]
 
-			# plot
-			plt.scatter(x_buckets, bucket_mean, lw=0, zorder=4, s=32.,
+			# look for buckets
+			x_buckets = group(np.diff(x_pnts) <= min_bucket)
+			n_pnts_in_bucket = (np.diff(x_buckets, axis=-1) + 1).ravel()
+			good_buckets = n_pnts_in_bucket >= (3 - 1) # -1 because of diff
+			x_buckets = x_buckets[good_buckets, :]
+
+			# turn buckets to slices, get mean and sem
+			x_buckets[:, 1] += 2 # +1 because of python slicing, another +1 because of diff
+			slices = [slice(l[0], l[1]) for l in x_buckets]
+			x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
+			y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
+			bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
+
+			# plot bucket means and sem
+			plt.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
 						c=[0.65, 0.65, 0.65])
-			plt.vlines(
-				x_buckets, bucket_mean - bucket_sem, bucket_mean + bucket_sem,
-				lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
+			plt.vlines(x_bucket_mean,
+					   y_bucket_mean - bucket_sem,
+					   y_bucket_mean + bucket_sem,
+					   lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
 
 		if points:
 			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, 
