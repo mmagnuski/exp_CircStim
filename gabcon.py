@@ -177,7 +177,6 @@ if exp['run fitting']:
 
 	# init stepwise contrast adjustment
 	num_fail = 0
-	continue_fitting = True
 	step = exp['step until']
 	exp['opacity'] = [1., 1.]
 	s = Stepwise(corr_ratio=[1,1], vmax=3.)
@@ -247,7 +246,8 @@ if exp['run fitting']:
 		1.) for x in check_contrast] )
 	num_contrast_steps = 4
 
-	while (trial <= exp['fit until']) or continue_fitting:
+	continue_fitting = True
+	while continue_fitting:
 
 		# remind about the button press mappings
 		show_resp_rules(exp=exp)
@@ -291,9 +291,16 @@ if exp['run fitting']:
 		if not 'window2' in stim:
 			stim['window'].blendMode = 'avg'
 		stim = plot_Feedback(stim, w, exp['data'])
-		interf = ContrastInterface(stim=stim, trial=trial)
-		continue_fitting = interf.loop()
-		fit_params = interf.params
+		interf = ContrastInterface(stim=stim, exp=exp, df=fitting_db,
+								   num_trials=look_back, timeout=6)
+		interf.loop()
+
+		if not interf.timeout_stopped:
+			continue_fitting = trial <= exp['fit until']
+		else:
+			continue_fitting = interf.loop()
+		if interf.params is not None:
+			fit_params = interf.params
 
 		# check ContrastInterface output
 		# 1. take contrast values if set
@@ -331,7 +338,6 @@ if exp['run main c']:
 	# setup stuff for FinalFitGUI:
 	print(stim)
 	if not 'window2' in stim:
-		print('setting "avg" blendMode...')
 		stim['window'].blendMode = 'avg'
 	# check with drawing target...
 	stim['target'][0].draw()
