@@ -231,7 +231,7 @@ def correct_Weibull_fit(w, exp, newopac):
 # - maybe add 'random' to steps method this would shift the contrast points
 #   randomly from -0.5 to 0.5 of respective bin width (asymmteric in logsteps)
 def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
-					 contrast_lims=None, method='random'):
+					 contrast_lims=None, method='4steps', discrete_steps=False):
 	'''
 	method : string
 		* '5steps', '6steps', '12steps' - divides the contrast
@@ -284,15 +284,24 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		for c in check_contrast])
 
 	# try different contrast steps for best granularity
-	steps = [0.1, 0.05, 0.01, 0.005]
-	base_nonrep = not (len(check_contrast) == len(np.unique(check_contrast)))
-	for s in steps:
-		this_contrast = round2step(check_contrast, step=s)
-		this_contrast = np.array([trim(x, vmin, 1.)
-			for x in this_contrast])
-		new_nonrep = len(this_contrast) == len(np.unique(this_contrast))
-		if base_nonrep or new_nonrep:
-			break
+	if discrete_steps is not False:
+		steps = discrete_steps if isinstance(discrete_steps, list) else [discrete_steps]
+		base_unique = len(check_contrast) == len(np.unique(check_contrast))
+		if not base_unique:
+			orig_check_contrast = check_contrast
+			check_contrast, inverse = np.unique(check_contrast, return_inverse=True)
+		for s in steps:
+			this_contrast = round2step(check_contrast, step=s)
+			this_contrast = np.array([trim(x, vmin, 1.)
+				for x in this_contrast])
+			new_nonrep = len(this_contrast) == len(np.unique(this_contrast))
+			if new_nonrep:
+				break
+		if not base_unique:
+			this_contrast = this_contrast[inverse]
+	else:
+		this_contrast = check_contrast
+
 	return this_contrast, contrast_lims
 
 
