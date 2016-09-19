@@ -9,7 +9,7 @@ import pandas as pd
 
 from psychopy import visual, event, gui, core
 from PIL      import Image
-from utils    import round2step
+from utils    import round2step, trim_df
 from gui import Button, ClickScale
 
 
@@ -69,7 +69,7 @@ class Interface(object):
 class ContrastInterface(Interface):
 
 	def __init__(self, exp=None, stim=None, contrast_lims=(0., 3.),
-		df=None, weibull=None, timeout=False):
+		df=None, weibull=None, timeout=False, num_trials=None):
 		from weibull import fitw
 
 		self.contrast = list()
@@ -86,11 +86,25 @@ class ContrastInterface(Interface):
 		self.origunits = self.win.units
 		self.win.units = 'norm'
 
-		self.df = df.reset_index()
-		self.use_lapse = False
+		if df is not None:
+			self.df = trim_df(df.reset_index())
+		else:
+			self.df = df
+
+		# weibull checks
+		use_lapse = False
+		if weibull is not None:
+			self.weibull = weibull
+			use_lapse = len(weibull.params) == 3
+			if num_trials is None:
+				num_trials = len(weibull.y)
+		else:
+			self.weibull = None
+			self.params = None
+
 		self.fitfun = fitw
-		self.weibull = weibull
-		self.num_trials = 40
+		self.use_lapse = use_lapse
+		self.num_trials = num_trials if num_trials is not None else 40
 		self.corr_steps = [0.55, 0.75, 0.9]
 
 		win_pix_size = self.win.size
@@ -109,12 +123,16 @@ class ContrastInterface(Interface):
 		self.buttons = [Button(win=self.win, pos=p, text=t,
 			size=(0.35, 0.12)) for p, t in zip(button_pos, button_text)]
 		self.buttons[-1].click_fun = self.cycle_vals
+
 		self.last_trials = Button(win=self.win, pos=(-0.7, -0.43),
 			text='{} trials'.format(self.num_trials), size=(0.35, 0.12))
+		self.last_trials.click_fun = self.set_last_trials
+
 		self.use_lapse_button = Button(win=self.win, pos=(-0.7, -0.6166),
 			text='use lapse',size=(0.35, 0.12))
-		self.last_trials.click_fun = self.set_last_trials
 		self.use_lapse_button.click_fun = self.change_lapse
+		if self.use_lapse:
+			self.use_lapse_button.default_click_fun()
 
 		# text
 		self.text = visual.TextStim(win=self.win, text='kontrast:\n',
@@ -316,7 +334,7 @@ class ContrastInterface(Interface):
 		ind = np.r_[nrow-look_back:nrow]
 		params = [1., 1., 0.] if self.use_lapse else [1., 1.]
 		self.weibull = self.fitfun(self.df, ind, init_params=params)
-		# self.params = self.weibull.params
+		self.params = self.weibull.params
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
 			self.exp['data'], plotter_args=dict(mean_points=True),
