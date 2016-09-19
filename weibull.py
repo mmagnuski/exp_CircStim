@@ -178,54 +178,6 @@ def fit_weibull(db, i):
 	w = Weibull(opacit[notnan], ifcorr[notnan])
 	return w
 
-	
-def set_opacity_if_fit_fails(corr, exp):
-	"""correct contrast obtained from Weibull if the fit
-	was not correct. Modifies `exp` dict in-place."""
-	mean_corr = np.mean(corr)
-	if mean_corr > 0.8:
-		exp['opacity'][0] *= 0.5
-		exp['opacity'][1] *= 0.5
-		exp['opacity'][0] = np.max([exp['opacity'][0], 0.01])
-	elif mean_corr < 0.6:
-		exp['opacity'][0] = np.min([exp['opacity'][1] * 2, 0.8])
-		exp['opacity'][1] = np.min([exp['opacity'][1] * 2, 1.0])
-
-
-def correct_Weibull_fit(w, exp, newopac):
-	"""correct contrast obtained from Weibull if the fit
-	was not correct. Return new contrast and logs"""
-
-	# log weibul fit and contrast
-	logs = []
-	logs.append( 'Weibull params:  {} {}'.format( *w.params ) )
-	logs.append( 'Contrast limits set to:  {0} - {1}'.format(*newopac) )
-
-	# TODO this needs checking, removing duplicates and testing
-	if newopac[1] <= newopac[0] or w.params[0] < 0 \
-		or newopac[1] < 0.01 or newopac[0] > 1.0:
-
-		set_opacity_if_fit_fails(w.orig_y, exp)
-		logs.append( 'Weibull fit failed, contrast set to:  {0} - {1}'.format(
-			*exp['opacity']) )
-	else:
-		exp['opacity'] = newopac
-
-	# additional contrast checks
-	precheck_opacity = list(exp['opacity'])
-	if exp['opacity'][1] > 1.0:
-		exp['opacity'][1] = 1.0
-	if exp['opacity'][0] < 0.01:
-		exp['opacity'][0] = 0.01
-	if exp['opacity'][0] > exp['opacity'][1]:
-		exp['opacity'][0] = exp['opacity'][1]/2
-
-	if not (exp['opacity'] == precheck_opacity):
-		logs.append('Opacity limits corrected to:  {0} - {1}'.format(
-			*exp['opacity']))
-
-	return exp, logs
-
 
 # TODO:
 # - check if model is necessary, if not - simplify
@@ -243,7 +195,8 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		  of the contrast range in each direction (left and
 		  right)
 	
-	if model.params[0] <= 0 then contrast is chosen from range [vmin, vmin + 0.2]
+	if contrast_lims are not set and model.params[0] <= 0 then contrast is chosen
+	from range [vmin, vmin + 0.2]
 	'''
 	
 	assert 'steps' in method
