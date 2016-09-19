@@ -20,12 +20,11 @@ def to_percent(val):
 	return s.split('.')[0] + '%'
 
 
-def trim_df(df):
+def trim_df(df, colname='time', value=0.):
 	# find last trial
-	fin = np.where(df.time == 0.)[0]
+	fin = np.where(df[colname] == value)[0]
 	if np.any(fin):
-		fin = fin[0]
-		df = df[0:fin]
+		df = df[0:fin[0]]
 	return df
 
 
@@ -88,7 +87,6 @@ def fillz(val, num, addpos='front'):
 
 
 def continue_dataframe(pth, fl):
-
 	# test if file exists:
 	flfl = os.path.join(pth, fl)
 	ifex = os.path.isfile(flfl)
@@ -126,7 +124,6 @@ def continue_dataframe(pth, fl):
 
 
 def free_filename(pth, subj, givenew = True):
-
 	# list files within the dir
 	fls = os.listdir(pth)
 	n_undsc_in_subj = 0

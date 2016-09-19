@@ -48,7 +48,7 @@ class Weibull:
 			b, t, lapse = params
 		else:
 			b, t = params
-		
+
 		k = ( -np.log((1.0 - corr_at_thresh)/(1.0 - chance_level)) ) \
 			** (1.0/b)
 		expo = ((k * x)/t) ** b
@@ -58,7 +58,7 @@ class Weibull:
 		else:
 			y = 1 - (1 - chance_level) * np.exp(-expo)
 		return y
-	
+
 	def fun(self, params):
 		return self._fun(params, self.x)
 
@@ -144,6 +144,7 @@ class Weibull:
 			plt.plot(x, y, zorder=5, lw=3, color='k')
 
 		# aesthetics
+		# ----------
 		gab99 = self.get_threshold([0.95])[0]
 		if gab99 < 0. or gab99 > 2.:
 			maxval = 2.
@@ -241,7 +242,8 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		* '4midlogsteps' - four log steps from the middle point
 		  of the contrast range in each direction (left and
 		  right)
-
+	
+	if model.params[0] <= 0 then contrast is chosen from range [vmin, vmin + 0.2]
 	'''
 	
 	assert 'steps' in method
@@ -259,7 +261,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 	# take contrast for specified correctness levels
 	if not contrast_lims:
 		if model.params[0] <= 0: # should be some small positive value
-			contrast_lims = [vmin, vmin+0.2]
+			contrast_lims = [vmin, vmin + 0.2]
 		else:
 			contrast_lims = model.get_threshold(corr_lims)
 

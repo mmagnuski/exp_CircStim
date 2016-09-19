@@ -9,11 +9,11 @@ class Button:
 	--------------
 	win = visual.Window(monitor="testMonitor")
 	button_pos = np.zeros([3,2])
-	button_pos[:,0] = 0.5
-	button_pos[:,1] = [0.5, 0., -0.5]
+	button_pos[:, 0] = 0.5
+	button_pos[:, 1] = [0.5, 0., -0.5]
 	button_text = list('ABC')
 	buttons = [Button(win=win, pos=p, text=t) for p, t in
-		zip(button_pos, button_text)]
+			   zip(button_pos, button_text)]
 
 	draw buttons
 	------------
