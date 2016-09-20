@@ -304,7 +304,7 @@
     text   : >
       Zanim rozpocznie się docelowe badanie przejdziesz krótki trening.\nTrening
       ma za zadanie zaznajomić Cię ze sposobem oraz prędkością\nprezentacji bodźców.
-      Podczas treningu utrwalisz też sobie, którymi klawiszami odpowiadać na które bodźce.
+      Podczas treningu utrwalisz też sobie, którymi\nklawiszami odpowiadać na które bodźce.
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
@@ -331,9 +331,9 @@
   value    : 
     text   : >
       Podczas treningu po każdej Twojej odpowiedzi na ekranie\nbędzie
-      pojawiać się kolorowe kółko. Jego kolor będzie Cię informował\nczy
-      odpowiedzia[łeś/łaś] poprawnie. Zielony kolor oznacza\npoprawną
-      odpowiedź, czerwony - odpowiedź niepoprawną.
+      pojawiać się kolorowe kółko. Jego kolor będzie Cię\ninformował czy
+      odpowiedzia[łeś/łaś] poprawnie.\nZielony kolor oznacza poprawną
+      odpowiedź,\nczerwony - odpowiedź niepoprawną.
     pos    : [0, 0.5]
     height : 0.07
     wrapWidth: 1.5
@@ -371,7 +371,7 @@
     text   : >
       Trening rozpocznie się od stosunkowo wolnego
       tempa wyświetlania bodźców. Gdy będzie Ci dobrze
-      szło tempo prezentacji bodźców będzie zwiększane.
+      szło tempo prezentacji bodźców będzie stopniowo zwiększane.
       Informacje o Twojej poprawności oraz poprawności
       wymaganej by przejsć do kolejnej prędkości będą
       pojawiać się na ekranie.
@@ -400,14 +400,15 @@
 - item     : text
   value    : 
     text   : >
-      Bardzo ważne jest abyś odpowiada[ł/ła] palcami
-      wskazującymi obu rąk. Palec wskazujący lewej ręki
-      połóż na klawiszu f, natomiast palec wskazujący
-      ręki prawej - na klawiszu j.\n Staraj się nie
+      Ostatnia informacja przed treningiem:\nBardzo
+      ważne jest abyś odpowiada[ł/ła] palcami
+      wskazującymi obu rąk.\nPalec wskazujący lewej ręki
+      połóż na klawiszu f,\nnatomiast palec wskazujący
+      ręki prawej - na klawiszu j.\nStaraj się nie
       patrzeć na klawiaturę - podczas prezentacji
-      bodźców cały czas patrz na środek ekranu oznaczony
+      bodźców\ncały czas patrz na środek ekranu oznaczony
       kropką.
-    pos    : [0, 0.5]
+    pos    : [0, 0.4]
     height : 0.07
     wrapWidth: 1.5
 # bottom navigation info
