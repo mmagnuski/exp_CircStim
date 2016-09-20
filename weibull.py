@@ -120,22 +120,23 @@ class Weibull:
 			x_buckets = group(np.diff(x_pnts) <= min_bucket)
 			n_pnts_in_bucket = (np.diff(x_buckets, axis=-1) + 1).ravel()
 			good_buckets = n_pnts_in_bucket >= (3 - 1) # -1 because of diff
-			x_buckets = x_buckets[good_buckets, :]
+			if x_buckets.shape[0] > 1 and np.any(good_buckets):
+				x_buckets = x_buckets[good_buckets, :]
 
-			# turn buckets to slices, get mean and sem
-			x_buckets[:, 1] += 2 # +1 because of python slicing, another +1 because of diff
-			slices = [slice(l[0], l[1]) for l in x_buckets]
-			x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
-			y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
-			bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
+				# turn buckets to slices, get mean and sem
+				x_buckets[:, 1] += 2 # +1 because of python slicing, another +1 because of diff
+				slices = [slice(l[0], l[1]) for l in x_buckets]
+				x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
+				y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
+				bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
 
-			# plot bucket means and sem
-			plt.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
-						c=[0.65, 0.65, 0.65])
-			plt.vlines(x_bucket_mean,
-					   y_bucket_mean - bucket_sem,
-					   y_bucket_mean + bucket_sem,
-					   lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
+				# plot bucket means and sem
+				plt.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
+							c=[0.65, 0.65, 0.65])
+				plt.vlines(x_bucket_mean,
+						   y_bucket_mean - bucket_sem,
+						   y_bucket_mean + bucket_sem,
+						   lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
 
 		if points:
 			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, 
