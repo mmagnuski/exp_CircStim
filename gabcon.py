@@ -247,12 +247,13 @@ if exp['run fitting']:
 	num_contrast_steps = 4
 
 	continue_fitting = True
+	n_trials_from_gui = False
+	fit_params = [1., 1., 0.]
 	while continue_fitting:
 
 		# remind about the button press mappings
 		show_resp_rules(exp=exp)
 		stim['window'].flip()
-		fit_params = [1., 1., 0.]
 
 		# shuffle trials and present them all
 		np.random.shuffle(check_contrast)
@@ -264,7 +265,8 @@ if exp['run fitting']:
 			trial += 1
 
 		# fit weibull
-		look_back = min(trial-1, 75)
+		if not n_trials_from_gui:
+			look_back = min(trial-1, 75)
 		ind = np.r_[trial-look_back:trial]
 		w = fitw(fitting_db, ind, init_params=fit_params)
 		fit_params = w.params
@@ -278,11 +280,9 @@ if exp['run fitting']:
 		save_df.to_excel(dm.give_path('b'))
 
 		# contrast corrections, choosing new contrast samples
-		contrast_range, num_fail = correct_weibull(w, num_fail, df=fitting_db)
 		check_contrast, contrast_range = get_new_contrast(
 			w, corr_lims=exp['fitCorrLims'],
-			method='{}steps'.format(num_contrast_steps),
-			contrast_lims=contrast_range)
+			method='{}steps'.format(num_contrast_steps))
 		# FIX/CHECK maybe better log instead of printing it out...
 
 		# Interface
@@ -292,30 +292,33 @@ if exp['run fitting']:
 			stim['window'].blendMode = 'avg'
 		stim = plot_Feedback(stim, w, exp['data'])
 		interf = ContrastInterface(stim=stim, exp=exp, df=fitting_db,
-								   num_trials=look_back, timeout=6)
-		interf.loop()
+								   weibull=w, timeout=6)
+		continue_fitting = interf.loop()
 
 		if not interf.timeout_stopped:
 			continue_fitting = trial <= exp['fit until']
+			n_trials_from_gui = False
 		else:
-			continue_fitting = interf.loop()
-		if interf.params is not None:
-			fit_params = interf.params
-
-		# check ContrastInterface output
-		# 1. take contrast values if set
-		# 2. grow_sample if next_trials were set
-		# !TODO - add FinalFitGUI at the end to accept psychometric function fit
-		if len(interf.contrast) > 0:
-			check_contrast = interf.contrast
-			if interf.next_trials > len(check_contrast):
+			# check ContrastInterface output
+			# 1. take contrast values if set
+			# 2. grow_sample if next_trials were set
+			if interf.params is not None:
+				fit_params = interf.params
+				look_back = interf.num_trials
+				n_trials_from_gui = True
+				check_contrast, contrast_range = get_new_contrast(
+					interf.weibull, corr_lims=exp['fitCorrLims'],
+					method='{}steps'.format(num_contrast_steps))
+			if len(interf.contrast) > 0:
+				check_contrast = interf.contrast
+				if interf.next_trials > len(check_contrast):
+					check_contrast = grow_sample(check_contrast, interf.next_trials)
+			elif not interf.next_trials == 4:
 				check_contrast = grow_sample(check_contrast, interf.next_trials)
-		elif not interf.next_trials == 4:
-			check_contrast = grow_sample(check_contrast, interf.next_trials)
+
 		if not 'window2' in stim:
 			stim['window'].blendMode = 'add'
 		print 'interface contrast: ', interf.contrast
-
 
 	# save fitting dataframe
 	trim_df(fitting_db).to_excel(dm.give_path('b'))
