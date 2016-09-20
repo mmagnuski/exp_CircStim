@@ -88,13 +88,16 @@ class ContrastInterface(Interface):
 
 		if df is not None:
 			self.df = trim_df(df.reset_index())
+			nrow = self.df.shape[0]
 		else:
 			self.df = df
+			nrow = 10
 
 		# weibull checks
 		use_lapse = False
 		if weibull is not None:
 			self.weibull = weibull
+			self.params = weibull.params
 			use_lapse = len(weibull.params) == 3
 			if num_trials is None:
 				num_trials = len(weibull.y)
@@ -105,6 +108,7 @@ class ContrastInterface(Interface):
 		self.fitfun = fitw
 		self.use_lapse = use_lapse
 		self.num_trials = num_trials if num_trials is not None else 40
+		self.num_trials = max(5, min(nrow, self.num_trials))
 		self.corr_steps = [0.55, 0.75, 0.9]
 
 		win_pix_size = self.win.size
@@ -124,12 +128,14 @@ class ContrastInterface(Interface):
 			size=(0.35, 0.12)) for p, t in zip(button_pos, button_text)]
 		self.buttons[-1].click_fun = self.cycle_vals
 
+		
+		txt = ' '.join([str(self.num_trials), '/', str(nrow), 'trials'])
 		self.last_trials = Button(win=self.win, pos=(-0.7, -0.43),
-			text='{} trials'.format(self.num_trials), size=(0.35, 0.12))
+			text=txt, size=(0.4, 0.12))
 		self.last_trials.click_fun = self.set_last_trials
 
 		self.use_lapse_button = Button(win=self.win, pos=(-0.7, -0.6166),
-			text='use lapse',size=(0.35, 0.12))
+			text='use lapse',size=(0.4, 0.12))
 		self.use_lapse_button.click_fun = self.change_lapse
 		if self.use_lapse:
 			self.use_lapse_button.default_click_fun()
@@ -328,9 +334,7 @@ class ContrastInterface(Interface):
 	def refresh_weibull(self):
 		# fit weibull
 		nrow = self.df.shape[0]
-		look_back = min(nrow, self.num_trials)
-		look_back = max(5, look_back)
-		self.num_trials = look_back
+		look_back = self.num_trials
 		ind = np.r_[nrow-look_back:nrow]
 		params = [1., 1., 0.] if self.use_lapse else [1., 1.]
 		self.weibull = self.fitfun(self.df, ind, init_params=params)
@@ -363,13 +367,18 @@ class ContrastInterface(Interface):
 			if k in list('1234567890'):
 				current_str += k
 
+			nrow = self.df.shape[0]
 			self.num_trials = int(current_str) if \
 				len(current_str) > 0 else 0
-			txt = current_str if self.num_trials > 0 else ''
-			self.last_trials.setText(current_str + ' trials')
+			txt = str(self.num_trials) if self.num_trials > 0 else ''	
+			txt = ' '.join([txt, '/', str(nrow), 'trials'])
+			self.last_trials.setText(txt)
 
 			# return - refresh weibull
 			if k == 'return':
+				self.num_trials = max(5, min(nrow, self.num_trials))
+				txt = ' '.join([str(self.num_trials), '/', str(nrow), 'trials'])
+				self.last_trials.setText(txt)
 				self.refresh_weibull()
 				self.in_loop2 = False
 				self.last_trials.default_click_fun()
@@ -446,8 +455,8 @@ class AnyQuestionsGUI(Interface):
 	def __init__(self, exp, stim):
 		self.wait_text = False
 		super(AnyQuestionsGUI, self).__init__(exp, stim, main_win=1)
-		tx = (u'Jeżeli masz jakieś pytania - naciśnij f.\n' +
-			u'Jeżeli nie masz pytań - naciśnij spację.')
+		tx = (u'Jeżeli coś nie jest jasne / masz jakieś pytania - naciśnij f.\n' +
+			u'Jeżeli wszystko jest jasne i nie masz pytań - naciśnij spację.')
 		self.tx1 = visual.TextStim(self.win, text=tx)
 		if self.two_windows:
 			self.tx2 = visual.TextStim(self.win2, text='...')
@@ -472,7 +481,7 @@ class AnyQuestionsGUI(Interface):
 			self.tx1.setText(u'Poczekaj na eksperymentatora.')
 			self.tx1.draw()
 			self.win.flip()
-			self.pressed = event.waitKeys(keyList=['i', 'o'])
+			self.pressed = event.waitKeys(keyList=['q', 'return'])
 
 
 class FinalFitGUI(Interface):
@@ -555,8 +564,7 @@ class FinalFitGUI(Interface):
 	def refresh_weibull(self):
 		# fit weibull
 		nrow = self.db.shape[0]
-		look_back = min(nrow, self.num_trials)
-		look_back = max(5, look_back)
+		look_back = self.num_trials
 		ind = np.r_[nrow-look_back:nrow]
 		params = [1., 1., 0.] if self.use_lapse else [1., 1.]
 		self.weibull = self.fitfun(self.db, ind, init_params=params)
@@ -592,11 +600,16 @@ class FinalFitGUI(Interface):
 
 			self.num_trials = int(current_str) if \
 				len(current_str) > 0 else 0
-			txt = current_str if self.num_trials > 0 else ''
-			self.text.setText(current_str)
+			nrow = self.db.shape[0]
+			txt = str(self.num_trials) if self.num_trials > 0 else ''	
+			txt = ' '.join([txt, '/', str(nrow)])
+			self.text.setText(txt)
 
 			# return - refresh weibull
 			if k == 'return':
+				self.num_trials = max(5, min(nrow, self.num_trials))
+				txt = ' '.join([str(self.num_trials), '/', str(nrow)])
+				self.text.setText(txt)
 				self.refresh_weibull()
 
 	def loop(self):
