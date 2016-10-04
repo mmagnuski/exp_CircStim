@@ -341,7 +341,7 @@ class ContrastInterface(Interface):
 		self.params = self.weibull.params
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
-			self.exp['data'], plotter_args=dict(mean_points=True),
+			self.exp['data'], plotter_args=dict(mean_points=True, min_bucket=0.01),
 			set_size=False)
 		self.stim['centerImage'].draw()
 
@@ -574,7 +574,8 @@ class FinalFitGUI(Interface):
 		self.params = self.weibull.params
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
-			self.exp['data'], plotter_args=dict(mean_points=True))
+			self.exp['data'], plotter_args=dict(mean_points=True, min_bucket=0.012, split_bucket=0.02),
+			set_size=False)
 		if self.img_size:
 			self.stim['centerImage'].size = self.img_size
 		self.stim['centerImage'].draw()

@@ -86,7 +86,7 @@ class Weibull:
 	def get_threshold(self, corr):
 		return map(self._inverse, corr)
 	
-	def plot(self, pth='', points=True, line=True, mean_points=False, min_bucket=0.005):
+	def plot(self, pth='', points=True, line=True, mean_points=False, min_bucket=0.005, split_bucket=0.1):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num = numpnts)
@@ -120,12 +120,43 @@ class Weibull:
 			x_buckets = group(np.diff(x_pnts) <= min_bucket)
 			n_pnts_in_bucket = (np.diff(x_buckets, axis=-1) + 1).ravel()
 			good_buckets = n_pnts_in_bucket >= (3 - 1) # -1 because of diff
-			if x_buckets.shape[0] > 1 and np.any(good_buckets):
+
+			if x_buckets.shape[0] > 0 and np.any(good_buckets):
 				x_buckets = x_buckets[good_buckets, :]
 
 				# turn buckets to slices, get mean and sem
 				x_buckets[:, 1] += 2 # +1 because of python slicing, another +1 because of diff
 				slices = [slice(l[0], l[1]) for l in x_buckets]
+
+				# test each slice for contrast range and split if needed
+				add_slices = list()
+				ii = 0
+
+				while ii < len(slices):
+					slc = slices[ii]
+					pnts = x_pnts[slc]
+					l, h = pnts[[0, -1]]
+					rng = h - l
+					start = slc.start
+					if rng > split_bucket:
+						slices.pop(ii)
+						n_full_splits = int(np.floor(rng / split_bucket))
+						last_l = l
+						last_ind = 0
+						for splt in range(n_full_splits):
+							this_high = last_l + split_bucket
+							this_ind = np.where(pnts >= this_high)[0][0]
+							add_slices.append(slice(start + last_ind, start + this_ind + 1))
+							last_l = this_high
+							last_ind = this_ind + 1
+
+						# last one - to the end
+						if start + last_ind < slc.stop:
+							add_slices.append(slice(start + last_ind, slc.stop))
+					else:
+						ii += 1
+				slices.extend(add_slices)
+
 				x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
 				y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
 				bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
