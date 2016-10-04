@@ -486,7 +486,7 @@ class AnyQuestionsGUI(Interface):
 
 class FinalFitGUI(Interface):
 	def __init__(self, exp=None, stim=None, db=None, weibull=None,
-		fitfun=None, corr_steps=None, num_trials=40, use_lapse=None):
+		fitfun=None, corr_steps=None, num_trials=40, use_lapse=None, scale_im=True):
 
 		# setup
 		# -----
@@ -541,13 +541,16 @@ class FinalFitGUI(Interface):
 		self.refresh_weibull()
 
 		# centerImage (weibull fit plot):
-		self.origunits = self.win.units
-		pic = self.stim['centerImage']
-		ypos = scale_img(self.win, pic, (0.1, -0.45))
-		self.img_size = list(pic.size)
-
-		self.win.units = 'norm'
-		pic.setPos((0., ypos))
+		if scale_im:
+			self.origunits = self.win.units
+			pic = self.stim['centerImage']
+			ypos = scale_img(self.win, pic, (0.1, -0.45))
+			self.img_size = list(pic.size)
+			self.win.units = 'norm'
+			pic.setPos((0., ypos))
+		else:
+			self.img_size = list(self.stim['centerImage'].size)
+			self.win.units = 'norm'
 
 	def draw(self):
 		self.OKbutton.draw()
@@ -641,6 +644,10 @@ class FinalFitGUI(Interface):
 def scale_img(win, img, y_margin):
 	winsize = win.size
 	imsize = img.size
+	if isinstance(imsize, np.ndarray) and imsize.ndim == 2:
+		imsize = imsize[0, :]
+	elif isinstance(imsize[0], list) and len(imsize[0]) == 2:
+		imsize = imsize[0]
 	imh_norm = imsize[1] / winsize[1]
 	ypos = 1. - y_margin[0] - imh_norm
 	low_margin = ypos - imh_norm

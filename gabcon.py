@@ -333,21 +333,21 @@ if exp['run main c']:
 
 	# get contrast from fitting
 	if 'fitting_db' not in locals():
-		print('fitting_db not found, loading from disk...')
-		fitting_db = pd.read_excel(dm.give_previous_path('b'))
+		scale_im = True
+		prev_pth = dm.give_previous_path('b')
+		print('fitting_db not found, loading {}...'.format(prev_pth))
+		fitting_db = pd.read_excel(prev_pth)
 		print(fitting_db.head(10))
 		# fitting_db = pd.read_excel(os.path.join('data', 'testing_miko_01_b_1.xls'))
+	else:
+		scale_im = False
 
 	# setup stuff for FinalFitGUI:
-	print(stim)
 	if not 'window2' in stim:
 		stim['window'].blendMode = 'avg'
 	# check with drawing target...
-	stim['target'][0].draw()
-	stim['window'].flip()
-	core.wait(.15)
 
-	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
+	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw, scale_im=scale_im)
 	fgui.refresh_weibull()
 	fgui.loop()
 
