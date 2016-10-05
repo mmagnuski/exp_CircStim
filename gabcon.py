@@ -31,7 +31,7 @@ import pandas as pd
 import blinkdot as blnk
 from exputils  import (plot_Feedback, create_database,
 	ContrastInterface, DataManager, ExperimenterInfo,
-	AnyQuestionsGUI, ms2frames, getFrameRate, FinalFitGUI)
+	AnyQuestionsGUI, ms2frames, getFrameRate)
 from utils     import to_percent, round2step, trim_df, grow_sample
 from weibull   import fitw, get_new_contrast, correct_weibull
 from stimutils import (exp, db, stim, present_trial,
@@ -418,14 +418,17 @@ if exp['run main t']:
 		fitting_db = pd.read_excel(dm.give_previous_path('c'))
 		print(fitting_db.head(10))
 
+
+	# ---CHANGE HERE---
+
 	# FinalFitGUI - to set about 75% thresh
 	# setup
 	if not 'window2' in stim:
 	    stim['window'].blendMode = 'avg'
 	stim['window'].flip()
 
-	# gui
-	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
+	# CHANGE - to ContrastInterface
+	# fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
 	fgui.refresh_weibull()
 	fgui.loop()
 
@@ -442,6 +445,9 @@ if exp['run main t']:
 	db_t.loc[:, 'opacity'] = opacity
 
 	exp['numTrials'] = len(db_t.index) # TODO/CHECK - why is this needed?
+
+	# ---stop CHANGE here---
+
 
 	if exp['run instruct']:
 		instr.present()
