@@ -86,7 +86,8 @@ class Weibull:
 	def get_threshold(self, corr):
 		return map(self._inverse, corr)
 	
-	def plot(self, pth='', points=True, line=True, mean_points=False, min_bucket=0.005, split_bucket=0.1):
+	def plot(self, pth='', points=True, line=True, mean_points=False,
+			 min_bucket=0.005, split_bucket=0.1, contrast_steps=None):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num = numpnts)
@@ -168,6 +169,10 @@ class Weibull:
 						   y_bucket_mean - bucket_sem,
 						   y_bucket_mean + bucket_sem,
 						   lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
+		if contrast_steps is not None:
+			corrs = self._fun(self.params, contrast_steps)
+			plt.vlines(contrast_steps, corrs - 0.1, corrs + 0.1,
+					   lw=2, zorder=4, colors=[0., 0., 0.])
 
 		if points:
 			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, 

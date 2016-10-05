@@ -296,6 +296,7 @@ if exp['run fitting']:
 		continue_fitting = interf.loop()
 
 		if not interf.timeout_stopped:
+			# experimenter did not react, nothing to do
 			continue_fitting = trial <= exp['fit until']
 			n_trials_from_gui = False
 		else:
@@ -306,8 +307,9 @@ if exp['run fitting']:
 				fit_params = interf.params
 				look_back = interf.num_trials
 				n_trials_from_gui = True
+				w = interf.weibull
 				check_contrast, contrast_range = get_new_contrast(
-					interf.weibull, corr_lims=exp['fitCorrLims'],
+					w, corr_lims=exp['fitCorrLims'],
 					method='{}steps'.format(num_contrast_steps))
 			if len(interf.contrast) > 0:
 				check_contrast = interf.contrast
@@ -321,7 +323,8 @@ if exp['run fitting']:
 		print 'interface contrast: ', interf.contrast
 
 	# save fitting dataframe
-	trim_df(fitting_db).to_excel(dm.give_path('b'))
+	fitting_db = trim_df(fitting_db)
+	fitting_db.to_excel(dm.give_path('b'))
 
 
 # EXPERIMENT - part c
@@ -333,35 +336,40 @@ if exp['run main c']:
 
 	# get contrast from fitting
 	if 'fitting_db' not in locals():
-		scale_im = True
 		prev_pth = dm.give_previous_path('b')
 		print('fitting_db not found, loading {}...'.format(prev_pth))
 		fitting_db = pd.read_excel(prev_pth)
 		print(fitting_db.head(10))
 		# fitting_db = pd.read_excel(os.path.join('data', 'testing_miko_01_b_1.xls'))
-	else:
-		scale_im = False
 
-	# setup stuff for FinalFitGUI:
+	# setup stuff for GUI:
 	if not 'window2' in stim:
 		stim['window'].blendMode = 'avg'
 	# check with drawing target...
 
-	fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw, scale_im=scale_im)
-	fgui.refresh_weibull()
-	fgui.loop()
+	# make sure weibull exists
+	set_im = False
+	if 'w' not in locals():
+		num_trials = fitting_db.shape[0]
+		ind = np.r_[25:num_trials]
+		w = fitw(fitting_db, ind, init_params=[1., 1., 1.])
+	stim = plot_Feedback(stim, w, exp['data'])
+
+	interf = ContrastInterface(stim=stim, exp=exp, df=fitting_db, weibull=w,
+							   set_image_size=set_im)
+	continue_fitting = interf.loop()
 
 	if not 'window2' in stim:
 		stim['window'].blendMode = 'add'
 
 	# check the fit and weibull params
-	print('final weibull: ', fgui.weibull)
-	print('final params: ', fgui.params)
-	print('final num_trials: ', fgui.num_trials)
+	print('final weibull: ', interf.weibull)
+	print('final params: ', interf.params)
+	print('final num_trials: ', interf.num_trials)
 
 	# num_trials = fitting_db.shape[0]
 	# w = fitw(fitting_db, range(num_trials-100, num_trials))
-	contrast_range = fgui.weibull.get_threshold(exp['corrLims'])
+	contrast_range = interf.weibull.get_threshold(exp['corrLims'])
 	contrast_steps = np.linspace(contrast_range[0],
 		contrast_range[1], exp['opac steps'])
 

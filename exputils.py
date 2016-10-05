@@ -69,8 +69,9 @@ class Interface(object):
 class ContrastInterface(Interface):
 
 	def __init__(self, exp=None, stim=None, contrast_lims=(0., 3.),
-		df=None, weibull=None, timeout=False, num_trials=None):
-		from weibull import fitw
+		df=None, weibull=None, timeout=False, num_trials=None,
+		set_image_size=False, contrast_method='4steps'):
+		from weibull import fitw, get_new_contrast
 
 		self.contrast = list()
 
@@ -85,6 +86,7 @@ class ContrastInterface(Interface):
 		# change units, size and position of centerImage:
 		self.origunits = self.win.units
 		self.win.units = 'norm'
+		self.set_image_size = set_image_size
 
 		if df is not None:
 			self.df = trim_df(df.reset_index())
@@ -139,6 +141,10 @@ class ContrastInterface(Interface):
 		self.use_lapse_button.click_fun = self.change_lapse
 		if self.use_lapse:
 			self.use_lapse_button.default_click_fun()
+		self.contrast_method = contrast_method
+		self.current_method_string = contrast_method[:-5]
+		self.contrast_method_button = Button(win=self.win, pos=(-0.7, -0.803),
+			text='steps: ' + self.contrast_method[:-5], size=(0.4, 0.12))
 
 		# text
 		self.text = visual.TextStim(win=self.win, text='kontrast:\n',
@@ -146,7 +152,7 @@ class ContrastInterface(Interface):
 		self.text_height = {0: 0.12, 5: 0.1, 9: 0.06, 15: 0.04, 20: 0.03}
 		self.scale_text = visual.TextStim(self.win, pos=(0.,-0.65), text="")
 		self.contrast_levels_text = visual.TextStim(win=self.win, text='',
-			pos=(-0.7, -0.8), height=0.06)
+			pos=(0.2, 0.5), height=0.06)
 
 		# scale
 		self.scale = ClickScale(win=self.win, pos=(0.,-0.8), size=(0.75, 0.1),
@@ -160,6 +166,7 @@ class ContrastInterface(Interface):
 		self.grain_vals = [0.1, 0.05, 0.01, 0.005]
 		self.current_grain_val = 0
 		self.in_loop2 = False
+		self.in_method_loop = False
 
 		# back in how many trials:
 		self.next_trials = 4
@@ -183,6 +190,7 @@ class ContrastInterface(Interface):
 		self.use_lapse_button.draw()
 		self.trials_text.draw()
 		self.contrast_levels_text.draw()
+		self.contrast_method_button.draw()
 		self.stim['centerImage'].draw()
 
 		if self.in_timeout:
@@ -212,6 +220,19 @@ class ContrastInterface(Interface):
 		self.in_loop2 = True
 		self.last_trials.default_click_fun()
 		self.loop2()
+
+	def check_contrast_method(self, method):
+		default = '4steps'
+		num = [c for c in method if c.isdigit()]
+		if len(num) < 1:
+			return default
+		if int(num) > 25:
+			return default
+		rest = [c for c in method if not c.isdigit()]
+		if rest not in ['log', 'midlog']:
+			return num + 'steps'
+		else:
+			return num + rest + 'steps'
 
 	def change_lapse(self):
 		self.use_lapse_button.default_click_fun()
@@ -342,7 +363,9 @@ class ContrastInterface(Interface):
 
 		self.stim = plot_Feedback(self.stim, self.weibull,
 			self.exp['data'], plotter_args=dict(mean_points=True, min_bucket=0.01),
-			set_size=False)
+			set_size=self.set_image_size)
+		if self.set_image_size:
+			self.set_image_size = False
 		self.stim['centerImage'].draw()
 
 		# update contrast for specified correctness
@@ -382,6 +405,28 @@ class ContrastInterface(Interface):
 				self.refresh_weibull()
 				self.in_loop2 = False
 				self.last_trials.default_click_fun()
+
+	def test_keys_loop_method(self, k):
+		if k and self.in_method_loop:
+			k = k[0]
+			current_str = self.current_method_string
+			# backspace - remove char from num_trials
+			if k == 'backspace':
+				if len(current_str) > 0:
+					current_str = current_str[:-1]
+
+			# number - add to num_trials
+			if k in list('1234567890midlog'):
+				current_str += k
+
+			# return - refresh weibull
+			if k == 'return':
+				self.contrast_method = self.check_contrast_method(current_str)
+				self.current_method_string = self.contrast_method[:-5]
+				self.contrast_method_button.text.setText(self.contrast_method[:-5])
+				self.in_method_loop = False
+				# ADD - refresh contrast text and image
+				self.contrast_method_button.default_click_fun()
 
 	def loop2(self):
 		while self.in_loop2:
