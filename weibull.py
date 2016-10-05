@@ -232,8 +232,10 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		  of the contrast range in each direction (left and
 		  right)
 	
-	if contrast_lims are not set and model.params[0] <= 0 then contrast is chosen
+	* if contrast_lims are not set and model.params[0] <= 0 then contrast is chosen
 	from range [vmin, vmin + 0.2]
+	* if model has lapse rate and corr_lims[1] > (1 - lapse_rate) then corr_lims[1]
+	is set to (1 - lapse_rate)
 	'''
 	
 	assert 'steps' in method
@@ -247,6 +249,13 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		else:
 			break
 	steps = int(steps) if steps else 5
+
+	# correct high corr limit if it goes beyond 1 - lapse_rate
+	if model is not None:
+		if len(model.params) == 3:
+			max_corr = 1 - model.params[2]
+			if corr_lims[1] > max_corr:
+				corr_lims[1] = max_corr
 
 	# take contrast for specified correctness levels
 	if not contrast_lims:
