@@ -171,7 +171,7 @@ class Weibull:
 						   lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
 		if contrast_steps is not None:
 			corrs = self._fun(self.params, contrast_steps)
-			plt.vlines(contrast_steps, corrs - 0.1, corrs + 0.1,
+			plt.vlines(contrast_steps, corrs - 0.04, corrs + 0.04,
 					   lw=2, zorder=4, colors=[0., 0., 0.])
 
 		if points:
@@ -235,7 +235,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 	* if contrast_lims are not set and model.params[0] <= 0 then contrast is chosen
 	from range [vmin, vmin + 0.2]
 	* if model has lapse rate and corr_lims[1] > (1 - lapse_rate) then corr_lims[1]
-	is set to (1 - lapse_rate)
+	is set to (1 - lapse_rate) - 0.01
 	'''
 	
 	assert 'steps' in method
@@ -255,7 +255,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		if len(model.params) == 3:
 			max_corr = 1 - model.params[2]
 			if corr_lims[1] > max_corr:
-				corr_lims[1] = max_corr
+				corr_lims[1] = max_corr - 0.01
 
 	# take contrast for specified correctness levels
 	if not contrast_lims:

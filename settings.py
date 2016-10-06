@@ -16,9 +16,9 @@ exp['two screens']  = False
 exp['use trigger']  = False
 
 exp['run blinkdot'] = False
-exp['run instruct'] = False
-exp['run training'] = False
-exp['run fitting']  = False
+exp['run instruct'] = True
+exp['run training'] = True
+exp['run fitting']  = True
 exp['run main c']   = True
 exp['run main t']   = True
 exp['break after']  = 15  # how often subjects have a break

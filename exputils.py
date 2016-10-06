@@ -74,6 +74,7 @@ class ContrastInterface(Interface):
 		from weibull import fitw, get_new_contrast
 
 		self.contrast = list()
+		self.get_new_contrast = get_new_contrast
 
 		# monitor setup
 		# -------------
@@ -145,6 +146,8 @@ class ContrastInterface(Interface):
 		self.current_method_string = contrast_method[:-5]
 		self.contrast_method_button = Button(win=self.win, pos=(-0.7, -0.803),
 			text='steps: ' + self.contrast_method[:-5], size=(0.4, 0.12))
+		self.contrast_method_button.click_fun = self.change_contrast_method
+		self.weibull_contrast_steps = None
 
 		# text
 		self.text = visual.TextStim(win=self.win, text='kontrast:\n',
@@ -221,14 +224,19 @@ class ContrastInterface(Interface):
 		self.last_trials.default_click_fun()
 		self.loop2()
 
+	def change_contrast_method(self):
+		self.in_method_loop = True
+		self.contrast_method_button.default_click_fun()
+		self.method_loop()
+
 	def check_contrast_method(self, method):
 		default = '4steps'
-		num = [c for c in method if c.isdigit()]
+		num = ''.join([c for c in method if c.isdigit()])
 		if len(num) < 1:
 			return default
 		if int(num) > 25:
 			return default
-		rest = [c for c in method if not c.isdigit()]
+		rest = ''.join([c for c in method if not c.isdigit()])
 		if rest not in ['log', 'midlog']:
 			return num + 'steps'
 		else:
@@ -322,6 +330,9 @@ class ContrastInterface(Interface):
 			if self.use_lapse_button.contains(self.mouse):
 				self.use_lapse_button.click()
 
+			if self.contrast_method_button.contains(self.mouse):
+				self.contrast_method_button.click()
+
 		elif m3:
 			self.mouse.clickReset()
 			self.scale.test_click(self.mouse, 'remove')
@@ -361,17 +372,32 @@ class ContrastInterface(Interface):
 		self.weibull = self.fitfun(self.df, ind, init_params=params)
 		self.params = self.weibull.params
 
-		self.stim = plot_Feedback(self.stim, self.weibull,
-			self.exp['data'], plotter_args=dict(mean_points=True, min_bucket=0.01),
-			set_size=self.set_image_size)
+		# update contrast for specified correctness
+		contrast, contrast_lims = self.get_new_contrast(self.weibull,
+			corr_lims=self.exp['fitCorrLims'], method=self.contrast_method)
+		self.weibull_contrast_steps = contrast
+
+		plotter_args = dict(mean_points=True, min_bucket=0.01)
+		if self.weibull_contrast_steps is not None:
+			plotter_args.update(dict(contrast_steps=self.weibull_contrast_steps))
+
+		self.stim = plot_Feedback(self.stim, self.weibull, self.exp['data'],
+			plotter_args=plotter_args, set_size=self.set_image_size)
 		if self.set_image_size:
 			self.set_image_size = False
 		self.stim['centerImage'].draw()
 
-		# update contrast for specified correctness
-		self.contrast_for_corr = self.weibull.get_threshold(self.corr_steps)
+
+
+		# CHANGE - think a little more on when to leave the default - corr range -> contrast
+		if self.weibull_contrast_steps is None:
+			corr_steps = self.corr_steps
+			contrast = self.weibull.get_threshold(self.corr_steps)
+		else:
+			contrast = self.weibull_contrast_steps
+			corr_steps = self.weibull._fun(self.weibull.params, contrast)
 		txt = ['{}% - {:05.3f}'.format(str(corr * 100).split('.')[0], cntr)
-			for corr, cntr in zip(self.corr_steps, self.contrast_for_corr)]
+			for corr, cntr in zip(corr_steps, contrast)]
 		txt = ';\n'.join(txt)
 		self.contrast_levels_text.setText(txt)
 
@@ -419,13 +445,18 @@ class ContrastInterface(Interface):
 			if k in list('1234567890midlog'):
 				current_str += k
 
+			self.current_method_string = current_str
+			txt = ': '.join(['steps', current_str])
+			self.contrast_method_button.setText(txt)
 			# return - refresh weibull
 			if k == 'return':
+				last_contrast_method = self.contrast_method
 				self.contrast_method = self.check_contrast_method(current_str)
 				self.current_method_string = self.contrast_method[:-5]
-				self.contrast_method_button.text.setText(self.contrast_method[:-5])
+				self.contrast_method_button.setText('steps: ' + self.contrast_method[:-5])
 				self.in_method_loop = False
-				# ADD - refresh contrast text and image
+				if not self.contrast_method == last_contrast_method:
+					self.refresh_weibull()
 				self.contrast_method_button.default_click_fun()
 
 	def loop2(self):
@@ -433,6 +464,13 @@ class ContrastInterface(Interface):
 			k = event.getKeys(
 				keyList=list('1234567890') + ['return', 'backspace'])
 			self.test_keys_loop2(k)
+			self.draw()
+			self.win.flip()
+
+	def method_loop(self):
+		while self.in_method_loop:
+			k = event.getKeys(keyList=list('1234567890midlog') + ['return', 'backspace'])
+			self.test_keys_loop_method(k)
 			self.draw()
 			self.win.flip()
 
