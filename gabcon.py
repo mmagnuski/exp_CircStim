@@ -239,9 +239,9 @@ if exp['run fitting']:
 	for ii in [1, 2, 3]:
 		fitting_db['w' + str(ii)] = np.nan
 
-	check_contrast = np.arange(mean_thresh-0.05,
-		mean_thresh+0.1, 0.05)
-	# make sure to trim and 'granularize' check_contrast
+	check_contrast = np.arange(mean_thresh - 0.05,
+		mean_thresh + 0.1, 0.05)
+	# CHECK/CHANGE make sure to trim and 'granularize' check_contrast
 	check_contrast = np.array( [trim(x, exp['min opac'], 
 		1.) for x in check_contrast] )
 	num_contrast_steps = 4
@@ -266,21 +266,23 @@ if exp['run fitting']:
 
 		# fit weibull
 		if not n_trials_from_gui:
-			look_back = min(trial-1, 75)
+			look_back = min(trial - 1, 75)
+		else:
+			look_back += len(check_contrast)
 		ind = np.r_[trial-look_back:trial]
 		w = fitw(fitting_db, ind, init_params=fit_params)
 		fit_params = w.params
 
 		# save weibull params in fitting_db and save to disk:
-		fitting_db.loc[trial-1, 'w1'] = fit_params[0]
-		fitting_db.loc[trial-1, 'w2'] = fit_params[1]
-		fitting_db.loc[trial-1, 'w3'] = fit_params[2] \
+		fitting_db.loc[trial - 1, 'w1'] = fit_params[0]
+		fitting_db.loc[trial - 1, 'w2'] = fit_params[1]
+		fitting_db.loc[trial - 1, 'w3'] = fit_params[2] \
 			if len(fit_params) == 3 else np.nan
 		save_df = trim_df(fitting_db)
 		save_df.to_excel(dm.give_path('b'))
 
 		# contrast corrections, choosing new contrast samples
-		check_contrast, contrast_range = get_new_contrast(
+		check_contrast, _ = get_new_contrast(
 			w, corr_lims=exp['fitCorrLims'],
 			method='{}steps'.format(num_contrast_steps))
 		# FIX/CHECK maybe better log instead of printing it out...
@@ -301,21 +303,27 @@ if exp['run fitting']:
 			n_trials_from_gui = False
 		else:
 			# check ContrastInterface output
-			# 1. take contrast values if set
-			# 2. grow_sample if next_trials were set
+			# 1. take contrast values if set (manual or weibull)
+			# 2. grow_sample always if interf.next_trials > len(check_constrast)
+			check_contrast = None
 			if interf.params is not None:
+				has_contrast_steps = interf.contrast_method is not None											  
 				fit_params = interf.params
 				look_back = interf.num_trials
 				n_trials_from_gui = True
 				w = interf.weibull
-				check_contrast, contrast_range = get_new_contrast(
-					w, corr_lims=exp['fitCorrLims'],
-					method='{}steps'.format(num_contrast_steps))
-			if len(interf.contrast) > 0:
+				if has_contrast_steps:
+					check_contrast = interf.weibull_contrast_steps
+
+			if check_contrast is None and len(interf.contrast) > 0:
 				check_contrast = interf.contrast
-				if interf.next_trials > len(check_contrast):
-					check_contrast = grow_sample(check_contrast, interf.next_trials)
-			elif not interf.next_trials == 4:
+
+			if check_contrast is None:
+				check_contrast, _ = get_new_contrast(
+					w, corr_lims=list(exp['fitCorrLims']),
+					method='{}steps'.format(num_contrast_steps))
+
+			if interf.next_trials > len(check_contrast):
 				check_contrast = grow_sample(check_contrast, interf.next_trials)
 
 		if not 'window2' in stim:

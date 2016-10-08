@@ -49,9 +49,9 @@ class Weibull:
 		else:
 			b, t = params
 
-		k = ( -np.log((1.0 - corr_at_thresh)/(1.0 - chance_level)) ) \
-			** (1.0/b)
-		expo = ((k * x)/t) ** b
+		k = ( -np.log((1.0 - corr_at_thresh) / (1.0 - chance_level)) ) \
+			** (1.0 / b)
+		expo = ((k * x) / t) ** b
 
 		if has_lapse:
 			y = (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
@@ -79,7 +79,7 @@ class Weibull:
 							   method='Nelder-Mead')['x']
 
 	def _inverse(self, corrinput):
-		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr))**2
+		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr)) ** 2
 		# optimize with respect to correctness
 		return minimize(invfun, self.params[1], method='Nelder-Mead')['x'][0]
 	
@@ -90,7 +90,7 @@ class Weibull:
 			 min_bucket=0.005, split_bucket=0.1, contrast_steps=None):
 		# get predicted data
 		numpnts = 1000
-		x = np.linspace(0., 2., num = numpnts)
+		x = np.linspace(0., 2., num=numpnts)
 		y = self._fun(self.params, x)
 
 		# add noise to y data to increase visibility
@@ -101,7 +101,7 @@ class Weibull:
 		f, ax = plt.subplots()
 		ax.set_axis_bgcolor((0.92, 0.92, 0.92))
 		plt.hold(True) # just in case (matlab habit)
-		plt.grid(True, color=(1.,1.,1.), lw=1.5, linestyle='-', zorder = -1)
+		plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder = -1)
 
 		# plot line
 		if mean_points:
@@ -169,6 +169,7 @@ class Weibull:
 						   y_bucket_mean - bucket_sem,
 						   y_bucket_mean + bucket_sem,
 						   lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
+
 		if contrast_steps is not None:
 			corrs = self._fun(self.params, contrast_steps)
 			plt.vlines(contrast_steps, corrs - 0.04, corrs + 0.04,
@@ -189,7 +190,7 @@ class Weibull:
 			maxval = gab99 + 0.1
 		if self.params[0] <= 0:
 			maxval = np.max(self.x) + 0.1
-		uplim = min([2.0, np.round(maxval, decimals = 1)])
+		uplim = min([2.0, np.round(maxval, decimals=1)])
 		plt.xlim([0.0, uplim])
 		plt.ylim([-0.1, 1.1])
 		plt.xlabel('stimulus intensity')
@@ -198,14 +199,14 @@ class Weibull:
 		# save figure
 		if pth:
 			tempfname = os.path.join(pth, 'weibull_fit_temp.png')
-			plt.savefig(tempfname, dpi = 120)
+			plt.savefig(tempfname, dpi=120)
 			plt.close()
 			return tempfname
 
 
 def fit_weibull(db, i):
-	take_last = min([i-15, 60])
-	idx = np.array(np.arange(i-take_last+1, i+1), dtype = 'int')
+	take_last = min([i - 15, 60])
+	idx = np.array(np.arange(i - take_last + 1, i + 1), dtype = 'int')
 	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
 	opacit = db.loc[idx, 'opacity'].values.astype('float')
 
@@ -237,9 +238,9 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 	* if model has lapse rate and corr_lims[1] > (1 - lapse_rate) then corr_lims[1]
 	is set to (1 - lapse_rate) - 0.01
 	'''
-	
+
 	assert 'steps' in method
-	
+
 	# get method details from string
 	log = 'log' in method
 	steps = ''
@@ -258,7 +259,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 				corr_lims[1] = max_corr - 0.01
 
 	# take contrast for specified correctness levels
-	if not contrast_lims:
+	if contrast_lims is None:
 		if model.params[0] <= 0: # should be some small positive value
 			contrast_lims = [vmin, vmin + 0.2]
 		else:
@@ -328,16 +329,16 @@ def cut_df_corr(df, num_bins=7):
 def get_new_range(binval, bins, high_corr=0.8, low_corr=0.6):
 	rng = np.where(binval > high_corr)[0]
 	if np.any(rng):
-		highval = bins[rng[0],0]
+		highval = bins[rng[0], 0]
 	else:
-		highval = bins[-1,0]
+		highval = bins[-1, 0]
 	where_low = np.where(binval < low_corr)[0]
 	if np.any(where_low):
 		low = where_low[-1]
 		lowval = bins[low, 0]
 	else:
-		go_below = bins[0,1] - bins[0,0]
-		lowval = max(bins[0,0] - go_below*2, 0.03)
+		go_below = bins[0, 1] - bins[0, 0]
+		lowval = max(bins[0, 0] - go_below * 2, 0.03)
 	return [lowval, highval]
 
 
@@ -372,7 +373,7 @@ def correct_weibull(model, num_fail, df=None):
 
 # for interactive plotting:
 # -------------------------
-def fitw(df, ind, init_params=[1.,1.]):
+def fitw(df, ind, init_params=[1., 1.]):
     x = df.loc[ind, 'opacity'].values.astype('float64')
     y = df.loc[ind, 'ifcorrect'].values.astype('int32')
     w = Weibull(x, y)
@@ -381,10 +382,10 @@ def fitw(df, ind, init_params=[1.,1.]):
 
 
 def idx_at(fit_num):
-    current_trial = 45 + (fit_num-1)*10
-    take_last = min([current_trial-15, 60])
-    idx = np.array(np.arange(current_trial-take_last+1,
-                             current_trial+1), dtype = 'int')
+    current_trial = 45 + (fit_num - 1) * 10
+    take_last = min([current_trial - 15, 60])
+    idx = np.array(np.arange(current_trial - take_last + 1,
+                             current_trial + 1), dtype = 'int')
     return idx
 
 
