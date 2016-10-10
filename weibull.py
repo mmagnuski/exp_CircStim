@@ -2,9 +2,9 @@
 
 # TODOs:
 # Weibull class:
-# [ ] - refactor for ease of use 
-#       -> do not have to pass additional args 
-#          if they are in the model 
+# [ ] - refactor for ease of use
+#       -> do not have to pass additional args
+#          if they are in the model
 #       -> but allow to pass these args if needed
 #       -> think about mirroring sklearn API
 # [ ] - predict (now performed by _fun but could change names)
@@ -70,27 +70,39 @@ class Weibull:
 	def drag(self, y):
 		return y * .99 + .005
 
+	def loglik_ned(self, params):
+		# if params are not within their bounds, return some high value
+		n_params = len(params)
+		bounds = self.bounds[:n_params]
+		if any([outside_bounds(val, bound) for val, bound
+										   in zip(params, bounds)]):
+			return 10000.
+
+		# return negative log-likelihood
+		return self.loglik(params)
+
 	def loglik(self, params):
 		y_pred = self.fun(params)
-		# if lapse used and not within bounds, return some v high value
-		if len(params) == 3 and (params[2] > 0.5 or params[2] < 0.):
-			return 10000.
-		# return negative log-likelihood
 		return np.sum(np.log(y_pred) * self.orig_y +
 					  np.log(1 - y_pred) * (1 - self.orig_y)) * -1.
 
 	def fit(self, initparams):
-		self.params = minimize(self.loglik, initparams,
-							   method='Nelder-Mead')['x']
+		if self.method == 'Nelder-Mead':
+			self.params = minimize(self.loglik_ned, initparams,
+								   method='Nelder-Mead')['x']
+		else:
+			# use bounds
+			self.params = minimize(self.loglik, initparams, method=self.method,
+								   bounds=self.bounds)['x']
 
 	def _inverse(self, corrinput):
 		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr)) ** 2
 		# optimize with respect to correctness
 		return minimize(invfun, self.params[1], method='Nelder-Mead')['x'][0]
-	
+
 	def get_threshold(self, corr):
 		return map(self._inverse, corr)
-	
+
 	def plot(self, pth='', points=True, line=True, mean_points=False,
 			 min_bucket=0.005, split_bucket=0.1, contrast_steps=None):
 		# get predicted data
@@ -181,7 +193,7 @@ class Weibull:
 					   lw=2, zorder=4, colors=[0., 0., 0.])
 
 		if points:
-			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0, 
+			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0,
 				zorder=6, c=[0.3, 0.3, 0.3])
 		if line:
 			plt.plot(x, y, zorder=5, lw=3, color='k')
@@ -245,7 +257,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		* '4midlogsteps' - four log steps from the middle point
 		  of the contrast range in each direction (left and
 		  right)
-	
+
 	* if contrast_lims are not set and model.params[0] <= 0 then contrast is chosen
 	from range [vmin, vmin + 0.2]
 	* if model has lapse rate and corr_lims[1] > (1 - lapse_rate) then corr_lims[1]
@@ -363,7 +375,7 @@ def correct_weibull(model, num_fail, df=None):
 		corr_below = max([1. - num_fail*0.1, 0.65])
 
 		binval, bins = cut_df_corr(df, num_bins=7)
-		contrast_range = get_new_range(binval, bins, 
+		contrast_range = get_new_range(binval, bins,
 			high_corr=corr_below)
 		return contrast_range, num_fail
 	else:
