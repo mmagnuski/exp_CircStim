@@ -34,12 +34,20 @@ class Weibull:
 	final_params = w.params
 	'''
 
-	def __init__(self, x, y):
+	def __init__(self, x, y, method='Nelder-Mead', bounds=None):
 		self.x = x
 		self.orig_y = y
 		# y is 0 or 1 - this is problematic for log
 		# so we drag the values a little
 		self.y = self.drag(y)
+		valid_methods = ('Nelder-Mead', 'L-BFGS-B', 'TNC', 'SLSQP')
+		if method in valid_methods:
+			self.method = method
+		else:
+			raise ValueError('method must be one of {}, got {} '
+							 'instead.'.format(valid_methods, method))
+		self.bounds = ((0, None), (0, None), (0., 0.5)) if bounds is None \
+														else bounds
 
 	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
 		# unpack params
@@ -48,16 +56,13 @@ class Weibull:
 			b, t, lapse = params
 		else:
 			b, t = params
+			lapse = 0.
 
 		k = ( -np.log((1.0 - corr_at_thresh) / (1.0 - chance_level)) ) \
 			** (1.0 / b)
 		expo = ((k * x) / t) ** b
 
-		if has_lapse:
-			y = (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
-		else:
-			y = 1 - (1 - chance_level) * np.exp(-expo)
-		return y
+	 	return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
 
 	def fun(self, params):
 		return self._fun(params, self.x)
@@ -202,6 +207,14 @@ class Weibull:
 			plt.savefig(tempfname, dpi=120)
 			plt.close()
 			return tempfname
+
+
+def outside_bounds(val, bounds):
+	if bounds[0] is not None and val < bounds[0]:
+		return True
+	if bounds[1] is not None and val > bounds[1]:
+		return True
+	return False
 
 
 def fit_weibull(db, i):
