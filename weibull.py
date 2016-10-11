@@ -112,7 +112,7 @@ class Weibull:
 
 		# add noise to y data to increase visibility
 		l = len(self.x)
-		yrnd = np.random.uniform(-0.05, 0.05, l)
+		yrnd = np.random.uniform(-0.065, 0.065, l)
 
 		# plot setup
 		f, ax = plt.subplots()
