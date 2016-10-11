@@ -34,20 +34,32 @@ class Weibull:
 	final_params = w.params
 	'''
 
-	def __init__(self, x, y, method='Nelder-Mead', bounds=None):
+	def __init__(self, x, y, method='Nelder-Mead', kind='weibull', bounds=None):
 		self.x = x
 		self.orig_y = y
 		# y is 0 or 1 - this is problematic for log
 		# so we drag the values a little
 		self.y = self.drag(y)
+
+		# method (optimizer)
 		valid_methods = ('Nelder-Mead', 'L-BFGS-B', 'TNC', 'SLSQP')
 		if method in valid_methods:
 			self.method = method
 		else:
 			raise ValueError('method must be one of {}, got {} '
 							 'instead.'.format(valid_methods, method))
-		self.bounds = ((0, None), (0, None), (0., 0.5)) if bounds is None \
-														else bounds
+
+		# kind
+		valid_kinds = ('weibull', 'generalized logistic')
+		if kind in valid_kinds:
+			self.kind = kind
+		else:
+			raise ValueError('kind must be one of {}, got {} '
+							 'instead.'.format(valid_kinds, kind))
+
+		min_float = sys.float_info.min
+		self.bounds = ((min_float, None), (min_float, None),
+					   (min_float., 0.5)) if bounds is None else bounds
 
 	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
 		# unpack params
