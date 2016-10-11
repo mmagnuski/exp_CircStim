@@ -134,6 +134,20 @@ class Weibull:
 			x_pnts = x_pnts[srt]
 			y_pnts = y_pnts[srt]
 
+			# adaptive min_bucket and split_bucket
+			adaptive_min_bucket = isinstance(min_bucket, str) and \
+				min_bucket == 'adaptive'
+			adaptive_split_bucket = isinstance(split_bucket, str) and \
+				split_bucket == 'adaptive'
+			if adaptive_min_bucket or adaptive_split_bucket:
+				drop_elements = int(np.ceil(len(x_pnts) * 0.08))
+				contrast_range = x_pnts[drop_elements:-drop_elements][[0, -1]]
+				contrast_range = np.diff(contrast_range)[0]
+				if adaptive_min_bucket:
+					min_bucket = contrast_range / 50.
+				if adaptive_split_bucket:
+					split_bucket = contrast_range / 20.
+
 			# look for buckets
 			x_buckets = group(np.diff(x_pnts) <= min_bucket)
 			n_pnts_in_bucket = (np.diff(x_buckets, axis=-1) + 1).ravel()
