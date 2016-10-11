@@ -117,8 +117,8 @@ class Weibull:
 		return list(map(self._inverse, corr))
 
 	def plot(self, pth='', points=True, line=True, mean_points=False,
-			 min_bucket=0.005, split_bucket=0.1, contrast_steps=None,
-			 mean_points_color='seaborn_green'):
+			 min_bucket='adaptive', split_bucket='adaptive',
+			 contrast_steps=None, mean_points_color='seaborn_green'):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num=numpnts)
@@ -164,9 +164,9 @@ class Weibull:
 				contrast_range = x_pnts[drop_elements:-drop_elements][[0, -1]]
 				contrast_range = np.diff(contrast_range)[0]
 				if adaptive_min_bucket:
-					min_bucket = contrast_range / 50.
+					min_bucket = contrast_range / 20.
 				if adaptive_split_bucket:
-					split_bucket = contrast_range / 20.
+					split_bucket = contrast_range / 10.
 
 			# look for buckets
 			x_buckets = group(np.diff(x_pnts) <= min_bucket)
