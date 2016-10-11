@@ -62,7 +62,7 @@ class Weibull:
 			** (1.0 / b)
 		expo = ((k * x) / t) ** b
 
-	 	return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
+		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
 
 	def fun(self, params):
 		return self._fun(params, self.x)
@@ -87,13 +87,14 @@ class Weibull:
 					  np.log(1 - y_pred) * (1 - self.orig_y)) * -1.
 
 	def fit(self, initparams):
+		n_params = len(initparams)
 		if self.method == 'Nelder-Mead':
 			self.params = minimize(self.loglik_ned, initparams,
 								   method='Nelder-Mead')['x']
 		else:
 			# use bounds
 			self.params = minimize(self.loglik, initparams, method=self.method,
-								   bounds=self.bounds)['x']
+								   bounds=self.bounds[:n_params])['x']
 
 	def _inverse(self, corrinput):
 		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr)) ** 2
@@ -101,10 +102,11 @@ class Weibull:
 		return minimize(invfun, self.params[1], method='Nelder-Mead')['x'][0]
 
 	def get_threshold(self, corr):
-		return map(self._inverse, corr)
+		return list(map(self._inverse, corr))
 
 	def plot(self, pth='', points=True, line=True, mean_points=False,
-			 min_bucket=0.005, split_bucket=0.1, contrast_steps=None):
+			 min_bucket=0.005, split_bucket=0.1, contrast_steps=None,
+			 mean_points_color='seaborn_green'):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num=numpnts)
@@ -118,7 +120,13 @@ class Weibull:
 		f, ax = plt.subplots()
 		ax.set_axis_bgcolor((0.92, 0.92, 0.92))
 		plt.hold(True) # just in case (matlab habit)
-		plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder = -1)
+		plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder=-1)
+
+		if isinstance(mean_points_color, str):
+			if mean_points_color == 'seaborn_green':
+				mean_points_color = (0.3333333333333333, 
+									 0.6588235294117647,
+									 0.40784313725490196)
 
 		# plot line
 		if mean_points:
@@ -195,11 +203,11 @@ class Weibull:
 
 				# plot bucket means and sem
 				plt.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
-							c=[0.65, 0.65, 0.65])
+							c=mean_points_color)
 				plt.vlines(x_bucket_mean,
 						   y_bucket_mean - bucket_sem,
 						   y_bucket_mean + bucket_sem,
-						   lw=2, zorder=4, colors=[0.65, 0.65, 0.65])
+						   lw=2, zorder=4, colors=mean_points_color)
 
 		if contrast_steps is not None:
 			corrs = self._fun(self.params, contrast_steps)
@@ -360,8 +368,8 @@ def cut_df_corr(df, num_bins=7):
 	# get bin low and high:
 	lowfun = lambda x: float(x.split(',')[0][1:])
 	highfun = lambda x: float(x.split(',')[1][1:-1])
-	low = map(lowfun, binval.index)
-	high = map(highfun, binval.index)
+	low = list(map(lowfun, binval.index))
+	high = list(map(highfun, binval.index))
 	return binval, np.vstack([low, high]).T
 
 
@@ -412,10 +420,10 @@ def correct_weibull(model, num_fail, df=None):
 
 # for interactive plotting:
 # -------------------------
-def fitw(df, ind, init_params=[1., 1.]):
+def fitw(df, ind, init_params=[1., 1.], method='Nelder-Mead'):
     x = df.loc[ind, 'opacity'].values.astype('float64')
     y = df.loc[ind, 'ifcorrect'].values.astype('int32')
-    w = Weibull(x, y)
+    w = Weibull(x, y, method=method)
     w.fit(init_params)
     return w
 
