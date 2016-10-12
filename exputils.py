@@ -396,7 +396,8 @@ class ContrastInterface(Interface):
 			else:
 				self.weibull_contrast_steps = None
 
-		plotter_args = dict(mean_points=True, min_bucket=0.01)
+		plotter_args = dict(mean_points=True, min_bucket=0.01,
+							line_color='seaborn_red')
 		if self.weibull_contrast_steps is not None:
 			plotter_args.update(dict(contrast_steps=self.weibull_contrast_steps))
 

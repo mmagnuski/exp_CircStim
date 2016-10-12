@@ -19,7 +19,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize
 
-from utils import trim, trim_df, round2step
+from utils import trim, trim_df, round2step, group, check_color
 
 
 class Weibull:
@@ -132,16 +132,12 @@ class Weibull:
 		plt.hold(True) # just in case (matlab habit)
 		plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder=-1)
 
-		if isinstance(mean_points_color, str):
-			if mean_points_color == 'seaborn_green':
-				mean_points_color = (0.3333333333333333,
-									 0.6588235294117647,
-									 0.40784313725490196)
+		line_color = check_color(line_color)
 
 		# plot buckets
 		if mean_points:
 			from scipy import stats
-			from utils import group
+			mean_points_color = check_color(mean_points_color)
 
 			# bucketize
 			# ---------
