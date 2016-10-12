@@ -70,7 +70,8 @@ class ContrastInterface(Interface):
 
 	def __init__(self, exp=None, stim=None, contrast_lims=(0., 3.),
 		df=None, weibull=None, timeout=False, num_trials=None,
-		set_image_size=False, contrast_method='4steps'):
+		set_image_size=False, contrast_method='4steps',
+		corr_steps=(0.55, 0.75, 0.95)):
 		from weibull import fitw, get_new_contrast
 
 		self.contrast = list()
@@ -112,7 +113,7 @@ class ContrastInterface(Interface):
 		self.use_lapse = use_lapse
 		self.num_trials = num_trials if num_trials is not None else 40
 		self.num_trials = max(5, min(nrow, self.num_trials))
-		self.corr_steps = [0.55, 0.75, 0.9]
+		self.corr_steps = corr_steps
 
 		win_pix_size = self.win.size
 		pic_pix_size = self.stim['centerImage'].size
