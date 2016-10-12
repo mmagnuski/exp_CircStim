@@ -279,7 +279,7 @@ def weibull(x, params, corr_at_thresh=0.75, chance_level=0.5):
 		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
 
 
-def generalized_logistic(x, params, chance_level=0.5):
+def generalized_logistic(x, params, chance_level=0.5, C=1.):
 	'''
 	A - lower asymptote
 	K - upper asymptote
@@ -289,7 +289,7 @@ def generalized_logistic(x, params, chance_level=0.5):
 	C - another scaling parameter
 	'''
 	A = chance_level
-	K, B, v, Q, C = params
+	K, B, v, Q = params
 	return A + (K - A) / ((C + Q * np.exp(-B * x)) ** (1 / v))
 
 
