@@ -61,7 +61,7 @@ class Weibull:
 		if self.kind == 'weibull':
 			self._fun = weibull
 			self.bounds = ((min_float, None), (min_float, None),
-						   (min_float., 0.5)) if bounds is None else bounds
+						   (min_float, 0.5)) if bounds is None else bounds
 		elif self.kind == 'generalized logistic':
 			self._fun = generalized_logistic
 			self.bounds = ((0.5, 1.), (0., None), (min_float, None),
@@ -138,7 +138,7 @@ class Weibull:
 									 0.6588235294117647,
 									 0.40784313725490196)
 
-		# plot line
+		# plot buckets
 		if mean_points:
 			from scipy import stats
 			from utils import group
@@ -207,9 +207,12 @@ class Weibull:
 						ii += 1
 				slices.extend(add_slices)
 
-				x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
-				y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
-				bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
+				x_bucket_mean = np.array([x_pnts[slc].mean()
+										  for slc in slices])
+				y_bucket_mean = np.array([y_pnts[slc].mean()
+										  for slc in slices])
+				bucket_sem = np.array([stats.sem(y_pnts[slc])
+									   for slc in slices])
 
 				# plot bucket means and sem
 				plt.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
@@ -263,8 +266,7 @@ def outside_bounds(val, bounds):
 
 def weibull(x, params, corr_at_thresh=0.75, chance_level=0.5):
 		# unpack params
-		has_lapse = len(params) > 2
-		if has_lapse:
+		if len(params) > 2:
 			b, t, lapse = params
 		else:
 			b, t = params
