@@ -34,24 +34,54 @@ class Weibull:
 	final_params = w.params
 	'''
 
-	def __init__(self, x, y, method='Nelder-Mead', bounds=None):
+	def __init__(self, x, y, method='Nelder-Mead', kind='weibull', bounds=None):
 		self.x = x
 		self.orig_y = y
 		# y is 0 or 1 - this is problematic for log
 		# so we drag the values a little
 		self.y = self.drag(y)
+
+		# method (optimizer)
 		valid_methods = ('Nelder-Mead', 'L-BFGS-B', 'TNC', 'SLSQP')
 		if method in valid_methods:
 			self.method = method
 		else:
 			raise ValueError('method must be one of {}, got {} '
 							 'instead.'.format(valid_methods, method))
-		self.bounds = ((0, None), (0, None), (0., 0.5)) if bounds is None \
-														else bounds
+		# kind
+		valid_kinds = ('weibull', 'generalized logistic')
+		if kind in valid_kinds:
+			self.kind = kind
+		else:
+			raise ValueError('kind must be one of {}, got {} '
+							 'instead.'.format(valid_kinds, kind))
+
+		min_float = sys.float_info.min
 		if self.kind == 'weibull':
 			self._fun = weibull
+			self.bounds = ((min_float, None), (min_float, None),
+						   (min_float., 0.5)) if bounds is None else bounds
 		elif self.kind == 'generalized logistic':
 			self._fun = generalized_logistic
+			self.bounds = ((0.5, 1.), (0., None), (min_float, None),
+						   (None, None), (None, None))
+
+
+	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
+		# unpack params
+		has_lapse = len(params) > 2
+		if has_lapse:
+			b, t, lapse = params
+		else:
+			b, t = params
+			lapse = 0.
+
+		k = ( -np.log((1.0 - corr_at_thresh) / (1.0 - chance_level)) ) \
+			** (1.0 / b)
+		expo = ((k * x) / t) ** b
+
+		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
+>>>>>>> a4e5f8828caeffd6752bbee8b31b965fd3865568
 
 	def fun(self, params):
 		return self._fun(self.x, params)
@@ -97,8 +127,8 @@ class Weibull:
 		return list(map(self._inverse, corr))
 
 	def plot(self, pth='', points=True, line=True, mean_points=False,
-			 min_bucket=0.005, split_bucket=0.1, contrast_steps=None,
-			 mean_points_color='seaborn_green'):
+			 min_bucket='adaptive', split_bucket='adaptive',
+			 contrast_steps=None, mean_points_color='seaborn_green'):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num=numpnts)
@@ -116,7 +146,7 @@ class Weibull:
 
 		if isinstance(mean_points_color, str):
 			if mean_points_color == 'seaborn_green':
-				mean_points_color = (0.3333333333333333, 
+				mean_points_color = (0.3333333333333333,
 									 0.6588235294117647,
 									 0.40784313725490196)
 
@@ -144,9 +174,9 @@ class Weibull:
 				contrast_range = x_pnts[drop_elements:-drop_elements][[0, -1]]
 				contrast_range = np.diff(contrast_range)[0]
 				if adaptive_min_bucket:
-					min_bucket = contrast_range / 50.
+					min_bucket = contrast_range / 20.
 				if adaptive_split_bucket:
-					split_bucket = contrast_range / 20.
+					split_bucket = contrast_range / 10.
 
 			# look for buckets
 			x_buckets = group(np.diff(x_pnts) <= min_bucket)
@@ -259,7 +289,7 @@ def weibull(x, params, corr_at_thresh=0.75, chance_level=0.5):
 		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
 
 
-def generalized_logistic(x, params):
+def generalized_logistic(x, params, chance_level=0.5):
 	'''
 	A - lower asymptote
 	K - upper asymptote
@@ -268,7 +298,8 @@ def generalized_logistic(x, params):
 	Q - Y(0)
 	C - another scaling parameter
 	'''
-	A, K, B, v, Q, C = params
+	A = chance_level
+	K, B, v, Q, C = params
 	return A + (K - A) / ((C + Q * np.exp(-B * x)) ** (1 / v))
 
 
