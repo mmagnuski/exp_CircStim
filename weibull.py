@@ -48,24 +48,13 @@ class Weibull:
 							 'instead.'.format(valid_methods, method))
 		self.bounds = ((0, None), (0, None), (0., 0.5)) if bounds is None \
 														else bounds
-
-	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
-		# unpack params
-		has_lapse = len(params) > 2
-		if has_lapse:
-			b, t, lapse = params
-		else:
-			b, t = params
-			lapse = 0.
-
-		k = ( -np.log((1.0 - corr_at_thresh) / (1.0 - chance_level)) ) \
-			** (1.0 / b)
-		expo = ((k * x) / t) ** b
-
-		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
+		if self.kind == 'weibull':
+			self._fun = weibull
+		elif self.kind == 'generalized logistic':
+			self._fun = generalized_logistic
 
 	def fun(self, params):
-		return self._fun(params, self.x)
+		return self._fun(self.x, params)
 
 	def predict(self, X):
 		return self._fun(X, self.params)
@@ -252,6 +241,35 @@ def outside_bounds(val, bounds):
 	if bounds[1] is not None and val > bounds[1]:
 		return True
 	return False
+
+
+def weibull(x, params, corr_at_thresh=0.75, chance_level=0.5):
+		# unpack params
+		has_lapse = len(params) > 2
+		if has_lapse:
+			b, t, lapse = params
+		else:
+			b, t = params
+			lapse = 0.
+
+		k = ( -np.log((1.0 - corr_at_thresh) / (1.0 - chance_level)) ) \
+			** (1.0 / b)
+		expo = ((k * x) / t) ** b
+
+		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
+
+
+def generalized_logistic(x, params):
+	'''
+	A - lower asymptote
+	K - upper asymptote
+	B - growth rate
+	v - where maximum growth occurs (which asymptote)
+	Q - Y(0)
+	C - another scaling parameter
+	'''
+	A, K, B, v, Q, C = params
+	return A + (K - A) / ((C + Q * np.exp(-B * x)) ** (1 / v))
 
 
 def fit_weibull(db, i):
