@@ -337,7 +337,7 @@ if exp['run main c']:
 	stim = plot_Feedback(stim, w, exp['data'])
 
 	interf = ContrastInterface(stim=stim, exp=exp, df=fitting_db, weibull=w,
-							   set_image_size=set_im)
+							   set_image_size=set_im, contrast_method='10steps')
 	continue_fitting = interf.loop()
 
 	if not 'window2' in stim:
@@ -396,38 +396,43 @@ if exp['run main t']:
 	# get contrast from contrast part
 	if 'db_c' not in locals():
 		print('contrast database not found, loading from disk...')
-		fitting_db = pd.read_excel(dm.give_previous_path('c'))
-		print(fitting_db.head(10))
+		db_c = pd.read_excel(dm.give_previous_path('c'))
+		print(db_c.head(10))
 
 
 	# ---CHANGE HERE---
 
 	# FinalFitGUI - to set about 75% thresh
 	# setup
+	# setup stuff for GUI:
 	if not 'window2' in stim:
-	    stim['window'].blendMode = 'avg'
-	stim['window'].flip()
+		stim['window'].blendMode = 'avg'
+	# check with drawing target...
 
-	# CHANGE - to ContrastInterface
-	# fgui = FinalFitGUI(exp=exp, stim=stim, db=fitting_db, fitfun=fitw)
-	fgui.refresh_weibull()
-	fgui.loop()
+	# make sure weibull exists
+	set_im = False
+	if 'w' not in locals():
+		num_trials = db_c.shape[0]
+		ind = np.r_[25:num_trials]
+		w = fitw(db_c, ind, init_params=[1., 1., 1.])
+	stim = plot_Feedback(stim, w, exp['data'])
 
-	# cleanup
+	interf = ContrastInterface(stim=stim, exp=exp, df=db_c, weibull=w,
+							   set_image_size=set_im, corr_steps=[0.7],
+                               contrast_method=None, num_trials=db_c.shape[0])
+	continue_fitting = interf.loop()
+
 	if not 'window2' in stim:
 		stim['window'].blendMode = 'add'
 
 	# get contrast and prepare trials dataframe
-	opacity = fgui.weibull.get_threshold([0.75])[0]
+	opacity = interf.weibull.get_threshold([0.7])[0]
 	times = time_shuffle(start=1., end=5., every=0.2, times=4)
 	times = ms2frames(times * 1000, exp['frm']['time'])
 	db_t = create_database(exp, combine_with=('fixTime', times))
 	db_t.loc[:, 'opacity'] = opacity
 
 	exp['numTrials'] = len(db_t.index) # TODO/CHECK - why is this needed?
-
-	# ---stop CHANGE here---
-
 
 	if exp['run instruct']:
 		instr.present()
