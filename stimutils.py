@@ -387,39 +387,6 @@ class Stepwise(object):
 			self.current_step = self.step[len(self.reversals)]
 
 
-class TimeShuffle(object):
-	'''TimeShuffle is used to keep track of all fixation times
-	that should be used in the experiment 2.
-
-	parameters
-	----------
-	start - float; start value
-	end   - float; end value
-	every - float; step value
-	times - int; number of times each value should be used
-
-	example
-	-------
-	>>> times = TimeShuffle(start=1.5, end=3., every=0.5,
-			times=2, shuffle=False).all()
-	[ 1.5  2.   2.5  3.   1.5  2.   2.5  3. ]
-	'''
-	def __init__(self, start=1.5, end=5.0, every=0.05, times=6, shuffle=True):
-		self.times = np.arange(start, end+0.001, every)
-		self.inds = range(0, len(self.times)) * times
-		if shuffle:
-			np.random.shuffle(self.inds)
-		self.current_ind = 0
-
-	def get(self):
-		givetime = self.times[self.inds[self.current_ind]]
-		self.current_ind += 1
-		return givetime
-
-	def all(self):
-		return self.times[self.inds]
-
-
 # instructions etc.
 # -----------------
 

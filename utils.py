@@ -159,3 +159,42 @@ def free_filename(pth, subj, givenew = True):
 			return mx + 1, subj['symb'] + '_' + fillz(mx + 1, 2)
 	else:
 		return not subj['ind'] in used_files_int
+
+
+def check_color(color):
+	if isinstance(color, str):
+		if color.startswith('seaborn_'):
+			col_dict = dict()
+			col_dict['red'] = (0.3333333333333333, 0.6588235294117647,
+							   0.40784313725490196)
+			col_dict['green'] = (0.7686274509803922, 0.3058823529411765,
+								 0.3215686274509804)
+			for k in col_dict.keys():
+				if color.endswith(k):
+					return col_dict[k]
+			raise ValueError("Could not find seaborn color for {}."\
+							 .format(color))
+	return color
+
+
+def time_shuffle(start=1.5, end=5.0, every=0.05, times=6, shuffle=True):
+	'''time_shuffle is used to keep track of all fixation times
+	that should be used in the experiment 2.
+
+	parameters
+	----------
+	start - float; start value
+	end   - float; end value
+	every - float; step value
+	times - int; number of times each value should be used
+
+	example
+	-------
+	>>> times = time_shuffle(start=1.5, end=3., every=0.5,
+			times=2, shuffle=False)
+	[ 1.5  2.   2.5  3.   1.5  2.   2.5  3. ]
+	'''
+		times = np.tile(np.arange(start, end + 0.000001, every), times)
+		if shuffle:
+			np.random.shuffle(times)
+		return times

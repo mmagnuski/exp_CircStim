@@ -446,8 +446,7 @@ if exp['run main t']:
 
 	# get contrast and prepare trials dataframe
 	opacity = fgui.weibull.get_threshold([0.75])[0]
-	times = TimeShuffle(start=1., end=5., every=0.2,
-				times=4).all()
+	times = time_shuffle(start=1., end=5., every=0.2, times=4)
 	times = ms2frames(times * 1000, exp['frm']['time'])
 	db_t = create_database(exp, combine_with=('fixTime', times))
 	db_t.loc[:, 'opacity'] = opacity
