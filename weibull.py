@@ -12,6 +12,7 @@
 
 
 import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -65,23 +66,6 @@ class Weibull:
 			self._fun = generalized_logistic
 			self.bounds = ((0.5, 1.), (0., None), (min_float, None),
 						   (None, None), (None, None))
-
-
-	def _fun(self, params, x, corr_at_thresh = 0.75, chance_level = 0.5):
-		# unpack params
-		has_lapse = len(params) > 2
-		if has_lapse:
-			b, t, lapse = params
-		else:
-			b, t = params
-			lapse = 0.
-
-		k = ( -np.log((1.0 - corr_at_thresh) / (1.0 - chance_level)) ) \
-			** (1.0 / b)
-		expo = ((k * x) / t) ** b
-
-		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
->>>>>>> a4e5f8828caeffd6752bbee8b31b965fd3865568
 
 	def fun(self, params):
 		return self._fun(self.x, params)
