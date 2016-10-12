@@ -132,7 +132,7 @@ class ContrastInterface(Interface):
 			size=(0.35, 0.12)) for p, t in zip(button_pos, button_text)]
 		self.buttons[-1].click_fun = self.cycle_vals
 
-		
+
 		txt = ' '.join([str(self.num_trials), '/', str(nrow), 'trials'])
 		self.last_trials = Button(win=self.win, pos=(-0.7, -0.43),
 			text=txt, size=(0.4, 0.12))
@@ -187,7 +187,7 @@ class ContrastInterface(Interface):
 			self.timeout_val = int(round(timeout))
 			self.timeout_text = visual.TextStim(win=self.win, units='norm',
 				text=str(self.timeout_val), color=(1, -1, -1), height=1.5)
-			
+
 
 	def draw(self):
 		[b.draw() for b in self.buttons]
@@ -382,7 +382,7 @@ class ContrastInterface(Interface):
 		# update contrast for specified correctness
 		if self.contrast_method is not None:
 			if len(np.unique(self.contrast)) == 2:
-				contrast, _ = self.get_new_contrast(self.weibull, 
+				contrast, _ = self.get_new_contrast(self.weibull,
 					contrast_lims=np.unique(self.contrast),
 					method=self.contrast_method)
 			else:
@@ -438,7 +438,7 @@ class ContrastInterface(Interface):
 			nrow = self.df.shape[0]
 			self.num_trials = int(current_str) if \
 				len(current_str) > 0 else 0
-			txt = str(self.num_trials) if self.num_trials > 0 else ''	
+			txt = str(self.num_trials) if self.num_trials > 0 else ''
 			txt = ' '.join([txt, '/', str(nrow), 'trials'])
 			self.last_trials.setText(txt)
 

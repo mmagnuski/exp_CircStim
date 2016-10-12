@@ -25,9 +25,9 @@ if "BENQ-XL2411" in monitors:
 winkeys = {'units' : 'deg', 'fullscr' : True, 'useFBO' : True,
 	'blendMode' : 'add', 'monitor' : monitorName}
 if exp['two screens']:
-	winkeys.update({'screen' : 1})	
+	winkeys.update({'screen' : 1})
 win = visual.Window(**winkeys)
-# win = visual.Window(monitor='testMonitor', fullscr=True, units='deg', 
+# win = visual.Window(monitor='testMonitor', fullscr=True, units='deg',
 #     useFBO=True, blendMode='add')
 win.setMouseVisible(False)
 
@@ -74,7 +74,7 @@ def gabor(win = win, ori = 0, opa = 1.0,
 class Gabor(object):
 	'''Simple gabor class that allows the contrast to go
 	up to 3.0 (clipping the out of bound rgb values).
-	Requires window to be set with useFBO=True and 
+	Requires window to be set with useFBO=True and
 	blendMode='add' as well as a monkey-patch for
 	pyglet shaders.'''
 
@@ -433,7 +433,7 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 
 	# draw text if necessary:
 	if text:
-		visual.TextStim(win, text=text).draw()	
+		visual.TextStim(win, text=text).draw()
 		# fix window blendMode:
 		win.blendMode = 'add'
 

@@ -17,28 +17,29 @@ fragFBOtoFramePatched = '''
         gl_FragColor.rgb = textureFrag.rgb;
     }
     '''
+
 from psychopy import _shadersPyglet
 _shadersPyglet.fragFBOtoFrame = fragFBOtoFramePatched
 
-# imports
-# -------
+# other imports
+# -------------
 from psychopy  import visual, core, event, logging
 
 import os
 import numpy  as np
 import pandas as pd
 
-import blinkdot as blnk
 from exputils  import (plot_Feedback, create_database,
 	ContrastInterface, DataManager, ExperimenterInfo,
 	AnyQuestionsGUI, ms2frames, getFrameRate)
-from utils     import to_percent, round2step, trim_df, grow_sample
 from weibull   import fitw, get_new_contrast, correct_weibull
+from utils     import (to_percent, round2step, trim_df, grow_sample,
+                       time_shuffle)
 from stimutils import (exp, db, stim, present_trial,
 	present_break, show_resp_rules, textscreen,
 	present_feedback, present_training, trim,
 	give_training_db, Instructions, Stepwise,
-	TimeShuffle, onflip_work, clear_port)
+	onflip_work, clear_port)
 
 if os.name == 'nt' and exp['use trigger']:
 	from ctypes import windll
@@ -58,38 +59,9 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
 # TODO: turn prints to logging
 # TODO: add some more logging?
-# TODO: remove blinkdot to a separate repo?
-#       (blinkdot will not be used here)
 
 # create object for updating experimenter about progress
 exp_info = ExperimenterInfo(exp, stim)
-
-# blinking dot
-# ------------
-if exp['run blinkdot']:
-	stim['window'].blendMode = 'avg'
-	instr = Instructions('dot_instructions.yaml')
-	instr.present()
-	stim['window'].blendMode = 'avg'
-	frms = getFrameRate(stim['window'])
-	dotstim = blnk.give_dot_stim(stim['window'])
-
-	# times in ms to get trial times
-	time = dict()
-	time['pre min'] = 500
-	time['pre max'] = 4000
-	time['stim'] = 100
-	time['post'] = 1000
-
-	trigger = False
-	if exp['use trigger']:
-		trigger = [exp['port']['port address'], 123]
-
-	time = ms2frames(time, frms['time'])
-	df = blnk.all_trials(stim['window'], dotstim, time,
-		trigger=trigger)
-	df.to_excel(dm.give_path('0'))
-	stim['window'].blendMode = 'add'
 
 
 # INSTRUCTIONS
@@ -242,7 +214,7 @@ if exp['run fitting']:
 	check_contrast = np.arange(mean_thresh - 0.05,
 		mean_thresh + 0.1, 0.05)
 	# CHECK/CHANGE make sure to trim and 'granularize' check_contrast
-	check_contrast = np.array( [trim(x, exp['min opac'], 
+	check_contrast = np.array( [trim(x, exp['min opac'],
 		1.) for x in check_contrast] )
 	num_contrast_steps = 4
 
@@ -307,7 +279,7 @@ if exp['run fitting']:
 			# 2. grow_sample always if interf.next_trials > len(check_constrast)
 			check_contrast = None
 			if interf.params is not None:
-				has_contrast_steps = interf.contrast_method is not None											  
+				has_contrast_steps = interf.contrast_method is not None
 				fit_params = interf.params
 				look_back = interf.num_trials
 				n_trials_from_gui = True
@@ -348,7 +320,8 @@ if exp['run main c']:
 		print('fitting_db not found, loading {}...'.format(prev_pth))
 		fitting_db = pd.read_excel(prev_pth)
 		print(fitting_db.head(10))
-		# fitting_db = pd.read_excel(os.path.join('data', 'testing_miko_01_b_1.xls'))
+		# fitting_db = pd.read_excel(
+        #     os.path.join('data', 'testing_miko_01_b_1.xls'))
 
 	# setup stuff for GUI:
 	if not 'window2' in stim:
@@ -383,7 +356,7 @@ if exp['run main c']:
 
 	print('contrast range: ', contrast_range)
 	print('contrast steps: ', contrast_steps)
-	
+
 	db_c = create_database(exp, combine_with=('opacity',
 		contrast_steps), rep=13)
 	exp['numTrials'] = len(db_c.index)
