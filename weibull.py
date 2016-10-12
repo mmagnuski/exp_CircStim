@@ -110,9 +110,9 @@ class Weibull:
 	def get_threshold(self, corr):
 		return list(map(self._inverse, corr))
 
-	def plot(self, pth='', points=True, line=True, mean_points=False,
-			 min_bucket='adaptive', split_bucket='adaptive',
-			 contrast_steps=None, mean_points_color='seaborn_green'):
+	def plot(self, ax=None, pth='', points=True, line=True, mean_points=False,
+			 min_bucket='adaptive', split_bucket='adaptive', line_color=None,
+			 contrast_steps=None, mean_points_color=(0.22, 0.58, 0.78)):
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num=numpnts)
@@ -122,8 +122,12 @@ class Weibull:
 		l = len(self.x)
 		yrnd = np.random.uniform(-0.065, 0.065, l)
 
+		if line_color is None:
+			line_color = 'k'
+
 		# plot setup
-		f, ax = plt.subplots()
+		if ax is None:
+			f, ax = plt.subplots()
 		ax.set_axis_bgcolor((0.92, 0.92, 0.92))
 		plt.hold(True) # just in case (matlab habit)
 		plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder=-1)
@@ -224,7 +228,7 @@ class Weibull:
 			plt.scatter(self.x, self.orig_y + yrnd, alpha=0.6, lw=0,
 				zorder=6, c=[0.3, 0.3, 0.3])
 		if line:
-			plt.plot(x, y, zorder=5, lw=3, color='k')
+			plt.plot(x, y, zorder=5, lw=3, color=line_color)
 
 		# aesthetics
 		# ----------
