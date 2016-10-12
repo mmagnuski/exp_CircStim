@@ -67,6 +67,9 @@ class Weibull:
 	def fun(self, params):
 		return self._fun(params, self.x)
 
+	def predict(self, X):
+		return self._fun(X, self.params)
+
 	def drag(self, y):
 		return y * .99 + .005
 
@@ -97,7 +100,7 @@ class Weibull:
 								   bounds=self.bounds[:n_params])['x']
 
 	def _inverse(self, corrinput):
-		invfun = lambda cntr: (corrinput - self._fun(self.params, cntr)) ** 2
+		invfun = lambda cntr: (corrinput - self.predict(cntr)) ** 2
 		# optimize with respect to correctness
 		return minimize(invfun, self.params[1], method='Nelder-Mead')['x'][0]
 
@@ -110,7 +113,7 @@ class Weibull:
 		# get predicted data
 		numpnts = 1000
 		x = np.linspace(0., 2., num=numpnts)
-		y = self._fun(self.params, x)
+		y = self.predict(x)
 
 		# add noise to y data to increase visibility
 		l = len(self.x)
@@ -210,7 +213,7 @@ class Weibull:
 						   lw=2, zorder=4, colors=mean_points_color)
 
 		if contrast_steps is not None:
-			corrs = self._fun(self.params, contrast_steps)
+			corrs = self.predict(contrast_steps)
 			plt.vlines(contrast_steps, corrs - 0.04, corrs + 0.04,
 					   lw=2, zorder=4, colors=[0., 0., 0.])
 
