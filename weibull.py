@@ -110,7 +110,7 @@ class Weibull:
 	def get_threshold(self, corr):
 		return list(map(self._inverse, corr))
 
-	def plot(self, ax=None, pth='', points=True, line=True, mean_points=False,
+	def plot(self, pth='', ax=None, points=True, line=True, mean_points=False,
 			 min_bucket='adaptive', split_bucket='adaptive', line_color=None,
 			 contrast_steps=None, mean_points_color=(0.22, 0.58, 0.78)):
 		# get predicted data
@@ -306,7 +306,7 @@ def fit_weibull(db, i):
 # - check if model is necessary, if not - simplify
 # - maybe add 'random' to steps method this would shift the contrast points
 #   randomly from -0.5 to 0.5 of respective bin width (asymmteric in logsteps)
-def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
+def get_new_contrast(model, vmin=0.01, corr_lims=[0.55, 0.95],
 					 contrast_lims=None, method='4steps', discrete_steps=False):
 	'''
 	method : string
@@ -335,12 +335,14 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.52, 0.9],
 		else:
 			break
 	steps = int(steps) if steps else 5
+		
 
 	# correct high corr limit if it goes beyond 1 - lapse_rate
 	if model is not None:
 		if len(model.params) == 3:
 			max_corr = 1 - model.params[2]
-			if corr_lims[1] > max_corr:
+			if corr_lims is not None and corr_lims[1] > max_corr:
+				corr_lims = list(corr_lims)
 				corr_lims[1] = max_corr - 0.01
 
 	# take contrast for specified correctness levels

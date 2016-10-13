@@ -287,12 +287,18 @@ if exp['run fitting']:
 				if has_contrast_steps:
 					check_contrast = interf.weibull_contrast_steps
 
+				# add params to df
+				fitting_db.loc[trial, 'w1'] = fit_params[0]
+				fitting_db.loc[trial, 'w2'] = fit_params[1]
+				fitting_db.loc[trial, 'w3'] = fit_params[2] \
+					if len(fit_params) == 3 else np.nan
+
 			if check_contrast is None and len(interf.contrast) > 0:
 				check_contrast = interf.contrast
 
 			if check_contrast is None:
 				check_contrast, _ = get_new_contrast(
-					w, corr_lims=list(exp['fitCorrLims']),
+					w, corr_lims=exp['fitCorrLims'],
 					method='{}steps'.format(num_contrast_steps))
 
 			if interf.next_trials > len(check_contrast):
@@ -393,6 +399,8 @@ if exp['run main c']:
 # -------------------
 if exp['run main t']:
 
+	exp['break after'] == 7 # because trials are longer now
+
 	# get contrast from contrast part
 	if 'db_c' not in locals():
 		print('contrast database not found, loading from disk...')
@@ -429,7 +437,7 @@ if exp['run main t']:
 	opacity = interf.weibull.get_threshold([0.7])[0]
 	times = time_shuffle(start=1., end=5., every=0.2, times=4)
 	times = ms2frames(times * 1000, exp['frm']['time'])
-	db_t = create_database(exp, combine_with=('fixTime', times))
+	db_t = create_database(exp, rep=1, combine_with=('fixTime', times))
 	db_t.loc[:, 'opacity'] = opacity
 
 	exp['numTrials'] = len(db_t.index) # TODO/CHECK - why is this needed?

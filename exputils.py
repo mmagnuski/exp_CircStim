@@ -415,7 +415,7 @@ class ContrastInterface(Interface):
 			contrast = self.weibull.get_threshold(self.corr_steps)
 		else:
 			contrast = self.weibull_contrast_steps
-			corr_steps = self.weibull._fun(self.weibull.params, contrast)
+			corr_steps = self.weibull.predict(contrast)
 		txt = ['{}% - {:05.3f}'.format(str(corr * 100).split('.')[0], cntr)
 			for corr, cntr in zip(corr_steps, contrast)]
 		txt = ';\n'.join(txt)
@@ -632,7 +632,7 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	else:
 		cmb.append(combine_with[0])
 		lst = [[o, x] for o in exp['orientation'] for x in combine_with[1]]
-		num_rep = rep if not rep == None else np.ceil(trials / float(len(lst)))
+		num_rep = rep if not rep is None else np.ceil(trials / float(len(lst)))
 		lst = np.array(lst * num_rep)
 
 	# turn to array and shuffle rows
