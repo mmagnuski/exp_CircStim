@@ -194,7 +194,7 @@ def time_shuffle(start=1.5, end=5.0, every=0.05, times=6, shuffle=True):
 			times=2, shuffle=False)
 	[ 1.5  2.   2.5  3.   1.5  2.   2.5  3. ]
 	'''
-		times = np.tile(np.arange(start, end + 0.000001, every), times)
-		if shuffle:
-			np.random.shuffle(times)
-		return times
+	times = np.tile(np.arange(start, end + 0.000001, every), times)
+	if shuffle:
+		np.random.shuffle(times)
+	return times

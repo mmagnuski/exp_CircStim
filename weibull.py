@@ -123,7 +123,7 @@ class Weibull:
 		yrnd = np.random.uniform(-0.065, 0.065, l)
 
 		if line_color is None:
-			line_color = 'k'
+			line_color = 'seaborn_red'
 
 		# plot setup
 		if ax is None:
@@ -262,7 +262,7 @@ def outside_bounds(val, bounds):
 
 def weibull(x, params, corr_at_thresh=0.75, chance_level=0.5):
 		# unpack params
-		if len(params) > 2:
+		if len(params) == 3:
 			b, t, lapse = params
 		else:
 			b, t = params
