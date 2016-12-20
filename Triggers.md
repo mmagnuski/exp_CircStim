@@ -11,7 +11,8 @@ target (`4`-`7`):
   - 45  deg - `5`
   - 90  deg - `6`
   - 135 deg - `7`
-target contrast is not represented in marker (but maybe should...). 
+  
+target contrast is not represented in marker (but maybe should...).  
 there is no marker for behavioral response, reaction times are saved so marker would be redundant.  
 
 blocks
