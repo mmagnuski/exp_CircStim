@@ -169,7 +169,7 @@ if exp['run fitting']:
     show_resp_rules(exp=exp)
     stim['window'].flip()
 
-    current_trial = 0
+    current_trial = 1
     continue_fitting = True
     kwargs = dict(gamma=0.01, nTrials=60, minVal=0., maxVal=2.)
     staircases = [QuestHandler(0.7, 0.1, pThreshold=p, **kwargs)
@@ -195,13 +195,13 @@ if exp['run fitting']:
         # setup stimulus and present trial
         exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(trial, db=fitting_db, exp=exp)
+        present_trial(current_trial, db=fitting_db, exp=exp)
         stim['window'].flip()
-        current_trial += 1
 
         # get response and inform QUEST about it
-        response = fitting_db.loc[current_trial, 'resp']
+        response = fitting_db.loc[current_trial, 'ifcorrect']
         current_staircase.addResponse(response)
+        current_trial += 1
 
     # can now access 1 of 3 suggested threshold levels
     # staircase.mean()

@@ -90,8 +90,8 @@ exp['port'] = portdict
 sub_data = getSubject()
 exp['participant']  = dict()
 exp['participant']['ID'] = sub_data[0]
-exp['participant']['age'] = sub_data[1]
-exp['participant']['sex'] = sub_data[2][0]
+exp['participant']['sex'] = sub_data[1][0]
+# exp['participant']['age'] = sub_data[1]
 
 # get path
 pth   = os.path.dirname(os.path.abspath(__file__))
