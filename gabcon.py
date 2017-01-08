@@ -141,8 +141,8 @@ if exp['run training']:
     df_train.to_excel(dm.give_path('a'))
 
 
-# Contrast fitting - QUEST staircase
-# ----------------------------------
+# Contrast fitting - staircase
+# ----------------------------
 if exp['run fitting']:
     # some instructions
     if exp['run instruct']:
@@ -170,10 +170,35 @@ if exp['run fitting']:
     stim['window'].flip()
 
     current_trial = 1
+    staircase = StairHandler(0.8, nTrials=25, nUp=1, nDown=2, nReversals=6,
+                             stepSizes=[0.1, 0.1, 0.05, 0.05, 0.025, 0.025],
+                             minVal=0.001, maxVal=2, stepType='lin')
+    for contrast in staircase:
+        # setup stimulus and present trial
+        exp['opacity'] = [contrast, contrast]
+        core.wait(0.5) # fixed pre-fix interval
+        present_trial(current_trial, db=fitting_db, exp=exp)
+        stim['window'].flip()
+
+        # get response and inform QUEST about it
+        response = fitting_db.loc[current_trial, 'trial_type'] = 'staircase'
+        current_trial += 1
+
+        if current_trial % exp['break after'] == 0:
+            save_db = trim_df(fitting_db)
+            save_db.to_excel(dm.give_path('b'))
+
+            # remind about the button press mappings
+            show_resp_rules(exp=exp)
+            stim['window'].flip()
+
+    # QUEST
+    # -----
     continue_fitting = True
-    kwargs = dict(gamma=0.01, nTrials=60, minVal=0., maxVal=2.)
-    staircases = [QuestHandler(0.7, 0.1, pThreshold=p, **kwargs)
-                  for p in [0.55, 0.95]]
+    kwargs = dict(gamma=0.01, nTrials=20, minVal=0.001, maxVal=2.,
+                  staircase=staircase)
+    staircases = [QuestHandler(staircase._nextIntensity, 0.5,
+                               pThreshold=p, **kwargs) for p in [0.55, 0.95]]
     active_staircases = [0, 1]
 
     # TODOs:
@@ -199,9 +224,19 @@ if exp['run fitting']:
         stim['window'].flip()
 
         # get response and inform QUEST about it
+        fitting_db.loc[current_trial, 'trial_type'] = 'QUEST'
         response = fitting_db.loc[current_trial, 'ifcorrect']
         current_staircase.addResponse(response)
         current_trial += 1
+
+        if current_trial % exp['break after'] == 0:
+            save_db = trim_df(fitting_db)
+            save_db.to_excel(dm.give_path('b'))
+
+            # remind about the button press mappings
+            show_resp_rules(exp=exp)
+            stim['window'].flip()
+
 
     # can now access 1 of 3 suggested threshold levels
     # staircase.mean()
