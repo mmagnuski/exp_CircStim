@@ -29,8 +29,11 @@ shaders.fragFBOtoFrame = fragFBOtoFramePatched
 # other imports
 # -------------
 from psychopy  import visual, core, event, logging
+from psychopy.data import QuestHandler
 
 import os
+from random import sample
+
 import numpy  as np
 import pandas as pd
 
@@ -138,8 +141,8 @@ if exp['run training']:
 	df_train.to_excel(dm.give_path('a'))
 
 
-# Contrast fitting - stepwise
-# ---------------------------
+# Contrast fitting - QUEST staircase
+# ----------------------------------
 if exp['run fitting']:
 	# some instructions
 	if exp['run instruct']:
@@ -153,165 +156,59 @@ if exp['run fitting']:
 		clear_port(exp['port'])
 
 	# init stepwise contrast adjustment
-	num_fail = 0
 	step = exp['step until']
 	exp['opacity'] = [1., 1.]
-	s = Stepwise(corr_ratio=[1,1], vmax=3.)
 	fitting_db = give_training_db(db, slowdown=1)
 
 	# update experimenters view:
 	block_name = 'schodkowe dopasowywanie kontrastu'
 	exp_info.blok_info(block_name, [0, step[0]])
 
-	while s.trial <= step[0] and len(s.reversals) < 3:
-		stim['window'].flip()
-		core.wait(0.5)
-		present_trial(s.trial, db=fitting_db, exp=exp)
-		exp_info.blok_info(block_name, [s.trial, step[0]])
-		stim['window'].flip()
 
-		s.add(fitting_db.loc[s.trial, 'ifcorrect'])
-		c = s.next()
-		exp['opacity'] = [c, c]
-		# FIX/CHECK - break every 10 trials here?
-		if (s.trial % 10) == 0:
-			show_resp_rules(exp=exp)
+	# remind about the button press mappings
+	show_resp_rules(exp=exp)
+	stim['window'].flip()
 
+    current_trial = 0
+    continue_fitting = True
+    kwargs = dict(gamma=0.01, nTrials=60, minVal=0., maxVal=2.)
+    staircases = [QuestHandler(0.7, 0.1, pThreshold=p, **kwargs)
+                  for p in [0.55, 0.95]]
+    active_staircases = [0, 1]
 
-	# more detailed stepping now
-	last_trial = s.trial - 1
-	start_param = np.mean(s.reversals) if \
-		len(s.reversals) > 1 else s.param
-	s = Stepwise(corr_ratio=[2,1], start=s.param, vmin=0.025, vmax=3.,
-		step=[0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.025, 0.025, 0.025])
+    # TODOs:
+    # - [ ] add break screen (response mappings)
+    # - [x] check StopIteration for both staircases and adapt
+    # - [x] stop fitting once both staircases finish
+    while continue_fitting:
+        # choose staircase
+        chosen_ind = sample(active_staircases, 1)[0]
+        current_staircase = staircases[chosen_ind]
+        try:
+            contrast = current_staircase.next()
+        except StopIteration:  # we got a StopIteration error
+            active_staircases.pop(chosen_ind)
+            continue_fitting = len(active_staircases) > 0
+            continue
 
-	trial = s.trial + last_trial
-	while trial <= step[1]:
-		trial = s.trial + last_trial
-		stim['window'].flip()
+        # setup stimulus and present trial
+		exp['opacity'] = [contrast, contrast]
 		core.wait(0.5) # fixed pre-fix interval
 		present_trial(trial, db=fitting_db, exp=exp)
 		stim['window'].flip()
+		current_trial += 1
 
-		# update experimenter
-		exp_info.blok_info(block_name, [trial, step[1]])
+        # get response and inform QUEST about it
+        response = fitting_db.loc[current_trial, 'resp']
+        current_staircase.addResponse(response)
 
-		# get contrast from Stepwise
-		s.add(fitting_db.loc[trial, 'ifcorrect'])
-		c = s.next()
-		exp['opacity'] = [c, c]
-		if (trial % 10) == 0:
-			show_resp_rules(exp=exp)
+    # can now access 1 of 3 suggested threshold levels
+    # staircase.mean()
 
-	mean_thresh = np.mean(s.reversals) if s.reversals else c
-	# save fitting dataframe
-	fitting_db.to_excel(dm.give_path('b'))
+    # save fitting database
+	save_df = trim_df(fitting_db)
+	save_df.to_excel(dm.give_path('b'))
 
-
-	# Contrast fitting - weibull
-	# --------------------------
-	trial += 1
-
-	# add param columns to fitting db
-	for ii in [1, 2, 3]:
-		fitting_db['w' + str(ii)] = np.nan
-
-	check_contrast = np.arange(mean_thresh - 0.05,
-		mean_thresh + 0.1, 0.05)
-	# CHECK/CHANGE make sure to trim and 'granularize' check_contrast
-	check_contrast = np.array( [trim(x, exp['min opac'],
-		1.) for x in check_contrast] )
-	num_contrast_steps = 4
-
-	continue_fitting = True
-	n_trials_from_gui = False
-	fit_params = [1., 1., 0.]
-	while continue_fitting:
-
-		# remind about the button press mappings
-		show_resp_rules(exp=exp)
-		stim['window'].flip()
-
-		# shuffle trials and present them all
-		np.random.shuffle(check_contrast)
-		for c in check_contrast:
-			exp['opacity'] = [c, c]
-			core.wait(0.5) # fixed pre-fix interval
-			present_trial(trial, db=fitting_db, exp=exp)
-			stim['window'].flip()
-			trial += 1
-
-		# fit weibull
-		if not n_trials_from_gui:
-			look_back = min(trial - 1, 75)
-		else:
-			look_back += len(check_contrast)
-		ind = np.r_[trial-look_back:trial]
-		w = fitw(fitting_db, ind, init_params=fit_params)
-		fit_params = w.params
-
-		# save weibull params in fitting_db and save to disk:
-		fitting_db.loc[trial - 1, 'w1'] = fit_params[0]
-		fitting_db.loc[trial - 1, 'w2'] = fit_params[1]
-		fitting_db.loc[trial - 1, 'w3'] = fit_params[2] \
-			if len(fit_params) == 3 else np.nan
-		save_df = trim_df(fitting_db)
-		save_df.to_excel(dm.give_path('b'))
-
-		# contrast corrections, choosing new contrast samples
-		check_contrast, _ = get_new_contrast(
-			w, corr_lims=exp['fitCorrLims'],
-			method='{}steps'.format(num_contrast_steps))
-		# FIX/CHECK maybe better log instead of printing it out...
-
-		# Interface
-		# ---------
-		# show weibull fit
-		if not 'window2' in stim:
-			stim['window'].blendMode = 'avg'
-		stim = plot_Feedback(stim, w, exp['data'])
-		interf = ContrastInterface(stim=stim, exp=exp, df=fitting_db,
-								   weibull=w, timeout=6)
-		continue_fitting = interf.loop()
-
-		if not interf.timeout_stopped:
-			# experimenter did not react, nothing to do
-			continue_fitting = trial <= exp['fit until']
-			n_trials_from_gui = False
-		else:
-			# check ContrastInterface output
-			# 1. take contrast values if set (manual or weibull)
-			# 2. grow_sample always if interf.next_trials > len(check_constrast)
-			check_contrast = None
-			if interf.params is not None:
-				has_contrast_steps = interf.contrast_method is not None
-				fit_params = interf.params
-				look_back = interf.num_trials
-				n_trials_from_gui = True
-				w = interf.weibull
-				if has_contrast_steps:
-					check_contrast = interf.weibull_contrast_steps
-
-				# add params to df
-				fitting_db.loc[trial, 'w1'] = fit_params[0]
-				fitting_db.loc[trial, 'w2'] = fit_params[1]
-				fitting_db.loc[trial, 'w3'] = fit_params[2] \
-					if len(fit_params) == 3 else np.nan
-
-			if check_contrast is None and len(interf.contrast) > 0:
-				check_contrast = interf.contrast
-
-			if check_contrast is None:
-				check_contrast, _ = get_new_contrast(
-					w, corr_lims=exp['fitCorrLims'],
-					method='{}steps'.format(num_contrast_steps))
-
-			if interf.next_trials > len(check_contrast):
-				check_contrast = grow_sample(check_contrast, interf.next_trials)
-
-		if not 'window2' in stim:
-			stim['window'].blendMode = 'add'
-		print 'interface contrast: ', interf.contrast
 
 	# save fitting dataframe
 	fitting_db = trim_df(fitting_db)
