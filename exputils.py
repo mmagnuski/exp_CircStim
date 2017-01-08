@@ -722,8 +722,7 @@ def getSubject():
     myDlg = gui.Dlg(title="Pseudonim", size = (800,600))
     myDlg.addText('Informacje o osobie badanej')
     myDlg.addField('numer:')
-    myDlg.addField('wiek:', 30)
-    myDlg.addField(u'płeć:', choices=[u'kobieta', u'mężczyzna'])
+    myDlg.addField(u'plec:', choices=[u'kobieta', u'mezczyzna'])
     myDlg.show()  # show dialog and wait for OK or Cancel
 
     if myDlg.OK:  # the user pressed OK
@@ -740,7 +739,6 @@ class DataManager(object):
 		self.keymap = exp['keymap']
 		self.choose_resp = exp['choose_resp']
 		self.ID = exp['participant']['ID']
-		self.age = exp['participant']['age']
 		self.sex = exp['participant']['sex']
 		self.val = dict()
 		self.path = dict()
@@ -759,7 +757,6 @@ class DataManager(object):
 		with open(self.path['ID'], 'r') as f:
 			data = yaml.load(f)
 		self.keymap = data['key-mapping']
-		self.age = data['age']
 		self.sex = data['sex']
 
 	def give_path(self, path_type, file_ending='xls'):
@@ -788,8 +785,7 @@ class DataManager(object):
 				path_type, prev_val) + file_ending)
 
 	def write(self):
-		save_data = {'ID': self.ID, 'age': self.age,
-			'sex':self.sex, 'key-mapping': self.keymap}
+		save_data = {'ID': self.ID, 'sex':self.sex, 'key-mapping': self.keymap}
 		with open(self.path['ID'], 'w') as f:
 			f.write(yaml.dump(save_data))
 
@@ -797,7 +793,6 @@ class DataManager(object):
 		exp['choose_resp'] = self.choose_resp
 		exp['keymap'] = self.keymap
 		exp['participant']['sex'] = self.sex
-		exp['participant']['age'] = self.age
 		return exp
 
 
