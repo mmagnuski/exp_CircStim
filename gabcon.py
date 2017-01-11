@@ -29,7 +29,7 @@ shaders.fragFBOtoFrame = fragFBOtoFramePatched
 # other imports
 # -------------
 from psychopy  import visual, core, event, logging
-from psychopy.data import QuestHandler
+from psychopy.data import QuestHandler, StairHandler
 
 import os
 from random import sample
@@ -180,8 +180,10 @@ if exp['run fitting']:
         present_trial(current_trial, db=fitting_db, exp=exp)
         stim['window'].flip()
 
-        # get response and inform QUEST about it
-        response = fitting_db.loc[current_trial, 'trial_type'] = 'staircase'
+        # set trial type, get response and inform staircase about it
+        fitting_db.loc[current_trial, 'trial_type'] = 'staircase'
+        response = fitting_db.loc[current_trial, 'ifcorrect']
+        staircase.addResponse(response)
         current_trial += 1
 
         if current_trial % exp['break after'] == 0:
@@ -213,7 +215,8 @@ if exp['run fitting']:
         try:
             contrast = current_staircase.next()
         except StopIteration:  # we got a StopIteration error
-            active_staircases.pop(chosen_ind)
+            index_in_active = active_staircases.index(chosen_ind)
+            active_staircases.pop(index_in_active)
             continue_fitting = len(active_staircases) > 0
             continue
 
