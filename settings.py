@@ -29,8 +29,8 @@ exp['clock']        = core.Clock()
 # contrast settings
 exp['corrLims']    = [0.55, 0.95]
 exp['opacity']     = [0.05, 0.8]
-exp['min opac']    = 0.01
-exp['max opac']    = 3.0
+exp['min opac']    = 0.005
+exp['max opac']    = 2.0
 exp['opac steps']  = 10
 
 # training settings

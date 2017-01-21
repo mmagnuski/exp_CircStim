@@ -197,8 +197,8 @@ if exp['run fitting']:
     # QUEST
     # -----
     continue_fitting = True
-    kwargs = dict(gamma=0.01, nTrials=20, minVal=0.001, maxVal=2.,
-                  staircase=staircase)
+    kwargs = dict(gamma=0.01, nTrials=20, minVal=exp['min opac'],
+                  maxVal=exp['max opac'], staircase=staircase)
     staircases = [QuestHandler(staircase._nextIntensity, 0.5,
                                pThreshold=p, **kwargs) for p in [0.55, 0.95]]
     active_staircases = [0, 1]
