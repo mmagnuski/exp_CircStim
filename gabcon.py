@@ -34,6 +34,7 @@ from psychopy  import visual, core, event, logging
 from psychopy.data import QuestHandler, StairHandler
 
 import os
+import pickle
 from random import sample
 
 import numpy  as np
@@ -205,10 +206,10 @@ if exp['run fitting']:
     active_staircases = [0, 1]
 
     # TODOs:
-    # - [ ] add break screen (response mappings)
+    # - [x] add break screen (response mappings)
     # - [x] check StopIteration for both staircases and adapt
     # - [x] stop fitting once both staircases finish
-    # - [ ] add saveAsPickle to investigate fitted objs
+    # - [x] add saveAsPickle to investigate fitted objs
     while continue_fitting:
         # choose staircase
         chosen_ind = sample(active_staircases, 1)[0]
@@ -242,12 +243,17 @@ if exp['run fitting']:
             stim['window'].flip()
 
 
-    # can now access 1 of 3 suggested threshold levels
-    # staircase.mean()
+    # access 1 of 3 suggested threshold levels
+    # strcs.mean(), strcs.mode() or strcs.quantile(0.5)  # gets the median
 
     # save fitting dataframe
     fitting_db = trim_df(fitting_db)
     fitting_db.to_excel(dm.give_path('b'))
+
+    # save staircases
+    for i in range(2):
+        staircase_path = dm.give_path('staircase{}'.format(i))
+        staircases[i].saveAsPickle(staircase_path)
 
 
 # EXPERIMENT - part c
@@ -262,9 +268,15 @@ if exp['run main c']:
         prev_pth = dm.give_previous_path('b')
         logging.warn('fitting_db not found, loading {}...'.format(prev_pth))
         fitting_db = pd.read_excel(prev_pth)
-        print(fitting_db.head(10))
-        # fitting_db = pd.read_excel(
-        #     os.path.join('data', 'testing_miko_01_b_1.xls'))
+
+    # read staircases if not present:
+    if 'staircases' not in locals():
+        stairceses = list()
+        for i in range(2):
+            staircase_path = dm.give_previous_path('staircase{}'.format(i))
+            with open(staircase_path, f):
+                staircases.append(pickle.load(f))
+    staircase_mean = [staircase.mean() for staircase in staircases]
 
     # setup stuff for GUI:
     if not 'window2' in stim:
@@ -286,16 +298,9 @@ if exp['run main c']:
     if not 'window2' in stim:
         stim['window'].blendMode = 'add'
 
-    # check the fit and weibull params
-    print('final weibull: ', interf.weibull)
-    print('final params: ', interf.params)
-    print('final num_trials: ', interf.num_trials)
-
     # num_trials = fitting_db.shape[0]
-    # w = fitw(fitting_db, range(num_trials-100, num_trials))
-    contrast_range = interf.weibull.get_threshold(exp['corrLims'])
-    contrast_steps = np.linspace(contrast_range[0],
-        contrast_range[1], exp['opac steps'])
+    contrast_steps = np.linspace(staircase_mean[0],
+        staircase_mean[1], num=exp['opac steps'])
 
     logging.warn('contrast range: ', staircase_mean)
     logging.warn('contrast steps: ', contrast_steps)
