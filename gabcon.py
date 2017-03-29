@@ -67,7 +67,6 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # if c part done -> use data
 # check via dm.give_previous_path('b') etc.
 
-# TODO: turn prints to logging
 # TODO: add some more logging?
 
 # create object for updating experimenter about progress
@@ -261,7 +260,7 @@ if exp['run main c']:
     # get contrast from fitting
     if 'fitting_db' not in locals():
         prev_pth = dm.give_previous_path('b')
-        print('fitting_db not found, loading {}...'.format(prev_pth))
+        logging.warn('fitting_db not found, loading {}...'.format(prev_pth))
         fitting_db = pd.read_excel(prev_pth)
         print(fitting_db.head(10))
         # fitting_db = pd.read_excel(
@@ -298,8 +297,8 @@ if exp['run main c']:
     contrast_steps = np.linspace(contrast_range[0],
         contrast_range[1], exp['opac steps'])
 
-    print('contrast range: ', contrast_range)
-    print('contrast steps: ', contrast_steps)
+    logging.warn('contrast range: ', staircase_mean)
+    logging.warn('contrast steps: ', contrast_steps)
 
     db_c = create_database(exp, combine_with=('opacity',
         contrast_steps), rep=13)
