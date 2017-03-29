@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # add description
+# Orientation discrimination task where contrast of gabors is adapted
+# according to QUEST procedure.
 
 
 # monkey-patch pyglet shaders:
@@ -317,7 +319,7 @@ if exp['run main c']:
         stim['window'].flip()
 
         # present break
-        if (i) % exp['break after'] == 0:
+        if i % exp['break after'] == 0:
             # save data before every break
             db_c.to_excel(dm.give_path('c'))
             # break and refresh keyboard mapping
@@ -326,88 +328,11 @@ if exp['run main c']:
             stim['window'].flip()
 
         # update experimenter
-        exp_info.blok_info(u'główne badanie, część I', [i, exp['numTrials']])
+        exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
+        # - [ ] add some figure with correctness for different contrast steps
 
     db_c.to_excel(dm.give_path('c'))
 
-
-# EXPERIMENT - part t
-# -------------------
-if exp['run main t']:
-
-    exp['break after'] == 7 # because trials are longer now
-
-    # get contrast from contrast part
-    if 'db_c' not in locals():
-        print('contrast database not found, loading from disk...')
-        db_c = pd.read_excel(dm.give_previous_path('c'))
-        print(db_c.head(10))
-
-
-    # ---CHANGE HERE---
-
-    # FinalFitGUI - to set about 75% thresh
-    # setup
-    # setup stuff for GUI:
-    if not 'window2' in stim:
-        stim['window'].blendMode = 'avg'
-    # check with drawing target...
-
-    # make sure weibull exists
-    set_im = False
-    if 'w' not in locals():
-        num_trials = db_c.shape[0]
-        ind = np.r_[25:num_trials]
-        w = fitw(db_c, ind, init_params=[1., 1., 1.])
-    stim = plot_Feedback(stim, w, exp['data'])
-
-    interf = ContrastInterface(stim=stim, exp=exp, df=db_c, weibull=w,
-                               set_image_size=set_im, corr_steps=[0.7],
-                               contrast_method=None, num_trials=db_c.shape[0])
-    continue_fitting = interf.loop()
-
-    if not 'window2' in stim:
-        stim['window'].blendMode = 'add'
-
-    # get contrast and prepare trials dataframe
-    opacity = interf.weibull.get_threshold([0.7])[0]
-    times = time_shuffle(start=1., end=5., every=0.2, times=4)
-    times = ms2frames(times * 1000, exp['frm']['time'])
-    db_t = create_database(exp, rep=1, combine_with=('fixTime', times))
-    db_t.loc[:, 'opacity'] = opacity
-
-    exp['numTrials'] = len(db_t.index) # TODO/CHECK - why is this needed?
-
-    if exp['run instruct']:
-        instr.present()
-
-    # signal onset of 'time' part
-    if exp['use trigger']:
-        core.wait(0.05)
-        onflip_work(exp['port'], 'time')
-        core.wait(0.1)
-        clear_port(exp['port'])
-
-    # main loop
-    for i in range(1, db_t.shape[0] + 1):
-        core.wait(0.5) # pre-fixation time is always the same
-        present_trial(i, exp=exp, db=db_t, use_exp=False)
-        stim['window'].flip()
-
-        # present break
-        if (i) % exp['break after'] == 0:
-            # save data before every break
-            db_t.to_excel(dm.give_path('t'))
-            # break and refresh keyboard mapping
-            present_break(i, exp=exp)
-            show_resp_rules(exp=exp)
-            stim['window'].flip()
-
-        # update experimenter
-        exp_info.blok_info(u'główne badanie, część II', [i, exp['numTrials']])
-
-    # save data before quit
-    db_t.to_excel(dm.give_path('t'))
-
 # goodbye!
+# - [ ] some thanks etc. here!
 core.quit()

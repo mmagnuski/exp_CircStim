@@ -785,7 +785,8 @@ class DataManager(object):
 				path_type, prev_val) + file_ending)
 
 	def write(self):
-		save_data = {'ID': self.ID, 'sex':self.sex, 'key-mapping': self.keymap}
+		save_data = {'ID': self.ID, 'sex': self.sex,
+					 'key-mapping': self.keymap}
 		with open(self.path['ID'], 'w') as f:
 			f.write(yaml.dump(save_data))
 
