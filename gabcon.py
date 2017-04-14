@@ -21,7 +21,11 @@ fragFBOtoFramePatched = '''
     '''
 
 from psychopy import __version__ as psychopy_version
-if psychopy_version.startswith('1.84'):
+from setuptools.version import pkg_resources
+
+psychopy_version = pkg_resources.parse_version(psychopy_version)
+
+if psychopy_version >= pkg_resources.parse_version('1.84'):
     from psychopy.visual import shaders
 else:
     from psychopy import _shadersPyglet as shaders
