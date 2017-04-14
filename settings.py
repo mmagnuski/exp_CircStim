@@ -88,6 +88,8 @@ exp['port'] = portdict
 # subject info
 # ------------
 sub_data = getSubject()
+if sub_data is None:
+    core.quit()
 exp['participant']  = dict()
 exp['participant']['ID'] = sub_data[0]
 exp['participant']['sex'] = sub_data[1][0]
