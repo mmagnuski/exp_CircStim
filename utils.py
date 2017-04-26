@@ -1,6 +1,7 @@
 import os
 import re
 import random
+from itertools import product
 
 import numpy as np
 import pandas as pd
@@ -84,6 +85,16 @@ def fillz(val, num, addpos='front'):
             return val + addz
     else:
         return val
+
+
+def reformat_params(params):
+    if isinstance(params, list):
+        n_params = len(params)
+        params = np.array(list(product(*params)))
+    elif isinstance(params, np.ndarray):
+        assert params.ndim == 1
+        params = params[:, np.newaxis]
+    return params
 
 
 def continue_dataframe(pth, fl):
