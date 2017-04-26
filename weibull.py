@@ -19,7 +19,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize
 
-from utils import trim, trim_df, round2step, group, check_color
+from utils import trim, trim_df, round2step, group, check_color, reformat_params
 
 
 class Weibull:
@@ -300,6 +300,73 @@ def fit_weibull(db, i):
 	w.fit([1.0, 1.0])
 	w = Weibull(opacit[notnan], ifcorr[notnan])
 	return w
+
+
+
+class QuestPlus(object):
+
+    def __init__(self, stim, params, function=weibull):
+        self.function = function
+        self.stim_domain = stim
+        self.param_domain = reformat_params(params)
+
+        n_stim, n_param = self.stim_domain.shape[0], self.param_domain.shape[0]
+
+        # setup likelihoods for all combinations
+        # of stimulus and model parameter domains
+        likelihoods = np.zeros((c.shape[0], params.shape[0], 2))
+        for p in range(params.shape[0]):
+            self.likelihoods[:, p, 0] = self.function(self.stim_domain,
+                                                      self.param_domain[p, :])
+
+        # assumes (correct, incorrect) responses
+        self.likelihoods[:, :, 1] = 1. - self.likelihoods[:, :, 0]
+
+        # we also assume a flat prior (so we init posterior to flat too)
+        self.posterior = np.ones(n_param)
+        self.posterior /= self.posterior.sum()
+
+        self.stim_history = list()
+        self.resp_history = list()
+		self.entropy = np.ones(n_stim)
+
+        return self
+
+    def update(self, contrast, ifcorrect):
+        '''update posterior probability with outcome of current trial.
+
+        contrast - contrast value for the given trial
+        ifcorrect   - whether response was correct or not
+                      1 - correct, 0 - incorrect
+        '''
+
+        # turn ifcorrect to response index
+        resp_idx = 1 - ifcorrect
+        contrast_idx = np.where(self.stim_domain == contrast)[0][0]
+
+        # take likelihood of such resp for whole model parameter domain
+        likelihood = self.likelihoods[contrast_idx, :, resp_idx]
+        self.posterior *= likelihood
+        self.posterior /= self.posterior.sum()
+
+        # log history of contrasts and responses
+        self.stim_history.append(contrast)
+        self.resp_history.append(ifcorrect)
+
+    def next_contrast(self):
+        '''get contrast value that minimizes posterior entropy'''
+        #
+        # compute next trial contrast
+        full_posterior = self.likelihoods * self.posterior[
+            np.newaxis, :, np.newaxis]
+        norm = full_posterior.sum(axis=1, keepdims=True)
+        full_posterior /= norm
+
+        H = -np.nansum(full_posterior * np.log(full_posterior), axis=1)
+        self.entropy = (norm[:, 0, :] * H).sum(axis=1)
+
+        # choose contrast by min arg
+        return self.stim_domain[self.entropy.argmin()]
 
 
 # TODO:
