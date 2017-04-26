@@ -271,7 +271,7 @@ def get_new_contrast(model, vmin=0.01, corr_lims=[0.55, 0.95],
 		else:
 			break
 	steps = int(steps) if steps else 5
-		
+
 
 	# correct high corr limit if it goes beyond 1 - lapse_rate
 	if model is not None:
