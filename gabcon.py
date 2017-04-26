@@ -257,6 +257,7 @@ if exp['run fitting']:
     # save staircases
     for i in range(2):
         staircase_path = dm.give_path('staircase{}'.format(i))
+        staircase_path = staircase_path.replace('.xls', '')
         staircases[i].saveAsPickle(staircase_path)
 
 
@@ -329,7 +330,8 @@ if exp['run main c']:
         # present break
         if i % exp['break after'] == 0:
             # save data before every break
-            db_c.to_excel(dm.give_path('c'))
+            temp_db = trim_df(db_c.copy())
+            temp_db.to_excel(dm.give_path('c'))
             # break and refresh keyboard mapping
             present_break(i, exp=exp)
             show_resp_rules(exp=exp)
