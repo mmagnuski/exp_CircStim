@@ -179,6 +179,11 @@ class QuestPlus(object):
         self.stim_domain = stim
         self.param_domain = reformat_params(params)
 
+		self._param_orig_shape = (list(map(len, params)) if
+								  isinstance(params, list) else len(params))
+		self._stim_orig_shape = (list(map(len, params)) if
+								 isinstance(params, list) else len(params))
+
         n_stim, n_param = self.stim_domain.shape[0], self.param_domain.shape[0]
 
         # setup likelihoods for all combinations
