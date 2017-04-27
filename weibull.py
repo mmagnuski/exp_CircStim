@@ -3,12 +3,7 @@
 # TODOs:
 # Weibull class:
 # [ ] - refactor for ease of use
-#       -> do not have to pass additional args
-#          if they are in the model
-#       -> but allow to pass these args if needed
 #       -> think about mirroring sklearn API
-# [ ] - predict (now performed by _fun but could change names)
-# [ ] - ! think about adding params to predictors for both slope and position
 
 
 import os
@@ -38,7 +33,7 @@ class Weibull:
 
 	def __init__(self, x, y, method='Nelder-Mead', kind='weibull', bounds=None):
 		self.x = x
-		self.orig_y = y
+		self.orig_y = y.copy()
 		# y is 0 or 1 - this is problematic for log
 		# so we drag the values a little
 		self.y = self.drag(y)
@@ -226,133 +221,6 @@ class QuestPlus(object):
 
         # choose contrast by min arg
         return self.stim_domain[self.entropy.argmin()]
-
-
-# TODO:
-# - check if model is necessary, if not - simplify
-# - maybe add 'random' to steps method this would shift the contrast points
-#   randomly from -0.5 to 0.5 of respective bin width (asymmteric in logsteps)
-def get_new_contrast(model, vmin=0.01, corr_lims=[0.55, 0.95],
-					 contrast_lims=None, method='4steps', discrete_steps=False):
-	'''
-	method : string
-		* '5steps', '6steps', '12steps' - divides the contrast
-		  range to equally spaced steps. The number of the
-		  steps is defined at the beginning of the string.
-		* '6logsteps' - six logaritmic steps
-		* '4midlogsteps' - four log steps from the middle point
-		  of the contrast range in each direction (left and
-		  right)
-
-	* if contrast_lims are not set and model.params[0] <= 0 then contrast is chosen
-	from range [vmin, vmin + 0.2]
-	* if model has lapse rate and corr_lims[1] > (1 - lapse_rate) then corr_lims[1]
-	is set to (1 - lapse_rate) - 0.01
-	'''
-
-	assert 'steps' in method
-
-	# get method details from string
-	log = 'log' in method
-	steps = ''
-	for c in method:
-		if c.isdigit():
-			steps += c
-		else:
-			break
-	steps = int(steps) if steps else 5
-
-
-	# correct high corr limit if it goes beyond 1 - lapse_rate
-	if model is not None:
-		if len(model.params) == 3:
-			max_corr = 1 - model.params[2]
-			if corr_lims is not None and corr_lims[1] > max_corr:
-				corr_lims = list(corr_lims)
-				corr_lims[1] = max_corr - 0.01
-
-	# take contrast for specified correctness levels
-	if contrast_lims is None:
-		if model.params[0] <= 0: # should be some small positive value
-			contrast_lims = [vmin, vmin + 0.2]
-		else:
-			contrast_lims = model.get_threshold(corr_lims)
-
-	# get N values from the contrast range
-	if log:
-		if 'mid' in method:
-			# add midpoint
-			pnts = [contrast_lims[0], np.mean(contrast_lims),
-				contrast_lims[1]]
-			pw = np.log10(pnts)
-			lft = np.logspace(pw[1], pw[0], num=steps+1)
-			rgt = np.logspace(pw[1], pw[2], num=steps+1)
-			check_contrast = np.hstack([lft[len(lft)::-1], rgt[1:]])
-		else:
-			pw = np.log10(contrast_lims)
-			check_contrast = np.logspace(*pw, num=steps)
-	else:
-		check_contrast = np.linspace(*contrast_lims, num=steps)
-
-	# trim all points
-	check_contrast = np.array([trim(c, vmin, 1.)
-		for c in check_contrast])
-
-	# try different contrast steps for best granularity
-	if discrete_steps is not False:
-		steps = discrete_steps if isinstance(discrete_steps, list) else [discrete_steps]
-		base_unique = len(check_contrast) == len(np.unique(check_contrast))
-		if not base_unique:
-			orig_check_contrast = check_contrast
-			check_contrast, inverse = np.unique(check_contrast, return_inverse=True)
-		for s in steps:
-			this_contrast = round2step(check_contrast, step=s)
-			this_contrast = np.array([trim(x, vmin, 1.)
-				for x in this_contrast])
-			new_nonrep = len(this_contrast) == len(np.unique(this_contrast))
-			if new_nonrep:
-				break
-		if not base_unique:
-			this_contrast = this_contrast[inverse]
-	else:
-		this_contrast = check_contrast
-
-	return this_contrast, contrast_lims
-
-
-def cut_df_corr(df, num_bins=7):
-	# trim the dataframe
-	df = trim_df(df)
-
-	# make sure the type is int
-	df.ifcorrect = df.ifcorrect.astype('int')
-
-	# find bin with corr below:
-	bins = pd.cut(df.opacity, num_bins)
-	binval = df.groupby(bins)['ifcorrect'].mean()
-
-	# get bin low and high:
-	lowfun = lambda x: float(x.split(',')[0][1:])
-	highfun = lambda x: float(x.split(',')[1][1:-1])
-	low = list(map(lowfun, binval.index))
-	high = list(map(highfun, binval.index))
-	return binval, np.vstack([low, high]).T
-
-
-def get_new_range(binval, bins, high_corr=0.8, low_corr=0.6):
-	rng = np.where(binval > high_corr)[0]
-	if np.any(rng):
-		highval = bins[rng[0], 0]
-	else:
-		highval = bins[-1, 0]
-	where_low = np.where(binval < low_corr)[0]
-	if np.any(where_low):
-		low = where_low[-1]
-		lowval = bins[low, 0]
-	else:
-		go_below = bins[0, 1] - bins[0, 0]
-		lowval = max(bins[0, 0] - go_below * 2, 0.03)
-	return [lowval, highval]
 
 
 # for interactive plotting:

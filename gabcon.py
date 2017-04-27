@@ -47,9 +47,8 @@ import pandas as pd
 from exputils  import (plot_Feedback, create_database,
     ContrastInterface, DataManager, ExperimenterInfo,
     AnyQuestionsGUI, ms2frames, getFrameRate)
-from weibull   import fitw, get_new_contrast, correct_weibull
-from utils     import (to_percent, round2step, trim_df, grow_sample,
-                       time_shuffle)
+from weibull   import fitw
+from utils     import to_percent, trim_df
 from stimutils import (exp, db, stim, present_trial,
     present_break, show_resp_rules, textscreen,
     present_feedback, present_training, trim,
@@ -68,10 +67,6 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
 
 # TODO: add eeg baseline (resting-state)!
-# if fitting completed -> use data
-# if c part done -> use data
-# check via dm.give_previous_path('b') etc.
-
 # TODO: add some more logging?
 
 # create object for updating experimenter about progress
@@ -209,11 +204,6 @@ if exp['run fitting']:
                                pThreshold=p, **kwargs) for p in [0.55, 0.95]]
     active_staircases = [0, 1]
 
-    # TODOs:
-    # - [x] add break screen (response mappings)
-    # - [x] check StopIteration for both staircases and adapt
-    # - [x] stop fitting once both staircases finish
-    # - [x] add saveAsPickle to investigate fitted objs
     while continue_fitting:
         # choose staircase
         chosen_ind = sample(active_staircases, 1)[0]
@@ -246,9 +236,6 @@ if exp['run fitting']:
             show_resp_rules(exp=exp)
             stim['window'].flip()
 
-
-    # access 1 of 3 suggested threshold levels
-    # strcs.mean(), strcs.mode() or strcs.quantile(0.5)  # gets the median
 
     # save fitting dataframe
     fitting_db = trim_df(fitting_db)
