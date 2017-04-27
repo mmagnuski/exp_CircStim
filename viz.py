@@ -3,6 +3,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+from utils import check_color, group
+
 def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 			 	 mean_points=False, min_bucket='adaptive',
 				 split_bucket='adaptive', line_color=None, contrast_steps=None,
@@ -23,7 +25,6 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	if ax is None:
 	    f, ax = plt.subplots()
 	ax.set_axis_bgcolor((0.92, 0.92, 0.92))
-	plt.hold(True) # just in case (matlab habit)
 	plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder=-1)
 
 	line_color = check_color(line_color)

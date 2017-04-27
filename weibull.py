@@ -19,7 +19,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize
 
-from utils import trim, trim_df, round2step, group, check_color, reformat_params
+from utils import trim, trim_df, round2step, reformat_params
 from viz import plot_weibull
 
 
@@ -183,8 +183,8 @@ class QuestPlus(object):
 
         # setup likelihoods for all combinations
         # of stimulus and model parameter domains
-        likelihoods = np.zeros((c.shape[0], params.shape[0], 2))
-        for p in range(params.shape[0]):
+        self.likelihoods = np.zeros((n_stim, n_param, 2))
+        for p in range(n_param):
             self.likelihoods[:, p, 0] = self.function(self.stim_domain,
                                                       self.param_domain[p, :])
 
@@ -197,9 +197,7 @@ class QuestPlus(object):
 
         self.stim_history = list()
         self.resp_history = list()
-		self.entropy = np.ones(n_stim)
-
-        return self
+        self.entropy = np.ones(n_stim)
 
     def update(self, contrast, ifcorrect):
         '''update posterior probability with outcome of current trial.
