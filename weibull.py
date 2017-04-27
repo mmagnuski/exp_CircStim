@@ -158,19 +158,6 @@ def generalized_logistic(x, params, chance_level=0.5, C=1.):
 	return A + (K - A) / ((C + Q * np.exp(-B * x)) ** (1 / v))
 
 
-def fit_weibull(db, i):
-	take_last = min([i - 15, 60])
-	idx = np.array(np.arange(i - take_last + 1, i + 1), dtype = 'int')
-	ifcorr = db.loc[idx, 'ifcorrect'].values.astype('int')
-	opacit = db.loc[idx, 'opacity'].values.astype('float')
-
-	# fit on non-nan
-	notnan = ~(np.isnan(ifcorr))
-	w.fit([1.0, 1.0])
-	w = Weibull(opacit[notnan], ifcorr[notnan])
-	return w
-
-
 
 class QuestPlus(object):
 
@@ -363,53 +350,20 @@ def get_new_range(binval, bins, high_corr=0.8, low_corr=0.6):
 	return [lowval, highval]
 
 
-def correct_weibull(model, num_fail, df=None):
-	if not isinstance(df, pd.DataFrame):
-		return None, num_fail
-	if model.params[0] <= 0:
-		num_fail += 1
-		corr_below = max([1. - num_fail*0.1, 0.65])
-
-		binval, bins = cut_df_corr(df, num_bins=7)
-		contrast_range = get_new_range(binval, bins,
-			high_corr=corr_below)
-		return contrast_range, num_fail
-	else:
-		num_fail = 0
-		contrast_range = None
-		contrast_lims = model.get_threshold([0.55, 0.9])
-		if contrast_lims[1] > 2.:
-			# 0.9 is off the contrast limits
-			binval, bins = cut_df_corr(df, num_bins=7)
-			contrast_range = get_new_range(binval, bins)
-		if contrast_lims[1] - contrast_lims[0] > 0.85:
-			# the curve is very non-s-like, probably needs correction
-			corr75 = model.get_threshold([0.75])
-			if (contrast_lims[1] - corr75) > (corr75 - contrast_lims[0]):
-				binval, bins = cut_df_corr(df, num_bins=7)
-				contrast_range = get_new_range(binval, bins)
-
-		return contrast_range, num_fail
-
-
 # for interactive plotting:
 # -------------------------
-def fitw(df, ind, init_params=[1., 1.], method='Nelder-Mead'):
-    x = df.loc[ind, 'opacity'].values.astype('float64')
-    y = df.loc[ind, 'ifcorrect'].values.astype('int32')
-    w = Weibull(x, y, method=method)
-    w.fit(init_params)
-    return w
+# - [ ] clean these functions below - could be one function for all
+def fitw(df, ind=None, last=60, init_params=[1., 1.], method='Nelder-Mead'):
+	if ind is None and last:
+		n_rows = df.shape[0]
+		start_ind = min([1, n_rows - last + 1])
+		ind = np.arange(start_ind, n_rows + 1, dtype = 'int')
 
+	x = df.loc[ind, 'opacity'].values.astype('float64')
+	y = df.loc[ind, 'ifcorrect'].values.astype('int32')
 
-def idx_at(fit_num):
-    current_trial = 45 + (fit_num - 1) * 10
-    take_last = min([current_trial - 15, 60])
-    idx = np.array(np.arange(current_trial - take_last + 1,
-                             current_trial + 1), dtype = 'int')
-    return idx
-
-
-def wfit_at(df, fit_num):
-    idx = idx_at(fit_num)
-    return fit_weibull(df, idx[-1])
+	# fit on non-nan
+	notnan = ~(np.isnan(y))
+	w = Weibull(x, y, method=method)
+	w.fit(init_params)
+	return w
