@@ -46,7 +46,7 @@ class Weibull:
 			raise ValueError('method must be one of {}, got {} '
 							 'instead.'.format(valid_methods, method))
 		# kind
-		valid_kinds = ('weibull', 'generalized logistic')
+		valid_kinds = ('weibull', 'weibull_db', 'generalized logistic')
 		if kind in valid_kinds:
 			self.kind = kind
 		else:
@@ -57,7 +57,11 @@ class Weibull:
 		if self.kind == 'weibull':
 			self._fun = weibull
 			self.bounds = ((min_float, None), (min_float, None),
-						   (min_float, 0.5)) if bounds is None else bounds
+						   (min_float, 0.15)) if bounds is None else bounds
+		elif self.kind == 'weibull_db':
+			self._fun = weibull_db
+			self.bounds = ((-40., None), (min_float, None),
+						   (min_float, 0.15)) if bounds is None else bounds
 		elif self.kind == 'generalized logistic':
 			self._fun = generalized_logistic
 			self.bounds = ((0.5, 1.), (0., None), (min_float, None),
@@ -137,6 +141,18 @@ def weibull(x, params, corr_at_thresh=0.75, chance_level=0.5):
 		expo = ((k * x) / t) ** b
 
 		return (1 - lapse) - (1 - lapse - chance_level) * np.exp(-expo)
+
+
+def weibull_db(contrast, params, guess=0.5):
+	# unpack params
+	if len(params) == 3:
+		threshold, slope, lapse = params
+	else:
+		threshold, slope = params
+		lapse = 0.
+
+	return guess + (1 - lapse - guess) * np.exp(
+		-10. ** (-slope * (contrast - threshold) / 20.))
 
 
 def generalized_logistic(x, params, chance_level=0.5, C=1.):
