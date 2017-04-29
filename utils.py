@@ -176,9 +176,9 @@ def check_color(color):
 	if isinstance(color, str):
 		if color.startswith('seaborn_'):
 			col_dict = dict()
-			col_dict['red'] = (0.3333333333333333, 0.6588235294117647,
+			col_dict['green'] = (0.3333333333333333, 0.6588235294117647,
 							   0.40784313725490196)
-			col_dict['green'] = (0.7686274509803922, 0.3058823529411765,
+			col_dict['red'] = (0.7686274509803922, 0.3058823529411765,
 								 0.3215686274509804)
 			for k in col_dict.keys():
 				if color.endswith(k):

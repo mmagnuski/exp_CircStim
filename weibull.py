@@ -85,7 +85,7 @@ class Weibull:
 
 	def loglik(self, params):
 		y_pred = self.fun(params)
-		return np.sum(np.log(y_pred) * self.orig_y +
+		return np.nansum(np.log(y_pred) * self.orig_y +
 					  np.log(1 - y_pred) * (1 - self.orig_y)) * -1.
 
 	def fit(self, initparams):
@@ -161,10 +161,10 @@ class QuestPlus(object):
         self.stim_domain = stim
         self.param_domain = reformat_params(params)
 
-		self._param_orig_shape = (list(map(len, params)) if
-								  isinstance(params, list) else len(params))
-		self._stim_orig_shape = (list(map(len, params)) if
-								 isinstance(params, list) else len(params))
+        self._param_orig_shape = (list(map(len, params)) if
+                                  isinstance(params, list) else len(params))
+        self._stim_orig_shape = (list(map(len, params)) if
+                                 isinstance(params, list) else len(params))
 
         n_stim, n_param = self.stim_domain.shape[0], self.param_domain.shape[0]
 

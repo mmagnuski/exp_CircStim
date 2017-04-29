@@ -11,7 +11,10 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 				 mean_points_color=(0.22, 0.58, 0.78)):
 	# get predicted data
 	numpnts = 1000
-	x = np.linspace(0., 2., num=numpnts)
+	vmin, vmax = weibull.x.min(), weibull.x.max()
+	data_range = vmax - vmin
+	vmin, vmax = max(0., vmin - 0.1 * data_range), vmax + 0.1 * data_range
+	x = np.linspace(vmin, vmax, num=numpnts)
 	y = weibull.predict(x)
 
 	# add noise to y data to increase visibility
@@ -19,7 +22,7 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	yrnd = np.random.uniform(-0.065, 0.065, l)
 
 	if line_color is None:
-	    line_color = 'seaborn_red'
+	    line_color = 'seaborn_green'
 
 	# plot setup
 	if ax is None:
@@ -128,15 +131,9 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 
 	# aesthetics
 	# ----------
-	gab99 = weibull.get_threshold([0.95])[0]
-	if gab99 < 0. or gab99 > 2.:
-	    maxval = 2.
-	else:
-	    maxval = gab99 + 0.1
-	if weibull.params[0] <= 0:
-	    maxval = np.max(weibull.x) + 0.1
-	uplim = min([2.0, np.round(maxval, decimals=1)])
-	plt.xlim([0.0, uplim])
+	uplim = min(vmax, np.where(y == y.max())[0][0])
+	lowlim = vmin
+	plt.xlim([lowlim, uplim])
 	plt.ylim([-0.1, 1.1])
 	plt.xlabel('stimulus intensity')
 	plt.ylabel('correctness')
