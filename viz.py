@@ -145,3 +145,68 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	    plt.savefig(tempfname, dpi=120)
 	    plt.close()
 	    return tempfname
+
+
+def plot_quest_plus(qp):
+	import matplotlib.gridspec as gridspec
+	from .weibull import weibull_db, Weibull
+
+	# create figure and axes overlay
+	fig = plt.figure(figsize=(15, 6))
+	gs = gridspec.GridSpec(3, 3)
+	im_ax = plt.subplot(gs[:, 0])
+	prob_ax1 = plt.subplot(gs[0, 1])
+	prob_ax2 = plt.subplot(gs[1, 1])
+	prob_ax3 = plt.subplot(gs[2, 1])
+	entropy_ax = plt.subplot(gs[0, -1])
+	func_ax = plt.subplot(gs[1:, -1])
+
+	# get posterior
+	posterior = qp.posterior.copy().reshape(qp._orig_param_shape)
+
+	# plot posterior agregated along lapse dimension
+	model_threshold, model_slope, model_lapse = qp._orig_params
+	im_ax.imshow(posterior.sum(axis=-1), aspect='auto',
+				 cmap='viridis', interpolation='none',
+				 extent=[model_slope[0], model_slope[-1],
+				 		 model_threshold[-1], model_threshold[0]])
+	            #  extent=[*model_slope[[0, -1]],
+				#  		   *model_threshold[[0, -1]][::-1]])
+	im_ax.set_xlabel('slope')
+	im_ax.set_ylabel('threshold')
+
+	# aggregated parameter probabilities
+	axes = [prob_ax1, prob_ax2, prob_ax3]
+	xs = [model_threshold, model_slope, model_lapse]
+	reduce_dims = [(1, 2), (0, 2), (0, 1)]
+	titles = ['threshold', 'slope', 'lapse']
+	colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+	for i in range(3):
+		# for _ in range(i):
+		#     axes[i]._get_lines.get_next_color()
+		this_prob = posterior.sum(axis=reduce_dims[i])
+		axes[i].grid(True)
+		axes[i].plot(xs[i], this_prob, color=colors[i])
+		axes[i].fill_between(xs[i], this_prob, color=colors[i], alpha=0.5)
+		axes[i].set_title('{} probability'.format(titles[i]))
+
+	# plot expected entropy
+	entropy_ax.plot(qp.stim_domain, qp.entropy, color='k')
+	entropy_ax.set_title('expected entropy for next contrast')
+
+	# get model parameters
+	current_params = qp.param_domain[posterior.argmax(), :]
+	mean_params = (qp.posterior[:, np.newaxis] * qp.param_domain).sum(axis=0)
+
+	w = Weibull(kind='weibull_db')
+	w.fit(np.array(qp.stim_history), np.array(qp.resp_history), current_params)
+	w.plot(ax=func_ax)
+	func_ax.findobj(plt.Line2D)[0].set_label('ML fit')
+	func_ax.plot(qp.stim_domain, weibull_db(qp.stim_domain, current_params),
+	             label='Bayesian max prob fit', zorder=10)
+	func_ax.plot(qp.stim_domain, weibull_db(qp.stim_domain, mean_params),
+	             label='Bayesian mean prob fit', zorder=11)
+	func_ax.legend(loc='best')
+
+	fig.tight_layout()
+	return fig
