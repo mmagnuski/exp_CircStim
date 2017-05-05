@@ -627,7 +627,8 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	# generate trial combinations
 	if not combine_with:
 		lst = exp['orientation']
-		num_rep = rep if not rep == None else np.ceil(trials / float(len(lst)))
+		num_rep = (int(rep) if not rep is None else
+			int(np.ceil(trials / float(len(lst)))))
 		lst = np.reshape(np.array(lst * num_rep), (-1, 1))
 	else:
 		cmb.append(combine_with[0])
@@ -759,7 +760,7 @@ class DataManager(object):
 		self.keymap = data['key-mapping']
 		self.sex = data['sex']
 
-	def give_path(self, path_type, file_ending='xls'):
+	def give_path(self, path_type, file_ending='xlsx'):
 		if path_type in self.path and self.path[path_type]:
 			return self.path[path_type]
 		else:

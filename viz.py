@@ -14,7 +14,8 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	numpnts = 1000
 	vmin, vmax = weibull.x.min(), weibull.x.max()
 	data_range = vmax - vmin
-	vmin, vmax = max(0., vmin - 0.1 * data_range), vmax + 0.1 * data_range
+	lowest = -40. if weibull.kind == 'weibull_db' else 0.
+	vmin, vmax = max(lowest, vmin - 0.1 * data_range), vmax + 0.1 * data_range
 	x = np.linspace(vmin, vmax, num=numpnts)
 	y = weibull.predict(x)
 

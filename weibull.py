@@ -254,16 +254,17 @@ class QuestPlus(object):
 # -------------------------
 # - [ ] clean these functions below - could be one function for all
 def fitw(df, ind=None, last=60, init_params=[1., 1.], method='Nelder-Mead'):
-	if ind is None and last:
-		n_rows = df.shape[0]
-		start_ind = min([1, n_rows - last + 1])
-		ind = np.arange(start_ind, n_rows + 1, dtype = 'int')
+    if ind is None and last:
+        n_rows = df.shape[0]
+        start_ind = min([1, n_rows - last + 1])
+        ind = np.arange(start_ind, n_rows + 1, dtype = 'int')
 
-	x = df.loc[ind, 'opacity'].values.astype('float64')
-	y = df.loc[ind, 'ifcorrect'].values.astype('int32')
+    # this might not be necessary
+    x = df.loc[ind, 'opacity'].values.astype('float64')
+    y = df.loc[ind, 'ifcorrect'].values.astype('int32')
 
-	# fit on non-nan
-	notnan = ~(np.isnan(y))
-	w = Weibull(x, y, method=method)
-	w.fit(init_params)
-	return w
+    # fit on non-nan
+    notnan = ~(np.isnan(y))
+    w = Weibull(method=method)
+    w.fit(x, y, init_params)
+    return w

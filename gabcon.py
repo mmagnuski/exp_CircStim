@@ -40,6 +40,7 @@ from psychopy  import visual, core, event, logging
 from psychopy.data import QuestHandler, StairHandler
 
 import os
+from os import path as op
 import pickle
 from random import sample
 
@@ -67,10 +68,11 @@ from .viz import plot_quest_plus
 if exp['use trigger']:
     from ctypes import windll
 
+
 # set logging
 dm = DataManager(exp)
 exp = dm.update_exp(exp)
-exp['numTrials'] = 500 # ugly hack, change
+exp['numTrials'] = 560 # ugly hack, CHANGE
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
@@ -131,16 +133,17 @@ if exp['run training']:
 
         # update experimenter info:
         exp_info.training_info([current_block, num_training_blocks],
-            current_corr)
+                               current_corr)
 
         # show info for the subject:
         if s == 1:
             addtxt = (u'Koniec treningu.\nAby przejść dalej ' +
-                u'naciśnij spację.')
+                      u'naciśnij spację.')
         now_txt = txt + addtxt
         textscreen(now_txt.format(to_percent(current_corr)))
         show_resp_rules(exp=exp)
 
+        # this could be improved:
         # concatenate training db's (and change indexing)
         if 'df_train' in locals():
             if isinstance(df_train, list):
