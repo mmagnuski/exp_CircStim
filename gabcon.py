@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 
 # add description
 # Orientation discrimination task where contrast of gabors is adapted
@@ -43,19 +44,26 @@ from random import sample
 
 import numpy  as np
 import pandas as pd
+from PIL import Image
 
-from exputils  import (plot_Feedback, create_database,
-    ContrastInterface, DataManager, ExperimenterInfo,
-    AnyQuestionsGUI, ms2frames, getFrameRate)
-from weibull   import fitw
-from utils     import to_percent, trim_df
-from stimutils import (exp, db, stim, present_trial,
-    present_break, show_resp_rules, textscreen,
-    present_feedback, present_training, trim,
-    give_training_db, Instructions, Stepwise,
-    onflip_work, clear_port)
+# hackish, but works both for relative import and when run as a script
+if __name__ == '__main__' and __package__ is None:
+    import sys
+    sys.path.append(op.dirname(op.dirname(op.abspath(__file__))))
+    __package__ = "GabCon"
+    import GabCon # maybe not necessary
 
-if os.name == 'nt' and exp['use trigger']:
+from .exputils  import (plot_Feedback, create_database,
+                        ContrastInterface, DataManager,
+                        ExperimenterInfo, AnyQuestionsGUI)
+from .weibull   import Weibull, QuestPlus, weibull_db
+from .utils     import to_percent, trim_df
+from .stimutils import (exp, db, stim, present_trial, present_break,
+    show_resp_rules, textscreen, present_feedback, present_training,
+    give_training_db, Instructions, onflip_work, clear_port)
+from .viz import plot_quest_plus
+
+if exp['use trigger']:
     from ctypes import windll
 
 # set logging

@@ -1,9 +1,10 @@
 # various viz functions
+from __future__ import absolute_import
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from utils import check_color, group
+from .utils import check_color, group
 
 def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 			 	 mean_points=False, min_bucket='adaptive',
