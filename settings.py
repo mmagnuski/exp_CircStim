@@ -16,12 +16,14 @@ exp['two screens']  = False
 exp['use trigger']  = False
 
 exp['run blinkdot'] = False
+exp['run baseline1'] = False
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True
 exp['run main c']   = True
 exp['run main t']   = True
 exp['break after']  = 15  # how often subjects have a break
+exp['run baseline2'] = False
 
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['clock']        = core.Clock()
