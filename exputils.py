@@ -519,12 +519,15 @@ class ContrastInterface(Interface):
 
 
 class ExperimenterInfo(Interface):
-	def __init__(self, exp, stim):
+	def __init__(self, exp, stim, main_text_pos=(0, 0.5),
+				 sub_text_pos=(0, 0.25)):
 		self.wait_text = False
 		super(ExperimenterInfo, self).__init__(exp, stim)
 
-		self.main_text = visual.TextStim(self.win, pos=(0, 0.5), units='norm')
-		self.sub_text  = visual.TextStim(self.win, pos=(0, 0.25), units='norm')
+		self.main_text = visual.TextStim(self.win, pos=main_text_pos,
+										 units='norm')
+		self.sub_text  = visual.TextStim(self.win, pos=sub_text_pos,
+										 units='norm')
 		self.detail_text = visual.TextStim(self.win, pos=(0, 0), units='norm')
 		self.textObjs = [self.main_text, self.sub_text, self.detail_text]
 

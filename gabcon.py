@@ -80,7 +80,8 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # TODO: add some more logging?
 
 # create object for updating experimenter about progress
-exp_info = ExperimenterInfo(exp, stim)
+exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.93),
+                            sub_text_pos=(0, 0.85))
 
 # from dB and to dB utility functions:
 from_db = lambda x: 10 ** (x / 10.)
@@ -157,8 +158,8 @@ if exp['run training']:
     df_train.to_excel(dm.give_path('a'))
 
 
-# Contrast fitting - Quest+
-# -------------------------
+# Contrast fitting - Staricase, Quest+
+# ------------------------------------
 if exp['run fitting']:
     # some instructions
     if exp['run instruct']:
@@ -171,32 +172,75 @@ if exp['run fitting']:
         core.wait(0.1)
         clear_port(exp['port'])
 
-    # init quest plus contrast adjustment
-    step_until = exp['step until']
+    # init fitting db
     fitting_db = give_training_db(db, slowdown=1)
 
+    # Staircase
+    # ---------
+    # we start with staircase to make sure subjects familiarize themselves
+    # with adapting contrast regime before the main fitting starts
+    current_trial = 1
+    staircase = StairHandler(0.8, nTrials=max_trials, nUp=1, nDown=2,
+                             nReversals=7, minVal=0.001, maxVal=2,
+                             stepSizes=[0.1, 0.1, 0.05, 0.05, 0.025, 0.025],
+                             stepType='lin')
+
+    for contrast in staircase:
+        exp_info.blok_info(u'procedura schodkowa', [current_trial, max_trials])
+
+        # setup stimulus and present trial
+        exp['opacity'] = [contrast, contrast]
+        core.wait(0.5) # fixed pre-fix interval
+        present_trial(current_trial, db=fitting_db, exp=exp)
+        stim['window'].flip()
+
+        # set trial type, get response and inform staircase about it
+        fitting_db.loc[current_trial, 'trial_type'] = 'staircase'
+        response = fitting_db.loc[current_trial, 'ifcorrect']
+        staircase.addResponse(response)
+        current_trial += 1
+
+        if current_trial % exp['break after'] == 0:
+            save_db = trim_df(fitting_db)
+            save_db.to_excel(dm.give_path('b'))
+
+            # remind about the button press mappings
+            show_resp_rules(exp=exp)
+            stim['window'].flip()
+
+    # QUEST+
+    # ------
+    # next, after about 25 trials we start main fitting procedure - QUEST+
     # TODO: add prior for lapse and maybe other
+
     # init quest plus
+    start_contrast = staircase._nextIntensity
     stim_params = np.arange(-20, 2.1, 0.333) # -20 dB is 0.01 contrast
     model_threshold = stim_params.copy()
-    model_slope = np.arange(2., 10., 0.5)
+    model_slope = np.arange(2., 10., 0.5) # slope in dB too?
     model_lapse = np.arange(0., 0.11, 0.01)
     qp = QuestPlus(stim_params, [model_threshold, model_slope, model_lapse],
                    function=weibull_db)
 
-    contrast = stim_params[np.abs(stim_params - to_db(0.5)).argmin()]
+    contrast = stim_params[np.abs(stim_params - to_db(start_contrast)
+                                  ).argmin()]
 
     # update experimenters view:
+    draw_prob = False
+    step_until = exp['step until']
     block_name = 'Quest Plus - dopasowywanie kontrastu'
-    exp_info.blok_info(block_name, [0, step_until[0]])
+    exp_info.blok_info(block_name, [0, 100])
 
     # remind about the button press mappings
     show_resp_rules(exp=exp)
     stim['window'].flip()
 
-    current_trial = 1
-
     for trial in range(100):
+        # experimenter view
+        if draw_prob:
+            stim['centerImage'].draw()
+        exp_info.blok_info(block_name, [trial + 1, 100])
+
         # setup stimulus and present trial
         exp['opacity'] = [from_db(contrast), from_db(contrast)]
         core.wait(0.5) # fixed pre-fix interval
@@ -227,8 +271,9 @@ if exp['run fitting']:
             del img
             stim['centerImage'].size = imgsize # np.round(imgsize * resize)
             stim['centerImage'].draw()
-            stim['window'].flip()
-            event.waitKeys()
+            exp_info.win.flip()
+            if not draw_prob:
+                draw_prob = True
 
             # remind about the button press mappings
             show_resp_rules(exp=exp)
@@ -257,12 +302,12 @@ if exp['run main c']:
 
     # get corr treshold from weibull
     contrast_threshold = w.get_threshold([0.55, 1 - params[-1] - 0.01])
-    contrast_steps = from_db(np.linspace(*contrast_threshold, num=5))
+    contrast_steps = from_db(np.linspace(*contrast_threshold, num=6))
     logging.warn('contrast steps: ', contrast_steps)
 
-    # 20 repetitions * 4 angles * 7 steps = 560 trials
+    # 25 repetitions * 4 angles * 6 steps = 600 trials
     db_c = create_database(exp, combine_with=('opacity',
-        contrast_steps), rep=20)
+        contrast_steps), rep=25)
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin
