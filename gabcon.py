@@ -80,8 +80,8 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # TODO: add some more logging?
 
 # create object for updating experimenter about progress
-exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.93),
-                            sub_text_pos=(0, 0.85))
+exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
+                            sub_text_pos=(0, 0.78))
 
 # from dB and to dB utility functions:
 from_db = lambda x: 10 ** (x / 10.)
@@ -179,6 +179,7 @@ if exp['run fitting']:
     # ---------
     # we start with staircase to make sure subjects familiarize themselves
     # with adapting contrast regime before the main fitting starts
+    max_trials = 25
     current_trial = 1
     staircase = StairHandler(0.8, nTrials=max_trials, nUp=1, nDown=2,
                              nReversals=7, minVal=0.001, maxVal=2,
@@ -287,6 +288,7 @@ if exp['run fitting']:
     # from trials, nevertheless we save the posterior as numpy array
     posterior_filename = dm.give_path('posterior', file_ending='npy')
     np.save(posterior_filename, qp.posterior)
+
 
 # EXPERIMENT - part c
 # -------------------

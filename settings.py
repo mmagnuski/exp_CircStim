@@ -12,8 +12,8 @@ from exputils  import (ms2frames, getSubject,
 # -------------------
 exp = dict()
 exp['debug']        = True
-exp['two screens']  = False
-exp['use trigger']  = False
+exp['two screens']  = True
+exp['use trigger']  = True
 
 exp['run blinkdot'] = False
 exp['run baseline1'] = False
