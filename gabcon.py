@@ -303,12 +303,12 @@ if exp['run main c']:
 
     # get corr treshold from weibull
     contrast_threshold = w.get_threshold([0.55, params[-1] - 0.02])
-    contrast_steps = from_db(np.linspace(*contrast_threshold, num=5))
+    contrast_steps = from_db(np.linspace(*contrast_threshold, num=6))
     logging.warn('contrast steps: ', contrast_steps)
 
-    # 20 repetitions * 4 angles * 7 steps = 560 trials
+    # 25 repetitions * 4 angles * 6 steps = 600 trials
     db_c = create_database(exp, combine_with=('opacity',
-        contrast_steps), rep=20)
+        contrast_steps), rep=25)
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin
