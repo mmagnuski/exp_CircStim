@@ -760,7 +760,7 @@ class DataManager(object):
 		self.keymap = data['key-mapping']
 		self.sex = data['sex']
 
-	def give_path(self, path_type, file_ending='xlsx'):
+	def give_path(self, path_type, file_ending='xls'):
 		if path_type in self.path and self.path[path_type]:
 			return self.path[path_type]
 		else:

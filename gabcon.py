@@ -22,7 +22,6 @@ fragFBOtoFramePatched = '''
     '''
 
 from psychopy import __version__ as psychopy_version
-from setuptools.version import pkg_resources
 from distutils.version import LooseVersion
 
 psychopy_version = LooseVersion(psychopy_version)
@@ -257,7 +256,7 @@ if exp['run main c']:
     w.params = params
 
     # get corr treshold from weibull
-    contrast_threshold = w.get_threshold([0.55, params[-1] - 0.02])
+    contrast_threshold = w.get_threshold([0.55, 1 - params[-1] - 0.01])
     contrast_steps = from_db(np.linspace(*contrast_threshold, num=5))
     logging.warn('contrast steps: ', contrast_steps)
 

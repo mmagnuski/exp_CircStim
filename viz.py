@@ -152,6 +152,10 @@ def plot_quest_plus(qp):
 	import matplotlib.gridspec as gridspec
 	from .weibull import weibull_db, Weibull
 
+	# check cmap
+	cmaps = dir(plt.cm)
+	use_cmap = 'viridis' if 'viridis' in cmaps else 'jet' 
+
 	# create figure and axes overlay
 	fig = plt.figure(figsize=(15, 6))
 	gs = gridspec.GridSpec(3, 3)
@@ -168,7 +172,7 @@ def plot_quest_plus(qp):
 	# plot posterior agregated along lapse dimension
 	model_threshold, model_slope, model_lapse = qp._orig_params
 	im_ax.imshow(posterior.sum(axis=-1), aspect='auto',
-				 cmap='viridis', interpolation='none',
+				 cmap=use_cmap, interpolation='none',
 				 extent=[model_slope[0], model_slope[-1],
 				 		 model_threshold[-1], model_threshold[0]])
 	            #  extent=[*model_slope[[0, -1]],
