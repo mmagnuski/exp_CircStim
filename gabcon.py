@@ -81,7 +81,8 @@ lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 # TODO: add some more logging?
 
 # create object for updating experimenter about progress
-exp_info = ExperimenterInfo(exp, stim)
+exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.93),
+                            sub_text_pos=(0, 0.85))
 
 # from dB and to dB utility functions:
 from_db = lambda x: 10 ** (x / 10.)
