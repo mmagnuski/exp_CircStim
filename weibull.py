@@ -9,6 +9,7 @@
 from __future__ import absolute_import
 import os
 import sys
+from copy import deepcopy
 
 import numpy as np
 import pandas as pd
@@ -16,7 +17,7 @@ from matplotlib import pyplot as plt
 from scipy.optimize import minimize
 
 from .utils import trim, trim_df, round2step, reformat_params
-from .viz import plot_weibull
+from .viz import plot_weibull, plot_quest_plus
 
 
 class Weibull:
@@ -120,11 +121,12 @@ class Weibull:
 
     def plot(self, pth='', ax=None, points=True, line=True, mean_points=False,
              min_bucket='adaptive', split_bucket='adaptive', line_color=None,
-             contrast_steps=None, mean_points_color=(0.22, 0.58, 0.78)):
+             contrast_steps=None, mean_points_color=(0.22, 0.58, 0.78),
+             linewidth=3.):
         return plot_weibull(self, pth=pth, ax=ax, points=points, line=line,
                             mean_points=mean_points, min_bucket=min_bucket,
                             split_bucket=split_bucket, line_color=line_color,
-                            contrast_steps=contrast_steps,
+                            contrast_steps=contrast_steps, linewidth=linewidth,
                             mean_points_color=mean_points_color)
 
 
@@ -139,9 +141,9 @@ def outside_bounds(val, bounds):
 def weibull(x, params, corr_at_thresh=0.75, chance_level=0.5):
         # unpack params
         if len(params) == 3:
-            b, t, lapse = params
+            t, b, lapse = params
         else:
-            b, t = params
+            t, b = params
             lapse = 0.
 
         k = ( -np.log((1.0 - corr_at_thresh) / (1.0 - chance_level)) ) \
@@ -177,12 +179,10 @@ def generalized_logistic(x, params, chance_level=0.5, C=1.):
     return A + (K - A) / ((C + Q * np.exp(-B * x)) ** (1 / v))
 
 
-
+# TODO:
+# - [ ] highlight lowest point in entropy in plot
 class QuestPlus(object):
-
     def __init__(self, stim, params, function=weibull):
-        from copy import deepcopy
-
         self.function = function
         self.stim_domain = stim
         self.param_domain = reformat_params(params)
@@ -213,7 +213,7 @@ class QuestPlus(object):
         self.resp_history = list()
         self.entropy = np.ones(n_stim)
 
-    def update(self, contrast, ifcorrect):
+    def update(self, contrast, ifcorrect, approximate=False):
         '''update posterior probability with outcome of current trial.
 
         contrast - contrast value for the given trial
@@ -223,7 +223,8 @@ class QuestPlus(object):
 
         # turn ifcorrect to response index
         resp_idx = 1 - ifcorrect
-        contrast_idx = np.where(self.stim_domain == contrast)[0][0]
+        contrast_idx = self._find_contrast_index(
+            contrast,  approximate=approximate)[0]
 
         # take likelihood of such resp for whole model parameter domain
         likelihood = self.likelihoods[contrast_idx, :, resp_idx]
@@ -234,25 +235,94 @@ class QuestPlus(object):
         self.stim_history.append(contrast)
         self.resp_history.append(ifcorrect)
 
-    def next_contrast(self):
-        '''get contrast value that minimizes posterior entropy'''
-        #
+    def _find_contrast_index(self, contrast, approximate=False):
+        contrast = np.atleast_1d(contrast)
+        if not approximate:
+            idx = [np.nonzero(self.stim_domain == cntrst)[0][0]
+                   for cntrst in contrast]
+        else:
+            idx = np.abs(self.stim_domain[np.newaxis, :] -
+                         contrast[:, np.newaxis]).argmin(axis=1)
+        return idx
+
+    def next_contrast(self, axis=None):
+        '''Get contrast value minimizing entropy of the posterior
+        distribution.
+
+        Expected entropy is updated in self.entropy.
+
+        Returns
+        -------
+        contrast : contrast value for the next trial.'''
         # compute next trial contrast
         full_posterior = self.likelihoods * self.posterior[
             np.newaxis, :, np.newaxis]
+        if axis is not None:
+            shp = full_posterior.shape
+            new_shape = [shp[0]] + self._orig_param_shape + [shp[-1]]
+            full_posterior = full_posterior.reshape(new_shape)
+            reduce_axes = np.arange(len(self._orig_param_shape)) + 1
+            reduce_axes = tuple(np.delete(reduce_axes, axis))
+            full_posterior = full_posterior.sum(axis=reduce_axes)
+
         norm = full_posterior.sum(axis=1, keepdims=True)
         full_posterior /= norm
 
         H = -np.nansum(full_posterior * np.log(full_posterior), axis=1)
         self.entropy = (norm[:, 0, :] * H).sum(axis=1)
 
-        # choose contrast by min arg
+        # choose contrast with minimal entropy
         return self.stim_domain[self.entropy.argmin()]
+
+    # TODO:
+    # - [ ] check correctness, using same contrast twice gives equal results
+    #       to using it once (not correct)
+    def compute_entropy(self, contrasts):
+        '''Compute entropy for a sequence of contrasts.'''
+
+        contrast_idx = self._find_contrast_index(contrasts)
+        agg_posterior = (np.ones(self.likelihoods[0].shape) *
+                         self.posterior[:, np.newaxis])
+        for idx in contrast_idx:
+            agg_posterior *= self.likelihoods[idx]
+        norm = agg_posterior.sum(axis=0, keepdims=True)
+        agg_posterior /= norm
+
+        H = -np.nansum(agg_posterior * np.log(agg_posterior), axis=0)
+        entropy = (norm[0, :] * H).sum()
+        return entropy
+
+    def get_posterior(self):
+    	return self.posterior.reshape(self._orig_param_shape)
+
+    def get_fit_params(self, select='mode', weibull_args=None):
+        if select in ['max', 'mode']:
+            # parameters corresponding to maximum peak in posterior probability
+            return self.param_domain[self.posterior.argmax(), :]
+        elif select == 'mean':
+            # parameters weighted by their probability
+            return (self.posterior[:, np.newaxis] *
+                    self.param_domain).sum(axis=0)
+        elif select == 'ML':
+            if weibull_args is None:
+                weibull_args = dict(kind='weibull_db')
+            w = Weibull(**weibull_args)
+            init_params = self.get_fit_params(select='max')
+            w.fit(np.array(self.stim_history), np.array(self.resp_history),
+                           init_params)
+            return w.params
+
+    def fit(self, contrasts, responses, approximate=False):
+        for contrast, response in zip(contrasts, responses):
+            self.update(contrast, response, approximate=approximate)
+
+    def plot(self):
+        '''Plot posterior model parameter probabilities and weibull fits.'''
+        return plot_quest_plus(self)
 
 
 # for interactive plotting:
 # -------------------------
-# - [ ] clean these functions below - could be one function for all
 def fitw(df, ind=None, last=60, init_params=[1., 1.], method='Nelder-Mead'):
     if ind is None and last:
         n_rows = df.shape[0]
