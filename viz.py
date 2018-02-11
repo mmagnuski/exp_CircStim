@@ -9,7 +9,7 @@ from .utils import check_color, group
 def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 			 	 mean_points=False, min_bucket='adaptive',
 				 split_bucket='adaptive', line_color=None, contrast_steps=None,
-				 mean_points_color=(0.22, 0.58, 0.78)):
+				 mean_points_color=(0.22, 0.58, 0.78), linewidth=3.):
 	# get predicted data
 	numpnts = 1000
 	lowest = -40. if weibull.kind == 'weibull_db' else 0.
@@ -135,7 +135,7 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	    plt.scatter(weibull.x, weibull.orig_y + yrnd, alpha=0.6, lw=0,
 	        zorder=6, c=[0.3, 0.3, 0.3])
 	if line:
-	    plt.plot(x, y, zorder=5, lw=3, color=line_color)
+	    plt.plot(x, y, zorder=5, lw=linewidth, color=line_color)
 
 	# aesthetics
 	# ----------
