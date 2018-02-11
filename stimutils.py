@@ -224,7 +224,8 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 	for f in np.arange(db.loc[tr]['fixTime']):
 		stim['fix'].draw()
 		win.flip()
-	clear_port(exp['port'])
+		if f == 3:
+			clear_port(exp['port'])
 
 	# clear keyboard buffer
 	event.getKeys()
