@@ -160,7 +160,7 @@ def plot_quest_plus(qp):
 
 	# check cmap
 	cmaps = dir(plt.cm)
-	use_cmap = 'viridis' if 'viridis' in cmaps else 'jet' 
+	use_cmap = 'viridis' if 'viridis' in cmaps else 'jet'
 
 	# create figure and axes overlay
 	fig = plt.figure(figsize=(15, 6))
@@ -173,16 +173,19 @@ def plot_quest_plus(qp):
 	func_ax = plt.subplot(gs[1:, -1])
 
 	# get posterior
-	posterior = qp.posterior.copy().reshape(qp._orig_param_shape)
+	posterior = qp.get_posterior().copy()
 
 	# plot posterior agregated along lapse dimension
 	model_threshold, model_slope, model_lapse = qp._orig_params
+	thresh_step = np.diff(model_threshold).mean()
 	im_ax.imshow(posterior.sum(axis=-1), aspect='auto',
 				 cmap=use_cmap, interpolation='none',
-				 extent=[model_slope[0], model_slope[-1],
-				 		 model_threshold[-1], model_threshold[0]])
-	            #  extent=[*model_slope[[0, -1]],
-				#  		   *model_threshold[[0, -1]][::-1]])
+				 extent=[-0.5, len(model_slope) + 0.5,
+				 		 model_threshold[-1] + thresh_step / 2.,
+						 model_threshold[0] - thresh_step / 2.])
+	x_ind = np.arange(0, len(model_slope), 3)
+	im_ax.set_xticks(x_ind)
+	im_ax.set_xticklabels(['{:.2f}'.format(x) for x in model_slope[x_ind]])
 	im_ax.set_xlabel('slope')
 	im_ax.set_ylabel('threshold')
 
@@ -197,8 +200,17 @@ def plot_quest_plus(qp):
 		#     axes[i]._get_lines.get_next_color()
 		this_prob = posterior.sum(axis=reduce_dims[i])
 		axes[i].grid(True)
-		axes[i].plot(xs[i], this_prob, color=colors[i])
-		axes[i].fill_between(xs[i], this_prob, color=colors[i], alpha=0.5)
+		if i == 1:
+			this_x = np.arange(len(xs[i]))
+			axes[i].plot(this_x, this_prob, color=colors[i])
+			axes[i].fill_between(this_x, this_prob, color=colors[i], alpha=0.5)
+			ticks = this_x[::3]
+			axes[i].set_xticks(ticks)
+			axes[i].set_xticklabels(['{:.2f}'.format(x)
+									 for x in xs[i][ticks]])
+		else:
+			axes[i].plot(xs[i], this_prob, color=colors[i])
+			axes[i].fill_between(xs[i], this_prob, color=colors[i], alpha=0.5)
 		axes[i].set_title('{} probability'.format(titles[i]))
 
 	# plot expected entropy
@@ -209,15 +221,18 @@ def plot_quest_plus(qp):
 	current_params = qp.param_domain[posterior.argmax(), :]
 	mean_params = (qp.posterior[:, np.newaxis] * qp.param_domain).sum(axis=0)
 
+	# psychometric function fit
 	w = Weibull(kind='weibull_db')
 	w.fit(np.array(qp.stim_history), np.array(qp.resp_history), current_params)
-	w.plot(ax=func_ax)
-	func_ax.findobj(plt.Line2D)[0].set_label('ML fit')
-	func_ax.plot(qp.stim_domain, weibull_db(qp.stim_domain, current_params),
-	             label='Bayesian max prob fit', zorder=10)
-	func_ax.plot(qp.stim_domain, weibull_db(qp.stim_domain, mean_params),
-	             label='Bayesian mean prob fit', zorder=11)
-	func_ax.legend(loc='best')
+	w.plot(ax=func_ax, linewidth=1.5)
+	func_ax.findobj(plt.Line2D)[0].set_label('Maximum Likelihood fit')
 
+	vmin, vmax = qp.stim_domain[[0, -1]]
+	x = np.linspace(vmin, vmax, num=1000)
+	func_ax.plot(x, qp.function(x, current_params),
+				 label='Bayesian max prob fit', zorder=10)
+	func_ax.plot(x, qp.function(x, mean_params), label='Bayesian mean prob fit',
+				 zorder=11)
+	func_ax.legend(loc='best')
 	fig.tight_layout()
 	return fig
