@@ -12,10 +12,12 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 				 mean_points_color=(0.22, 0.58, 0.78)):
 	# get predicted data
 	numpnts = 1000
-	vmin, vmax = weibull.x.min(), weibull.x.max()
-	data_range = vmax - vmin
 	lowest = -40. if weibull.kind == 'weibull_db' else 0.
-	vmin, vmax = max(lowest, vmin - 0.1 * data_range), vmax + 0.1 * data_range
+	highest = 2. if weibull.kind == 'weibull_db' else 1.2
+	vmin, vmax = max(lowest, weibull.x.min()), min(highest, weibull.x.max())
+	data_range = vmax - vmin
+	vmin, vmax = (max(lowest, vmin - 0.1 * data_range),
+				  min(vmax + 0.1 * data_range, highest))
 	x = np.linspace(vmin, vmax, num=numpnts)
 	y = weibull.predict(x)
 
@@ -29,12 +31,16 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	# plot setup
 	if ax is None:
 	    f, ax = plt.subplots()
-	ax.set_axis_bgcolor((0.92, 0.92, 0.92))
+	try:
+		ax.set_facecolor((0.92, 0.92, 0.92))
+	except:
+		ax.set_axis_bgcolor((0.92, 0.92, 0.92))
 	plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder=-1)
 
 	line_color = check_color(line_color)
 
 	# plot buckets
+	# TODO - bucketing or binning points should be done by sep fun
 	if mean_points:
 	    from scipy import stats
 	    mean_points_color = check_color(mean_points_color)
