@@ -24,7 +24,7 @@ def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={},
 	else:
 		imfls = plotter.plot(pth)
 
-	if not isinstance(imfls, type([])):
+	if not isinstance(imfls, list):
 		imfls = [imfls]
 
 	for im in imfls:
@@ -45,9 +45,7 @@ def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={},
 class Interface(object):
 	"""core Interface constructor - enables handling
 	two screen displays"""
-	exp = None
-	stim = None
-	def __init__(self, exp, stim, main_win=2):
+	def __init__(self, exp=None, stim=None, main_win=2):
 		self.exp = exp
 		self.stim = stim
 		self.two_windows = 'window2' in stim
@@ -524,29 +522,39 @@ class ExperimenterInfo(Interface):
 		self.wait_text = False
 		super(ExperimenterInfo, self).__init__(exp, stim)
 
-		self.main_text = visual.TextStim(self.win, pos=main_text_pos,
-										 units='norm')
-		self.sub_text  = visual.TextStim(self.win, pos=sub_text_pos,
-										 units='norm')
-		self.detail_text = visual.TextStim(self.win, pos=(0, 0), units='norm')
-		self.textObjs = [self.main_text, self.sub_text, self.detail_text]
+		# texts
+		main_text = visual.TextStim(self.win, pos=main_text_pos, units='norm')
+		sub_text  = visual.TextStim(self.win, pos=sub_text_pos, units='norm')
+		detail_text = visual.TextStim(self.win, pos=(0, 0), units='norm')
+		self.texts = dict(main=self.main_text, sub=self.sub_text,
+						  detail=self.detail_text)
+
+		# center image
+		self.image = stim['centerImage'] if 'centerImage' in stim else None
 
 	def refresh(self):
-		self.main_text.draw()
-		self.sub_text.draw()
+		for txt in self.texts.values():
+			txt.draw()
+		if self.image is not None:
+			self.image.draw()
 		self.win.flip()
 
 	def update_text(self, texts):
-		if self.two_windows and texts:
-			update = False
-			while len(texts) < len(self.textObjs):
-				texts.append(None)
-			for t, o in zip(texts, self.textObjs):
-				if t:
-					update = True
-					o.setText(t)
-			if update:
-				self.refresh()
+		update = False
+		if not (self.two_windows and texts):
+			return None
+
+		# pad texts with None
+		while len(texts) < len(self.texts):
+			texts.append(None)
+
+		for txt, obj in zip(texts, self.texts.keys()):
+			if txt:
+				update = True
+				self.texts[txt].setText(t)
+
+		if update:
+			self.refresh()
 
 	def training_info(self, blockinfo, corr):
 		text1 = u'Ukończono blok {0} \\ {1} treningu.'.format(*blockinfo)
@@ -559,13 +567,21 @@ class ExperimenterInfo(Interface):
 		tx.append(u'Ukończono {} \ {} powtórzeń'.format(*blockinfo[:2]))
 		self.update_text(tx)
 
+	def experimenter_plot(self, img_name):
+	    self.image.setImage(img_name)
+        img_size = np.array(Image.open(img_name).size)
+        self.image.size = img_size # np.round(imgsize * resize)
+
+		self.refresh()
+
 
 class AnyQuestionsGUI(Interface):
 	def __init__(self, exp, stim):
 		self.wait_text = False
 		super(AnyQuestionsGUI, self).__init__(exp, stim, main_win=1)
-		tx = (u'Jeżeli coś nie jest jasne / masz jakieś pytania - naciśnij f.\n' +
-			u'Jeżeli wszystko jest jasne i nie masz pytań - naciśnij spację.')
+		tx = (u'Jeżeli coś nie jest jasne / masz jakieś pytania - naciśnij '
+			  u'f.\nJeżeli wszystko jest jasne i nie masz pytań - naciśnij '
+			  u'spację.')
 		self.tx1 = visual.TextStim(self.win, text=tx)
 		if self.two_windows:
 			self.tx2 = visual.TextStim(self.win2, text='...')
@@ -613,6 +629,8 @@ def scale_img(win, img, y_margin):
 	return ypos
 
 
+# TODO
+# - [ ] add some of functionality below to chainsaw
 def create_database(exp, trials=None, rep=None, combine_with=None):
 	# define column names:
 	colNames = ['time', 'fixTime', 'targetTime', 'SMI', \
@@ -627,7 +645,7 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	if not trials and not rep:
 		trials = 140
 
-	# generate trial combinations
+	# generate all trial combinations
 	if not combine_with:
 		lst = exp['orientation']
 		num_rep = (int(rep) if not rep is None else
@@ -639,14 +657,9 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 		num_rep = rep if not rep is None else np.ceil(trials / float(len(lst)))
 		lst = np.array(lst * num_rep)
 
-	# turn to array and shuffle rows
+	# turn to array and shuffle rows, then construct dataframe
 	np.random.shuffle(lst)
-
-	# construct data frame
-	db = pd.DataFrame(
-		index = np.arange(1, lst.shape[0] + 1),
-		columns = colNames
-		)
+	db = pd.DataFrame(index=np.arange(1, lst.shape[0] + 1), columns=colNames)
 
 	# exp['numTrials'] = len(db)
 	num_trials = db.shape[0]
@@ -659,14 +672,10 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 
 	# add fix time in frames
 	if 'fixTime' not in cmb:
-		db['fixTime'] = ms2frames(
-			np.random.uniform(
-				low = exp['fixTimeLim'][0],
-				high = exp['fixTimeLim'][1],
-				size = num_trials
-				) * 1000,
-			exp['frm']['time']
-			)
+		time_limits = exp['fixTimeLim']
+		fix_ms = np.random.uniform(low=time_limits[0], high=time_limits[1],
+								   size=num_trials) * 1000
+		db['fixTime'] = ms2frames(fix_ms, exp['frm']['time'])
 
 	# fill relevant columns from exp:
 	for col in from_exp:
@@ -677,8 +686,8 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 
 	# make sure types are correct:
 	to_float = ['time', 'opacity', 'RT']
-	to_int   = ['ifcorrect', 'fixTime', 'targetTime', 'SMI', 'maskTime']
-	db.loc[:, to_float+to_int] = db.loc[:, to_float+to_int].fillna(0)
+	to_int = ['ifcorrect', 'fixTime', 'targetTime', 'SMI', 'maskTime']
+	db.loc[:, to_float + to_int] = db.loc[:, to_float + to_int].fillna(0)
 	db.loc[:, to_float] = db.loc[:, to_float].astype('float64')
 	db.loc[:, to_int] = db.loc[:, to_int].astype('int32')
 
@@ -686,11 +695,8 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 
 
 def getFrameRate(win, frames=25):
-	# get frame rate
-	frame = {}
-	frame['rate'] = win.getActualFrameRate(nIdentical=frames)
-	frame['time'] = 1000.0 / frame['rate']
-	return frame
+	frame_rate = win.getActualFrameRate(nIdentical=frames)
+	return dict(rate=frame_rate, time=1000.0 / frame_rate)
 
 
 def ms2frames(times, frame_time):

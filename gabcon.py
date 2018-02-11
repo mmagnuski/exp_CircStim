@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-# add description
 # Orientation discrimination task where contrast of gabors is adapted
 # according to QUEST procedure.
 
@@ -39,6 +38,7 @@ from psychopy  import visual, core, event, logging
 from psychopy.data import QuestHandler, StairHandler
 
 import os
+import time
 from os import path as op
 import pickle
 from random import sample
@@ -48,6 +48,7 @@ import pandas as pd
 from PIL import Image
 
 # hackish, but works both for relative import and when run as a script
+# CHANGE: relative import should not be needed...
 if __name__ == '__main__' and __package__ is None:
     import sys
     sys.path.append(op.dirname(op.dirname(op.abspath(__file__))))
