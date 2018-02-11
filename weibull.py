@@ -338,3 +338,68 @@ def fitw(df, ind=None, last=60, init_params=[1., 1.], method='Nelder-Mead'):
     w = Weibull(method=method)
     w.fit(x, y, init_params)
     return w
+
+
+def init_thresh_optim(df, qp):
+    '''Initialize threshold optimization.
+
+    Parameters
+    ----------
+    df : pandas DataFrame
+        DataFrame containing behavioral data. Must contain opacity and
+        ifcorrect columns.
+    qp : QuestPlus instance
+        QuestPlus fitted to the behavioral data.
+
+    Returns
+    -------
+    qps : list of QuestPlus instances
+        List of QuestPlus objects, each tracking a different correctness
+        threshold.
+    corrs : array of float
+        Correctness thresholds for consecutive QuestPlus objects.
+    '''
+    init_params = qp.get_fit_params()
+    weib = wb.Weibull(kind='weibull_db')
+    weib.fit(to_db(df.loc[:, 'opacity']), df.loc[:, 'ifcorrect'], init_params)
+    lapse = weib.params[-1]
+    top_corr = max(0.9, 1 - lapse - 0.01)
+
+    low, hi = weib.get_threshold([0.51, top_corr])
+    low, hi = [max(from_db(low), 0.001), min(2., from_db(hi))]
+    rng = (hi - low)
+
+    stim_params = np.linspace(max(0.001, low - rng * 0.1),
+                              min(hi + rng * 0.1, 1.5), num=120)
+    thresh_params = np.linspace(low, hi, num=100)
+
+    # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
+    qps = list()
+    corrs = np.linspace(0.6, min(0.9, top_corr), num=5)
+    param_space = [thresh_params, model_slope, model_lapse]
+    for corr in corrs:
+        this_wb = partial(wb.weibull, corr_at_thresh=corr)
+        qp = wb.QuestPlus(stim_params, param_space, function=this_wb)
+        qp.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], approximate=True);
+        qps.append(qp)
+
+    return corrs, qps
+
+
+def plot_threshold_entropy(qps, corrs=None, axis=None):
+    '''Plot entropy for each threshold.'''
+    if corrs is None:
+        corrs = ['step {}'.format(idx) for idx in range(1, len(qps) + 1)]
+    if axis is None:
+        axis = plt.gca()
+
+    posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
+    for post, corr in zip(posteriors, corrs):
+        lines = axis.plot(qps[-1].stim_domain, post, label=str(corr))
+        color = lines[0].get_color()
+        max_idx = post.argmax()
+        axis.scatter(qps[-1].stim_domain[max_idx], post[max_idx],
+                     facecolor=color, edgecolor='k', zorder=10, s=50)
+
+    axis.legend()
+    return axis
