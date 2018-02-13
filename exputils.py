@@ -74,10 +74,10 @@ class ExperimenterInfo(Interface):
 		while len(texts) < len(self.texts):
 			texts.append(None)
 
-		for txt, obj in zip(texts, self.texts.keys()):
+		for txt, key in zip(texts, self.texts.keys()):
 			if txt:
 				update = True
-				self.texts[txt].setText(t)
+				self.texts[key].setText(txt)
 
 		if update:
 			self.refresh()
@@ -110,7 +110,7 @@ class AnyQuestionsGUI(Interface):
 			  u'spację.')
 		self.tx1 = visual.TextStim(self.win, text=tx)
 		if self.two_windows:
-			self.tx2 = visual.TextStim(self.win2, text='...')
+			self.tx2 = visual.TextStim(self.win2, text='...', height=5.)
 			self.circ = visual.Circle(self.win2, radius=6, edges=64)
 			self.circ.setLineColor([0.9, 0.1, 0.1])
 			self.circ.setFillColor([0.9, 0.1, 0.1])

@@ -200,12 +200,9 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 		if exp['opacity'][0] == exp['opacity'][1]:
 			db.loc[tr, 'opacity'] = exp['opacity'][0]
 		else:
-			db.loc[tr, 'opacity'] = np.round(
-				np.random.uniform(
-					low = exp['opacity'][0],
-					high = exp['opacity'][1],
-					size = 1
-					)[0], decimals = 3)
+			db.loc[tr, 'opacity'] = np.round(np.random.uniform(
+				low=exp['opacity'][0], high=exp['opacity'][1], size=1
+				)[0], decimals = 3)
 
 	# set target properties
 	orientation = db.loc[tr]['orientation']
@@ -245,12 +242,17 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	clear_port(exp['port'])
 
 	# mask
+	cleared = False
 	win.callOnFlip(onflip_work, exp['port'], code='mask')
 	for f in np.arange(db.loc[tr]['maskTime']):
 		for m in stim['mask']:
 			m.draw()
 		win.flip()
-	clear_port(exp['port'])
+		if f == 3:
+			clear_port(exp['port'])
+			cleared = True
+	if not cleared:
+		clear_port(exp['port'])
 
 
 	# RESPONSE
@@ -261,14 +263,12 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	if exp['debug']: keys += ['q']
 
 	# check if response
-	k = event.getKeys(keyList = keys,
-					  timeStamped = exp['clock'])
+	k = event.getKeys(keyList=keys, timeStamped=exp['clock'])
 
 	# wait for response (timeout)
 	if not k:
-		k = event.waitKeys(maxWait = exp['respWait'],
-					       keyList = keys,
-					       timeStamped = exp['clock'])
+		k = event.waitKeys(maxWait=exp['respWait'], keyList=keys,
+					       timeStamped=exp['clock'])
 
 	# calculate RT and ifcorrect
 	if k:
