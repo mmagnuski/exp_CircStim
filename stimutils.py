@@ -188,13 +188,15 @@ def clear_port(portdict):
 # PRESENTATION
 # ------------
 
-def present_trial(tr, exp = exp, stim = stim, db = db,
-					  win = stim['window'], use_exp=True):
+def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
+				  use_exp=True):
 	# PREPARE
 	# -------
-
 	# randomize opacity if not set
 	if use_exp:
+		# set target time and SMI
+		db.loc[tr, 'targetTime'] = exp['targetTime'][0]
+		db.loc[tr, 'SMI'] = exp['SMI'][0]
 		if exp['opacity'][0] == exp['opacity'][1]:
 			db.loc[tr, 'opacity'] = exp['opacity'][0]
 		else:

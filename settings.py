@@ -47,9 +47,9 @@ exp['search method']= '4steps'
 exp['max fit']      = 200
 
 # timing settings
-exp['targetTime']  = [1] # maybe test with targetTime == 2?
-exp['SMI']         = [2] # Stimulus Mask Interval
-exp['fixTimeLim']  = [0.75, 2.5]
+exp['targetTime']  = [2] # maybe test with targetTime == 2?
+exp['SMI']         = [1] # Stimulus Mask Interval
+exp['fixTimeLim']  = [1., 2.5]
 exp['maskTime']    = [20]
 exp['fdb time']    = [40] # feedback time in frames
 exp['respWait']    = 1.5
@@ -115,4 +115,4 @@ exp['frm'] = getFrameRate(win)
 win.close()
 
 # create base dataframe
-db = create_database(exp, trials=300)
+db = create_database(exp, trials=600)
