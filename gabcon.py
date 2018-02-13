@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-# add description
 # Orientation discrimination task where contrast of gabors is adapted
 # according to QUEST procedure.
 
@@ -39,6 +38,7 @@ from psychopy  import visual, core, event, logging
 from psychopy.data import QuestHandler, StairHandler
 
 import os
+import time
 from os import path as op
 import pickle
 from random import sample
@@ -48,6 +48,7 @@ import pandas as pd
 from PIL import Image
 
 # hackish, but works both for relative import and when run as a script
+# CHANGE: relative import should not be needed...
 if __name__ == '__main__' and __package__ is None:
     import sys
     sys.path.append(op.dirname(op.dirname(op.abspath(__file__))))
@@ -212,22 +213,21 @@ if exp['run fitting']:
     # QUEST+
     # ------
     # next, after about 25 trials we start main fitting procedure - QUEST+
-    # TODO: add prior for lapse and maybe other
 
     # init quest plus
     start_contrast = staircase._nextIntensity
+    min_step = 1. / 255
+    stim_params = to_db(np.arange(min_step, 1. + min_step, min_step))
+    model_threshold = np.arange(-20, 3., 1.)
+    model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
+    model_lapse = np.arange(0., 0.16, 0.01)
     stim_params = np.arange(-20, 2.1, 0.333) # -20 dB is 0.01 contrast
-    model_threshold = stim_params.copy()
-    model_slope = np.arange(2., 10., 0.5) # slope in dB too?
-    model_lapse = np.arange(0., 0.11, 0.01)
     qp = QuestPlus(stim_params, [model_threshold, model_slope, model_lapse],
                    function=weibull_db)
-
-    contrast = stim_params[np.abs(stim_params - to_db(start_contrast)
-                                  ).argmin()]
+    min_idx = np.abs(stim_params - to_db(start_contrast)).argmin()
+    contrast = stim_params[min_idx]
 
     # update experimenters view:
-    draw_prob = False
     step_until = exp['step until']
     block_name = 'Quest Plus - dopasowywanie kontrastu'
     exp_info.blok_info(block_name, [0, 100])
@@ -237,9 +237,7 @@ if exp['run fitting']:
     stim['window'].flip()
 
     for trial in range(100):
-        # experimenter view
-        if draw_prob:
-            stim['centerImage'].draw()
+        # CHECK if blok_info flips the screen, better if not...
         exp_info.blok_info(block_name, [trial + 1, 100])
 
         # setup stimulus and present trial
@@ -259,26 +257,78 @@ if exp['run fitting']:
             save_db = trim_df(fitting_db)
             save_db.to_excel(dm.give_path('b'))
 
-            # visual feedback on parameters probability
-            img_name = op.join(exp['data'], 'quest_plus_panel.png')
-            fig = plot_quest_plus(qp)
-            fig.savefig(img_name, dpi=120)
+            # remind about the button press mappings
+            show_resp_rules(exp=exp)
+            stim['window'].flip()
 
-            # CHECK - make compatible with dual screens
-            # set image and its adequate size
-            stim['centerImage'].setImage(img_name)
-            img = Image.open(img_name)
-            imgsize = np.array(img.size)
-            del img
-            stim['centerImage'].size = imgsize # np.round(imgsize * resize)
-            stim['centerImage'].draw()
-            exp_info.win.flip()
-            if not draw_prob:
-                draw_prob = True
+        # visual feedback on parameters probability
+        t0 = time.clock()
+        img_name = op.join(exp['data'], 'quest_plus_panel.png')
+        plot_quest_plus(qp).savefig(img_name, dpi=120)
+
+        exp_info.experimenter_plot(self, img_name, logging=None)
+        time_delta = time.clock() - t0
+        msg = 'time taken to update QuestPlus panel plot: {:.3f}'
+        logging.warn(msg.format(time_delta))
+
+
+    # threshold fitting
+    # -----------------
+
+    # initialize further threshold optimization
+    trimmed_df = trim_df(fitting_db)
+    qps, corrs = init_thresh_optim(trimmed_df, qp)
+    block_name = 'threshold optimization'
+
+    t0 = time.clock()
+    ax = plot_threshold_entropy(qps, corrs=corrs)
+    img_name = op.join(exp['data'], 'quest_plus_thresholds.png')
+    ax.figure.savefig(img_name, dpi=180)
+    exp_info.experimenter_plot(img_name, logging=None)
+    time_delta = time.clock() - t0
+    msg = 'time taken to update QuestPlus threshold plot: {:.3f}'
+    logging.warn(msg.format(time_delta))
+
+    # optimize thresh...
+    for trial in range(50):
+        # select contrast
+        posteriors = [qp.get_threshold().sum(axis=(1, 2)) for qp in qps]
+        posterior_peak = [posterior.max() for posterior in posteriors]
+        optimize_threshold = np.array(posterior_peak).argmin()
+        contrast = qps[optimize_threshold].next_contrast(axis=(1, 2))
+
+        # CHECK if blok_info flips the screen, better if not...
+        exp_info.blok_info(block_name, [trial + 1, 50])
+
+        # setup stimulus and present trial
+        exp['opacity'] = [contrast, contrast]
+        core.wait(0.5) # fixed pre-fix interval
+        present_trial(current_trial, db=fitting_db, exp=exp)
+        stim['window'].flip()
+
+        # set trial type, get response and inform staircase about it
+        fitting_db.loc[current_trial, 'trial_type'] = 'Quest+ thresholds'
+        response = fitting_db.loc[current_trial, 'ifcorrect']
+        for qp in qps:
+            qp.update(contrast, response)
+        current_trial += 1
+
+        if current_trial % 10 == 0: # exp['break after']
+            save_db = trim_df(fitting_db)
+            save_db.to_excel(dm.give_path('b'))
 
             # remind about the button press mappings
             show_resp_rules(exp=exp)
             stim['window'].flip()
+
+        # visual feedback on parameters probability
+        t0 = time.clock()
+        ax = plot_threshold_entropy(qps, corrs=corrs)
+        ax.figure.savefig(img_name, dpi=180)
+        exp_info.experimenter_plot(img_name, logging=None)
+        time_delta = time.clock() - t0
+        msg = 'time taken to update QuestPlus threshold plot: {:.3f}'
+        logging.warn(msg.format(time_delta))
 
     # save fitting dataframe
     fitting_db = trim_df(fitting_db)
@@ -287,7 +337,7 @@ if exp['run fitting']:
     # saving quest may seem unnecessary - posterior can be reproduced
     # from trials, nevertheless we save the posterior as numpy array
     posterior_filename = dm.give_path('posterior', file_ending='npy')
-    np.save(posterior_filename, qp.posterior)
+    np.save(posterior_filename, qp[2].posterior)
 
 
 # EXPERIMENT - part c
@@ -297,19 +347,17 @@ if exp['run main c']:
     if exp['run instruct']:
         instr.present(stop=16)
 
-    # get weibull params from quest plus:
-    params = (qp.param_domain * qp.posterior[:, np.newaxis]).sum(axis=0)
-    w = Weibull(kind='weibull_db')
-    w.params = params
+    # get contrast thresholds from quest plus:
+    contrasts = list()
+    for idx, qp in enumerate(qps):
+        wb_args = dict(kind='weibull', corr_at_thresh=corrs[idx])
+        params = qp.get_fit_params(select='ML', weibull_args=wb_args)
+        contrasts.append(params[0])
 
-    # get corr treshold from weibull
-    contrast_threshold = w.get_threshold([0.55, 1 - params[-1] - 0.01])
-    contrast_steps = from_db(np.linspace(*contrast_threshold, num=6))
-    logging.warn('contrast steps: ', contrast_steps)
+    logging.warn('final contrast steps: ', contrasts)
 
-    # 25 repetitions * 4 angles * 6 steps = 600 trials
-    db_c = create_database(exp, combine_with=('opacity',
-        contrast_steps), rep=25)
+    # 30 repetitions * 4 angles * 5 steps = 600 trials
+    db_c = create_database(exp, combine_with=('opacity', contrasts), rep=30)
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin
