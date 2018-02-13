@@ -10,7 +10,7 @@ import pandas as pd
 from psychopy import visual, event, gui, core
 from PIL      import Image
 from utils    import round2step, trim_df
-from gui import Button, ClickScale
+from gui import Button, ClickScale, Interface
 
 
 def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={},
@@ -42,28 +42,6 @@ def plot_Feedback(stim, plotter, pth, resize=1.0, plotter_args={},
 		return stim
 
 
-class Interface(object):
-	"""core Interface constructor - enables handling
-	two screen displays"""
-	def __init__(self, exp=None, stim=None, main_win=2):
-		self.exp = exp
-		self.stim = stim
-		self.two_windows = 'window2' in stim
-		if self.two_windows:
-			main_w = 'window2' if main_win == 2 else 'window'
-			sec_w  = 'window'  if main_win == 2 else 'window2'
-			self.win = stim[main_w]
-			self.win2 = stim[sec_w]
-
-			if self.wait_text:
-				self.wait_txt = visual.TextStim(
-					stim[sec_w], text=self.wait_text)
-				self.wait_txt.draw()
-				stim[sec_w].flip()
-		else:
-			self.win = stim['window']
-
-
 
 class ExperimenterInfo(Interface):
 	def __init__(self, exp, stim, main_text_pos=(0, 0.5),
@@ -75,8 +53,7 @@ class ExperimenterInfo(Interface):
 		main_text = visual.TextStim(self.win, pos=main_text_pos, units='norm')
 		sub_text  = visual.TextStim(self.win, pos=sub_text_pos, units='norm')
 		detail_text = visual.TextStim(self.win, pos=(0, 0), units='norm')
-		self.texts = dict(main=self.main_text, sub=self.sub_text,
-						  detail=self.detail_text)
+		self.texts = dict(main=main_text, sub=sub_text, detail=detail_text)
 
 		# center image
 		self.image = stim['centerImage'] if 'centerImage' in stim else None
@@ -117,9 +94,9 @@ class ExperimenterInfo(Interface):
 		self.update_text(tx)
 
 	def experimenter_plot(self, img_name):
-	    self.image.setImage(img_name)
-        img_size = np.array(Image.open(img_name).size)
-        self.image.size = img_size # np.round(imgsize * resize)
+		self.image.setImage(img_name)
+		img_size = np.array(Image.open(img_name).size)
+		self.image.size = img_size # np.round(imgsize * resize)
 
 		self.refresh()
 

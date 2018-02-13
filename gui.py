@@ -1,5 +1,29 @@
+# -*- coding: utf-8 -*-
+
 from psychopy import visual
-from exputils import Interface
+
+
+class Interface(object):
+	"""core Interface constructor - enables handling
+	two screen displays"""
+	def __init__(self, exp=None, stim=None, main_win=2):
+		self.exp = exp
+		self.stim = stim
+		self.two_windows = 'window2' in stim
+		if self.two_windows:
+			main_w = 'window2' if main_win == 2 else 'window'
+			sec_w  = 'window'  if main_win == 2 else 'window2'
+			self.win = stim[main_w]
+			self.win2 = stim[sec_w]
+
+			if self.wait_text:
+				self.wait_txt = visual.TextStim(
+					stim[sec_w], text=self.wait_text)
+				self.wait_txt.draw()
+				stim[sec_w].flip()
+		else:
+			self.win = stim['window']
+
 
 class Button:
 	'''

@@ -55,8 +55,7 @@ if __name__ == '__main__' and __package__ is None:
     __package__ = "GabCon"
     import GabCon # maybe not necessary
 
-from .exputils  import (plot_Feedback, create_database,
-                        ContrastInterface, DataManager,
+from .exputils  import (plot_Feedback, create_database, DataManager,
                         ExperimenterInfo, AnyQuestionsGUI)
 from .weibull   import Weibull, QuestPlus, weibull_db
 from .utils     import to_percent, trim_df
