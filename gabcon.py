@@ -67,6 +67,8 @@ from .viz import plot_quest_plus
 if exp['use trigger']:
     from ctypes import windll
 
+# make mouse invisible
+stim['window'].mouseVisible = False
 
 # set logging
 dm = DataManager(exp)

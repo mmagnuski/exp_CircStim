@@ -113,19 +113,18 @@ class Gabor(object):
 
 
 def fix(win=win, color=(0.5, 0.5, 0.5)):
-	dot = visual.Circle(win, radius=0.15,
-		edges=16, units='deg', interpolate=True)
+	dot = visual.Circle(win, radius=0.18, edges=16, units='deg',
+						interpolate=True)
 	dot.setFillColor(color)
 	dot.setLineColor(color)
 	return dot
 
 
-def feedback_circle(win=win, radius=2.5, edges=64,
-	color='green', pos=[0,0]):
+def feedback_circle(win=win, radius=2.5, edges=64, color='green', pos=[0, 0]):
 	color_mapping = {'green': [0.1, 0.9, 0.1], 'red': [0.9, 0.1, 0.1]}
 	color = color_mapping[color]
 	circ = visual.Circle(win, pos=pos, radius=radius, edges=edges,
-		units='deg', interpolate=True)
+						 units='deg', interpolate=True)
 	circ.setFillColor(color)
 	circ.setLineColor(color)
 	return circ

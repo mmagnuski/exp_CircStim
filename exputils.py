@@ -61,6 +61,7 @@ class ExperimenterInfo(Interface):
 	def refresh(self):
 		for txt in self.texts.values():
 			txt.draw()
+
 		if self.image is not None:
 			self.image.draw()
 		self.win.flip()
@@ -74,7 +75,7 @@ class ExperimenterInfo(Interface):
 		while len(texts) < len(self.texts):
 			texts.append(None)
 
-		for txt, key in zip(texts, self.texts.keys()):
+		for txt, key in zip(texts, ['main', 'sub', 'detail']):
 			if txt:
 				update = True
 				self.texts[key].setText(txt)
@@ -97,7 +98,6 @@ class ExperimenterInfo(Interface):
 		self.image.setImage(img_name)
 		img_size = np.array(Image.open(img_name).size)
 		self.image.size = img_size # np.round(imgsize * resize)
-
 		self.refresh()
 
 
@@ -227,22 +227,18 @@ def getFrameRate(win, frames=25):
 
 def ms2frames(times, frame_time):
 	tp = type(times)
-	if tp == type([]):
-	    frms = []
+	if isinstance(times, list):
+	    frms = list()
 	    for t in times:
-	        frms.append( int( round(t / frame_time) ) )
-	elif tp == type({}):
-	    frms = {}
+	        frms.append(int(round(t / frame_time)))
+	elif isinstance(times, dict):
+	    frms = dict()
 	    for t in times.keys():
-	        frms[t] = int( round(times[t] / frame_time) )
-	elif tp == type(np.array([1])):
-		frms = np.array(
-			np.round(times / frame_time),
-			dtype = int
-			)
+	        frms[t] = int(round(times[t] / frame_time))
+	elif isinstance(times, np.ndarray):
+		frms = np.array(np.round(times / frame_time), dtype=int)
 	else:
-		frms = [] # or throw ValueError
-
+		raise ValueError('times has to be list, dict or numpy ndarray.')
 	return frms
 
 
