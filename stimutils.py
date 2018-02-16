@@ -31,6 +31,17 @@ win = visual.Window(**winkeys)
 #     useFBO=True, blendMode='add')
 win.setMouseVisible(False)
 
+stim = dict()
+stim['window'] = win
+
+# resolve multiple screens stuff
+if exp['two screens']:
+	winkeys.update({'screen' : 0, 'blendMode' : 'avg'})
+	stim['window2'] = visual.Window(**winkeys)
+	imgwin = stim['window2']
+else:
+	imgwin = stim['window']
+
 
 # STIMULI
 # -------
@@ -132,16 +143,7 @@ def feedback_circle(win=win, radius=2.5, edges=64, color='green', pos=[0, 0]):
 
 # prepare stimuli
 # ---------------
-stim = {}
-stim['window'] = win
 
-# resolve multiple screens stuff
-if exp['two screens']:
-	winkeys.update({'screen' : 0, 'blendMode' : 'avg'})
-	stim['window2'] = visual.Window(**winkeys)
-	imgwin = stim['window2']
-else:
-	imgwin = stim['window']
 
 # create all target orientations
 stim['target'] = dict()
