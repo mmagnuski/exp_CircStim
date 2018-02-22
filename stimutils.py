@@ -227,8 +227,10 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 		if f == 3:
 			clear_port(exp['port'])
 
-	# clear keyboard buffer
-	event.getKeys()
+	# clear keyboard buffer, check for quit
+	k = event.getKeys()
+	if 'q' in k:
+		core.quit()
 
 	# present target
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
