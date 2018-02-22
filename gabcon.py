@@ -234,7 +234,7 @@ if exp['run fitting']:
     stim_params = to_db(np.arange(min_step, 1. + min_step, min_step))
     model_threshold = np.arange(-20, 3., 1.)
     model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
-    model_lapse = np.arange(0., 0.16, 0.01)
+    model_lapse = np.arange(0., 0.11, 0.01)
     stim_params = np.arange(-20, 2.1, 0.333) # -20 dB is 0.01 contrast
     qp = QuestPlus(stim_params, [model_threshold, model_slope, model_lapse],
                    function=weibull_db)
