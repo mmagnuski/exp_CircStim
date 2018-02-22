@@ -58,7 +58,7 @@ if __name__ == '__main__' and __package__ is None:
 from .exputils  import (plot_Feedback, create_database,
                         ContrastInterface, DataManager,
                         ExperimenterInfo, AnyQuestionsGUI)
-from .weibull   import Weibull, QuestPlus, weibull_db
+from .weibull   import Weibull, QuestPlus, weibull_db, PsychometricMonkey
 from .utils     import to_percent, trim_df
 from .stimutils import (exp, db, stim, present_trial, present_break,
     show_resp_rules, textscreen, present_feedback, present_training,
@@ -75,6 +75,13 @@ exp = dm.update_exp(exp)
 exp['numTrials'] = 560 # ugly hack, CHANGE
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
+
+if exp['debug']:
+    resp_mapping = exp['keymap']
+    monkey = PsychometricMonkey(response_mapping=resp_mapping,
+                                intensity_var='opacity',
+                                stimulus_var='orientation')
+else: monkey = None
 
 
 # TODO: add eeg baseline (resting-state)!
@@ -193,7 +200,7 @@ if exp['run fitting']:
         # setup stimulus and present trial
         exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp)
+        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
         stim['window'].flip()
 
         # set trial type, get response and inform staircase about it
@@ -243,7 +250,7 @@ if exp['run fitting']:
         # setup stimulus and present trial
         exp['opacity'] = [from_db(contrast), from_db(contrast)]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp)
+        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
         stim['window'].flip()
 
         # set trial type, get response and inform staircase about it
@@ -303,7 +310,7 @@ if exp['run fitting']:
         # setup stimulus and present trial
         exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp)
+        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
         stim['window'].flip()
 
         # set trial type, get response and inform staircase about it
@@ -370,7 +377,7 @@ if exp['run main c']:
     # main loop
     for i in range(1, db_c.shape[0] + 1):
         core.wait(0.5) # pre-fixation time is always the same
-        present_trial(i, exp=exp, db=db_c, use_exp=False)
+        present_trial(i, exp=exp, db=db_c, use_exp=False, monkey=monkey)
         stim['window'].flip()
 
         # present break

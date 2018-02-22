@@ -188,8 +188,8 @@ def clear_port(portdict):
 # PRESENTATION
 # ------------
 
-def present_trial(tr, exp = exp, stim = stim, db = db,
-					  win = stim['window'], use_exp=True):
+def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
+				  use_exp=True, monkey=None):
 	# PREPARE
 	# -------
 
@@ -250,23 +250,25 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 		win.flip()
 	clear_port(exp['port'])
 
+	# response
+	evaluate_response(df, exp, tr, monkey=monkey)
 
-	# RESPONSE
-	# --------
 
+def evaluate_response(df, exp, trial, monkey=None):
 	# which keys we wait for:
 	keys = exp['use keys']
 	if exp['debug']: keys += ['q']
 
-	# check if response
-	k = event.getKeys(keyList = keys,
-					  timeStamped = exp['clock'])
+	if monkey is None:
+		# check if response
+		k = event.getKeys(keyList=keys, timeStamped=exp['clock'])
 
-	# wait for response (timeout)
-	if not k:
-		k = event.waitKeys(maxWait = exp['respWait'],
-					       keyList = keys,
-					       timeStamped = exp['clock'])
+		# wait for response (timeout)
+		if not k: k = event.waitKeys(maxWait=exp['respWait'], keyList=keys,
+									 timeStamped=exp['clock'])
+	else:
+		core.wait(0.15)
+		k = (monkey.respond(df.loc[trial, :]), 0.15)
 
 	# calculate RT and ifcorrect
 	if k:
@@ -277,13 +279,13 @@ def present_trial(tr, exp = exp, stim = stim, db = db,
 				core.quit()
 
 		# performance
-		db.loc[tr, 'response']  = key
-		db.loc[tr, 'RT']        = RT
-		target_ori = db.loc[tr]['orientation']
-		db.loc[tr, 'ifcorrect'] = int(exp['keymap'][target_ori] == key)
+		db.loc[trial, 'response']  = key
+		db.loc[trial, 'RT']        = RT
+		target_ori = db.loc[trial]['orientation']
+		db.loc[trial, 'ifcorrect'] = int(exp['keymap'][target_ori] == key)
 	else:
-		db.loc[tr, 'response']  = 'NoResp'
-		db.loc[tr, 'ifcorrect'] = 0
+		db.loc[trial, 'response']  = 'NoResp'
+		db.loc[trial, 'ifcorrect'] = 0
 
 
 def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim):

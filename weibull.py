@@ -9,6 +9,7 @@
 from __future__ import absolute_import
 import os
 import sys
+import random
 from copy import deepcopy
 
 import numpy as np
@@ -403,3 +404,42 @@ def plot_threshold_entropy(qps, corrs=None, axis=None):
 
     axis.legend()
     return axis
+
+
+# - [ ] BaseMonkey needs fixing
+class BaseMonkey(object):
+    def __init__(self, respfun='random', response_mapping=None):
+        if respfun == 'random':
+            self.respfun = lambda x, c: sample([0, 1], 1)[0]
+        self.response_mapping = response_mapping
+
+    def respond(self, trial):
+        correct_response = self.response_mapping(trial)
+        response = self.respfun(trial, correct_response=correct_response)
+        return response
+
+
+class PsychometricMonkey(object):
+    def __init__(self, psychometric=None, response_mapping=None,
+                 intensity_var=None, stimulus_var=None):
+        if psychometric is None:
+            # init some reasonable psychometric function
+            psychometric =  Weibull()
+            psychometric.params = [0.5, 4.5, 0.05]
+
+        self.psychometric = psychometric
+        self.response_mapping = response_mapping
+        self.stimulus_var = stimulus_var
+        self.intensity_var = intensity_var
+        self.response_keys = list(set(response_mapping.values()))
+
+    def respond(self, trial):
+        prob_correct = self.psychometric.predict(trial[self.intensity_var])
+        random_val = np.random.rand()
+        correct_response = self.response_mapping[trial[self.stimulus_var]]
+        if random_val <= prob_correct:
+            return correct_response
+        else:
+            incorrect_keys = list(self.response_keys)
+            incorrect_keys.remove(correct_response)
+            return random.sample(incorrect_keys, 1)[0]
