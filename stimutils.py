@@ -256,7 +256,7 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 		clear_port(exp['port'])
 
 	# response
-	evaluate_response(df, exp, tr, monkey=monkey)
+	evaluate_response(db, exp, tr, monkey=monkey)
 
 
 def evaluate_response(df, exp, trial, monkey=None):
