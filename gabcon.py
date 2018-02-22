@@ -162,7 +162,7 @@ if exp['run training'] and not exp['debug']:
                 df_train = trim_df(df)
             else:
                 df_train = pd.concat([df_train, trim_df(df)])
-                df_train.index = np.r_[1:df_train.shape[0]+1]
+                df_train.index = np.r_[1:df_train.shape[0] + 1]
         else:
             df_train = trim_df(df)
 

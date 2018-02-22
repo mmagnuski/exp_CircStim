@@ -406,19 +406,18 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 	win.callOnFlip(onflip_work, exp['port'], code='breakStart')
 
 	# create diagonal on one side and cardinal on the other
-	ch    = int(exp['keymap'][45] == exp['use keys'][0])
+	ch = int(exp['keymap'][45] == exp['use keys'][0])
 
 	stims = []
-	ornt      = [[0, 90], [45, 135]]
-	ornt      = ornt[ch] + ornt[1- ch]
+	ornt = [[0, 90], [45, 135]]
+	ornt = ornt[ch] + ornt[1 - ch]
 
 	positions = [[-1, -0.43], [-1, 0.43], \
 				 [1, -0.43],  [1, 0.43]]
 	positions = np.array(positions) * 10
 
 	for o, p in zip(ornt, positions):
-		stims.append(gabor(ori = o, pos  = p, size = 4,
-						   units = 'deg'))
+		stims.append(gabor(ori=o, pos=p, size=4, units='deg'))
 
 	# add info on correct responses
 	tx = [ u'naciśnij  ' + exp['keymap'][ornt[0]],
@@ -429,23 +428,20 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 	txStim = []
 
 	for t, p in zip(tx, positions):
-		txStim.append(visual.TextStim(win, text = t,
-			pos = p, units = 'deg'))
+		txStim.append(visual.TextStim(win, text=t, pos=p, units='deg'))
 
 	# draw all:
 	for t in txStim:
 		t.draw()
-	# fix window blendMode:
-	win.blendMode = 'add'
-	for g in stims:
-		g.draw()
 
 	# draw text if necessary:
 	if text:
 		visual.TextStim(win, text=text).draw()
-		# fix window blendMode:
-		win.blendMode = 'add'
 
+	# fix window blendMode:
+	win.blendMode = 'add'
+	for g in stims:
+		g.draw()
 	win.flip()
 
 	if not auto:
@@ -474,7 +470,7 @@ def present_break(t, exp=exp, win=stim['window'], auto=False):
 	tex  = u'Ukończono  {0} / {1}  powtórzeń.\nMożesz teraz ' + \
 		   u'chwilę odetchnąc.\nNaciśnij spację aby kontynuowac...'
 	tex  = tex.format(t, exp['numTrials'])
-	info = visual.TextStim(win, text = tex, pos = [0, 0], units = 'norm')
+	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
 
 	info.draw()
 	# fix window blendMode:
@@ -504,12 +500,10 @@ def give_training_db(db, exp=exp, slowdown=8):
 
 class Instructions:
 
-	nextpage   = 0
-	mapdict    = {'gabor': gabor, 'text': txt_newlines,
-		'fix':fix, 'feedback': feedback_circle}
-	navigation = {'left': 'prev',
-				  'right': 'next',
-				  'space': 'next'}
+	nextpage = 0
+	mapdict = {'gabor': gabor, 'text': txt_newlines, 'fix': fix,
+			   'feedback': feedback_circle}
+	navigation = {'left': 'prev', 'right': 'next', 'space': 'next'}
 
 	def __init__(self, fname, win=win, auto=False):
 		self.win = win
