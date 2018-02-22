@@ -15,41 +15,39 @@ exp['debug']        = True
 exp['two screens']  = True
 exp['use trigger']  = True
 
-exp['run blinkdot'] = False
-exp['run baseline1'] = False
+exp['run blinkdot'] = False   # NOT USED?
+exp['run baseline1'] = False  # NOT USED --> should be used
 exp['run instruct'] = True
-exp['run training'] = True
+exp['run training'] = False
 exp['run fitting']  = True
 exp['run main c']   = True
-exp['run main t']   = True
-exp['break after']  = 15  # how often subjects have a break
+exp['break after']  = 15  # how often subjects have a break # NOT USED?
 exp['run baseline2'] = False
 
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['clock']        = core.Clock()
 
 # contrast settings
-exp['corrLims']    = [0.55, 0.95]
-exp['opacity']     = [0.05, 0.8]
-exp['min opac']    = 0.005
-exp['max opac']    = 2.0
-exp['opac steps']  = 10
+exp['corrLims']    = [0.55, 0.95] # NOT USED?
+exp['opacity']     = [0.05, 0.8]  # NOT USED?
+exp['min opac']    = 0.005        # NOT USED?
+exp['max opac']    = 2.0          # NOT USED?
+exp['opac steps']  = 10           # NOT USED?
 
 # training settings
 exp['train slow']   = [8, 5, 3, 2, 1]
 exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 
 # fitting settings
-exp['step until']   = [10, 35]  # continue stepwise until this trial
-exp['fit until']    = 75 # continue fitting until this trial
-exp['fitCorrLims']  = [0.55, 0.95]
-exp['search method']= '4steps'
-exp['max fit']      = 200
+exp['staircase trials']     = 10   # max value, default 25
+exp['QUEST plus trials']    = 50  # default 100
+exp['threshold opt trials'] = 25   # default 50
+exp['fitCorrLims']  = [0.55, 0.95]  # only used in gui.py ContrastInterface which is not used
 
 # timing settings
-exp['targetTime']  = [1] # maybe test with targetTime == 2?
-exp['SMI']         = [2] # Stimulus Mask Interval
-exp['fixTimeLim']  = [0.75, 2.5]
+exp['targetTime']  = [2] # maybe test with targetTime == 2?
+exp['SMI']         = [1] # Stimulus Mask Interval
+exp['fixTimeLim']  = [1., 2.5]
 exp['maskTime']    = [20]
 exp['fdb time']    = [40] # feedback time in frames
 exp['respWait']    = 1.5
@@ -115,4 +113,4 @@ exp['frm'] = getFrameRate(win)
 win.close()
 
 # create base dataframe
-db = create_database(exp, trials=300)
+db = create_database(exp, trials=600)

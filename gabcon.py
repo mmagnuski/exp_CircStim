@@ -55,8 +55,7 @@ if __name__ == '__main__' and __package__ is None:
     __package__ = "GabCon"
     import GabCon # maybe not necessary
 
-from .exputils  import (plot_Feedback, create_database,
-                        ContrastInterface, DataManager,
+from .exputils  import (plot_Feedback, create_database, DataManager,
                         ExperimenterInfo, AnyQuestionsGUI)
 from .weibull   import Weibull, QuestPlus, weibull_db, PsychometricMonkey
 from .utils     import to_percent, trim_df
@@ -68,6 +67,8 @@ from .viz import plot_quest_plus
 if exp['use trigger']:
     from ctypes import windll
 
+# make mouse invisible
+stim['window'].mouseVisible = False
 
 # set logging
 dm = DataManager(exp)
@@ -166,8 +167,10 @@ if exp['run training'] and not exp['debug']:
     df_train.to_excel(dm.give_path('a'))
 
 
-# Contrast fitting - Staricase, Quest+
-# ------------------------------------
+# Contrast fitting
+# ----------------
+# staircase, QuestPlus, then QPThreshold
+
 if exp['run fitting']:
     # some instructions
     if exp['run instruct']:
@@ -187,7 +190,7 @@ if exp['run fitting']:
     # ---------
     # we start with staircase to make sure subjects familiarize themselves
     # with adapting contrast regime before the main fitting starts
-    max_trials = 25
+    max_trials = exp['staircase trials']
     current_trial = 1
     staircase = StairHandler(0.8, nTrials=max_trials, nUp=1, nDown=2,
                              nReversals=7, minVal=0.001, maxVal=2,
@@ -236,7 +239,6 @@ if exp['run fitting']:
     qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
 
     # update experimenters view:
-    step_until = exp['step until']
     block_name = 'Quest Plus - dopasowywanie kontrastu'
     exp_info.blok_info(block_name, [0, 100])
 
@@ -244,7 +246,7 @@ if exp['run fitting']:
     show_resp_rules(exp=exp)
     stim['window'].flip()
 
-    for trial in range(100):
+    for trial in range(exp['QUEST plus trials']):
         # CHECK if blok_info flips the screen, better if not...
         exp_info.blok_info(block_name, [trial + 1, 100])
 
@@ -285,6 +287,10 @@ if exp['run fitting']:
             # it is not predictable when refresh is going to happen
             qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
 
+    # saving quest may seem unnecessary - posterior can be reproduced
+    # from trials, nevertheless it is useful for debugging
+    posterior_filename = dm.give_path('posterior', file_ending='npy')
+    np.save(posterior_filename, qp.posterior)
 
     # threshold fitting
     # -----------------
@@ -305,8 +311,8 @@ if exp['run fitting']:
     msg = 'time taken to update QuestPlus threshold plot: {:.3f}'
     logging.warn(msg.format(time_delta))
 
-    # optimize thresholds
-    for trial in range(50):
+    # optimize thresh...
+    for trial in range(exp['threshold opt trials']):
         # select contrast
         posteriors = [qp.get_threshold().sum(axis=(1, 2)) for qp in qps]
         posterior_peak = [posterior.max() for posterior in posteriors]
@@ -357,8 +363,9 @@ if exp['run fitting']:
 
     # saving quest may seem unnecessary - posterior can be reproduced
     # from trials, nevertheless we save the posterior as numpy array
-    posterior_filename = dm.give_path('posterior', file_ending='npy')
-    np.save(posterior_filename, qp[2].posterior)
+    posterior_filename = dm.give_path('posterior_thresh', file_ending='npy')
+    np.save(posterior_filename, qps[2].posterior)
+    # + save stim space
 
 
 # EXPERIMENT - part c

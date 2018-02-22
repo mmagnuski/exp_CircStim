@@ -31,6 +31,17 @@ win = visual.Window(**winkeys)
 #     useFBO=True, blendMode='add')
 win.setMouseVisible(False)
 
+stim = dict()
+stim['window'] = win
+
+# resolve multiple screens stuff
+if exp['two screens']:
+	winkeys.update({'screen' : 0, 'blendMode' : 'avg'})
+	stim['window2'] = visual.Window(**winkeys)
+	imgwin = stim['window2']
+else:
+	imgwin = stim['window']
+
 
 # STIMULI
 # -------
@@ -113,19 +124,18 @@ class Gabor(object):
 
 
 def fix(win=win, color=(0.5, 0.5, 0.5)):
-	dot = visual.Circle(win, radius=0.15,
-		edges=16, units='deg', interpolate=True)
+	dot = visual.Circle(win, radius=0.18, edges=16, units='deg',
+						interpolate=True)
 	dot.setFillColor(color)
 	dot.setLineColor(color)
 	return dot
 
 
-def feedback_circle(win=win, radius=2.5, edges=64,
-	color='green', pos=[0,0]):
+def feedback_circle(win=win, radius=2.5, edges=64, color='green', pos=[0, 0]):
 	color_mapping = {'green': [0.1, 0.9, 0.1], 'red': [0.9, 0.1, 0.1]}
 	color = color_mapping[color]
 	circ = visual.Circle(win, pos=pos, radius=radius, edges=edges,
-		units='deg', interpolate=True)
+						 units='deg', interpolate=True)
 	circ.setFillColor(color)
 	circ.setLineColor(color)
 	return circ
@@ -133,16 +143,7 @@ def feedback_circle(win=win, radius=2.5, edges=64,
 
 # prepare stimuli
 # ---------------
-stim = {}
-stim['window'] = win
 
-# resolve multiple screens stuff
-if exp['two screens']:
-	winkeys.update({'screen' : 0, 'blendMode' : 'avg'})
-	stim['window2'] = visual.Window(**winkeys)
-	imgwin = stim['window2']
-else:
-	imgwin = stim['window']
 
 # create all target orientations
 stim['target'] = dict()
@@ -192,18 +193,17 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 				  use_exp=True, monkey=None):
 	# PREPARE
 	# -------
-
 	# randomize opacity if not set
 	if use_exp:
+		# set target time and SMI
+		db.loc[tr, 'targetTime'] = exp['targetTime'][0]
+		db.loc[tr, 'SMI'] = exp['SMI'][0]
 		if exp['opacity'][0] == exp['opacity'][1]:
 			db.loc[tr, 'opacity'] = exp['opacity'][0]
 		else:
-			db.loc[tr, 'opacity'] = np.round(
-				np.random.uniform(
-					low = exp['opacity'][0],
-					high = exp['opacity'][1],
-					size = 1
-					)[0], decimals = 3)
+			db.loc[tr, 'opacity'] = np.round(np.random.uniform(
+				low=exp['opacity'][0], high=exp['opacity'][1], size=1
+				)[0], decimals = 3)
 
 	# set target properties
 	orientation = db.loc[tr]['orientation']
@@ -243,12 +243,17 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	clear_port(exp['port'])
 
 	# mask
+	cleared = False
 	win.callOnFlip(onflip_work, exp['port'], code='mask')
 	for f in np.arange(db.loc[tr]['maskTime']):
 		for m in stim['mask']:
 			m.draw()
 		win.flip()
-	clear_port(exp['port'])
+		if f == 3:
+			clear_port(exp['port'])
+			cleared = True
+	if not cleared:
+		clear_port(exp['port'])
 
 	# response
 	evaluate_response(df, exp, tr, monkey=monkey)
