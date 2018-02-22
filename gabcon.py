@@ -115,7 +115,7 @@ show_resp_rules(exp=exp, text=(u"Zaraz rozpocznie się trening." +
 
 # TRAINING
 # --------
-if exp['run training']:
+if exp['run training'] and not exp['debug']:
 
     # signal onset of training
     core.wait(0.05)
@@ -233,6 +233,7 @@ if exp['run fitting']:
                    function=weibull_db)
     min_idx = np.abs(stim_params - to_db(start_contrast)).argmin()
     contrast = stim_params[min_idx]
+    qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
 
     # update experimenters view:
     step_until = exp['step until']
@@ -260,7 +261,8 @@ if exp['run fitting']:
         contrast = qp.next_contrast()
         current_trial += 1
 
-        if current_trial % 10 == 0: # exp['break after']
+        has_break = current_trial % 10 == 0
+        if has_break: # exp['break after']
             save_db = trim_df(fitting_db)
             save_db.to_excel(dm.give_path('b'))
 
@@ -269,14 +271,19 @@ if exp['run fitting']:
             stim['window'].flip()
 
         # visual feedback on parameters probability
-        t0 = time.clock()
-        img_name = op.join(exp['data'], 'quest_plus_panel.png')
-        plot_quest_plus(qp).savefig(img_name, dpi=120)
+        if current_trial % qp_refresh_rate == 0 or has_break:
+            t0 = time.clock()
+            img_name = op.join(exp['data'], 'quest_plus_panel.png')
+            plot_quest_plus(qp).savefig(img_name, dpi=120)
+            stim['window'].winHandle.activate()
 
-        exp_info.experimenter_plot(self, img_name, logging=None)
-        time_delta = time.clock() - t0
-        msg = 'time taken to update QuestPlus panel plot: {:.3f}'
-        logging.warn(msg.format(time_delta))
+            exp_info.experimenter_plot(self, img_name, logging=None)
+            time_delta = time.clock() - t0
+            msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
+            logging.warn(msg.format(time_delta))
+            # quest plus refresh adds ~ 1 s to ITI so we prefer that
+            # it is not predictable when refresh is going to happen
+            qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
 
 
     # threshold fitting
@@ -291,12 +298,14 @@ if exp['run fitting']:
     ax = plot_threshold_entropy(qps, corrs=corrs)
     img_name = op.join(exp['data'], 'quest_plus_thresholds.png')
     ax.figure.savefig(img_name, dpi=180)
+    stim['window'].winHandle.activate()
+
     exp_info.experimenter_plot(img_name, logging=None)
     time_delta = time.clock() - t0
     msg = 'time taken to update QuestPlus threshold plot: {:.3f}'
     logging.warn(msg.format(time_delta))
 
-    # optimize thresh...
+    # optimize thresholds
     for trial in range(50):
         # select contrast
         posteriors = [qp.get_threshold().sum(axis=(1, 2)) for qp in qps]
@@ -320,7 +329,8 @@ if exp['run fitting']:
             qp.update(contrast, response)
         current_trial += 1
 
-        if current_trial % 10 == 0: # exp['break after']
+        has_break = current_trial % 10 == 0
+        if has_break: # exp['break after']
             save_db = trim_df(fitting_db)
             save_db.to_excel(dm.give_path('b'))
 
@@ -329,13 +339,17 @@ if exp['run fitting']:
             stim['window'].flip()
 
         # visual feedback on parameters probability
-        t0 = time.clock()
-        ax = plot_threshold_entropy(qps, corrs=corrs)
-        ax.figure.savefig(img_name, dpi=180)
-        exp_info.experimenter_plot(img_name, logging=None)
-        time_delta = time.clock() - t0
-        msg = 'time taken to update QuestPlus threshold plot: {:.3f}'
-        logging.warn(msg.format(time_delta))
+        if current_trial % qp_refresh_rate == 0 or has_break:
+            t0 = time.clock()
+            ax = plot_threshold_entropy(qps, corrs=corrs)
+            ax.figure.savefig(img_name, dpi=180)
+            stim['window'].winHandle.activate()
+
+            exp_info.experimenter_plot(img_name, logging=None)
+            time_delta = time.clock() - t0
+            msg = 'time taken to update QuestPlus threshold plot: {:.3f}\n'
+            logging.warn(msg.format(time_delta))
+            qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
 
     # save fitting dataframe
     fitting_db = trim_df(fitting_db)
