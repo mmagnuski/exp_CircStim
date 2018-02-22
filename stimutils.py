@@ -2,23 +2,28 @@
 
 # imports
 # -------
+import os
+import re
+import yaml
+import time
+from random import sample
+import numpy  as np
+
 from psychopy import core, visual, event, monitors
 from settings import exp, db
-from exputils import getFrameRate
+from exputils import getFrameRate, trim_df
 from utils    import trim, to_percent
-import numpy  as np
-import yaml
-import re
-import os
 
 if os.name == 'nt' and exp['use trigger']:
 	from ctypes import windll
+
 
 # setup monitor
 monitorName = "testMonitor"
 monitors = monitors.getAllMonitors()
 if "BENQ-XL2411" in monitors:
 	monitorName = "BENQ-XL2411"
+
 
 # create a window
 # ---------------
@@ -73,13 +78,10 @@ def txt_newlines(win=win, exp=exp, text='', **kwargs):
 
 
 # gabor creation
-def gabor(win = win, ori = 0, opa = 1.0,
-		  pos  = [0, 0], size = exp['gabor size'],
-		  units = 'deg', sf = exp['gabor freq']):
-	return visual.GratingStim(win     = win,  mask = "gauss", \
-							  size    = size, pos  = pos, \
-							  sf      = sf,   ori  = ori,      \
-							  opacity = opa,  units = units)
+def gabor(win=win, ori=0, opa=1.0, pos=(0, 0), size=exp['gabor size'],
+		  units='deg', sf=exp['gabor freq']):
+	return visual.GratingStim(win=win, mask="gauss", size=size, pos=pos,
+							  sf=sf, ori=ori, opacity=opa, units=units)
 
 
 class Gabor(object):
@@ -143,7 +145,6 @@ def feedback_circle(win=win, radius=2.5, edges=64, color='green', pos=[0, 0]):
 
 # prepare stimuli
 # ---------------
-
 
 # create all target orientations
 stim['target'] = dict()
@@ -298,7 +299,7 @@ def evaluate_response(df, exp, trial, monkey=None):
 
 # - [ ] TODO Monkey istead of auto
 def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
-					 auto=False):
+					 monkey=None):
 	i = 1
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
@@ -309,7 +310,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
 	while train_corr < corr or i < mintrials:
 		stim['window'].flip()
 		core.wait(0.5)
-		present_trial(i, exp=exp, db=train_db)
+		present_trial(i, exp=exp, db=train_db, monkey=monkey)
 		present_feedback(i, db=train_db)
 
 		# check correctness
@@ -434,6 +435,35 @@ def present_break(t, exp=exp, win=stim['window'], auto=False):
 		core.wait(0.1)
 
 
+def break_checker(window, exp, df, exp_info, logfile, current_trial,
+                  qp_refresh_rate=3, plot_fun=None, plot_arg=None, dpi=120,
+                  img_name='temp.png', df_save_path='temp.xlsx'):
+
+    has_break = current_trial % exp['break after'] == 0
+    if has_break:
+        save_df = trim_df(df)
+        save_df.to_excel(df_save_path)
+
+        # remind about the button press mappings
+        show_resp_rules(exp=exp, auto=exp['debug'])
+        window.flip()
+
+    # visual feedback on parameters probability
+    if current_trial % qp_refresh_rate == 0 or has_break:
+        t0 = time.clock()
+        plot_fun(plot_arg).savefig(img_name, dpi=dpi)
+        window.winHandle.activate()
+
+        exp_info.experimenter_plot(img_name)
+        time_delta = time.clock() - t0
+        msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
+        logfile.write(msg.format(time_delta))
+        # quest plus refresh adds ~ 1 s to ITI so we prefer that
+        # it is not predictable when refresh is going to happen
+        return sample([3, 4, 5], 1)[0]
+    return qp_refresh_rate
+
+
 def give_training_db(db, exp=exp, slowdown=8):
 	# copy the dataframe
 	train_db = db.copy()
@@ -449,7 +479,6 @@ def give_training_db(db, exp=exp, slowdown=8):
 
 
 class Instructions:
-
 	nextpage = 0
 	mapdict = {'gabor': gabor, 'text': txt_newlines, 'fix': fix,
 			   'feedback': feedback_circle}

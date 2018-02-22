@@ -22,6 +22,7 @@ from .utils import trim, trim_df, round2step, reformat_params
 from .viz import plot_weibull, plot_quest_plus
 
 
+# from dB and to dB utility functions:
 to_db = lambda x: 10 * np.log10(x)
 from_db = lambda x: 10 ** (x / 10.)
 
@@ -246,7 +247,6 @@ class QuestPlus(object):
         Returns
         -------
         contrast : contrast value for the next trial.'''
-        # compute next trial contrast
         full_posterior = self.likelihoods * self.posterior[
             np.newaxis, :, np.newaxis]
         if axis is not None:
@@ -352,7 +352,7 @@ def init_thresh_optim(df, qp):
     corrs = np.linspace(0.6, min(0.9, top_corr), num=5)
     param_space = [thresh_params, model_slope, model_lapse]
     for corr in corrs:
-        this_wb = partial(wb.weibull, corr_at_thresh=corr)
+        this_wb = partial(weibull, corr_at_thresh=corr)
         qp = QuestPlus(stim_params, param_space, function=this_wb)
         qp.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], approximate=True);
         qps.append(qp)
@@ -385,7 +385,7 @@ class PsychometricMonkey(object):
         if psychometric is None:
             # init some reasonable psychometric function
             psychometric =  Weibull()
-            psychometric.params = [0.5, 4.5, 0.05]
+            psychometric.params = [0.1, 4.5, 0.05]
 
         self.psychometric = psychometric
         self.response_mapping = response_mapping

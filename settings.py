@@ -15,13 +15,11 @@ exp['debug']        = False
 exp['two screens']  = True
 exp['use trigger']  = True
 
-exp['run blinkdot'] = False   # NOT USED?
 exp['run baseline1'] = False  # NOT USED --> should be used
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True
 exp['run main c']   = True
-exp['break after']  = 15  # how often subjects have a break # NOT USED?
 exp['run baseline2'] = False
 
 exp['port address'] = '0xDC00' # string, for example '0xD05'
@@ -39,15 +37,16 @@ exp['train slow']   = [8, 5, 3, 2, 1]
 exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 
 # fitting settings
-exp['staircase trials']     = 25   # max value, default 25
-exp['QUEST plus trials']    = 100  # default 100
-exp['threshold opt trials'] = 50   # default 50
+exp['break after']  = 12
+exp['staircase trials']  = 25   # max value, default 25
+exp['QUEST plus trials'] = 100  # default 100
+exp['thresh opt trials'] = 50   # default 50
 exp['fitCorrLims']  = [0.55, 0.95]  # only used in gui.py ContrastInterface which is not used
 
 # timing settings
 exp['targetTime']  = [2] # maybe test with targetTime == 2?
 exp['SMI']         = [1] # Stimulus Mask Interval
-exp['fixTimeLim']  = [1., 2.5]
+exp['fixTimeLim']  = [1., 2.5] if not exp['debug'] else [0.1, 0.2]
 exp['maskTime']    = [20]
 exp['fdb time']    = [40] # feedback time in frames
 exp['respWait']    = 1.5

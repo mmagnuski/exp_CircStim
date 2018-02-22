@@ -58,15 +58,17 @@ if __name__ == '__main__' and __package__ is None:
 from .exputils  import (plot_Feedback, create_database, DataManager,
                         ExperimenterInfo, AnyQuestionsGUI)
 from .weibull   import (Weibull, QuestPlus, weibull_db, PsychometricMonkey,
-                        init_thresh_optim)
+                        init_thresh_optim, plot_threshold_entropy, from_db,
+                        to_db)
 from .utils     import to_percent, trim_df
 from .stimutils import (exp, db, stim, present_trial, present_break,
     show_resp_rules, textscreen, present_feedback, present_training,
-    give_training_db, Instructions, onflip_work, clear_port)
+    give_training_db, Instructions, onflip_work, clear_port, break_checker)
 from .viz import plot_quest_plus
 
 if exp['use trigger']:
     from ctypes import windll
+
 
 # make mouse invisible
 stim['window'].mouseVisible = False
@@ -78,24 +80,21 @@ exp['numTrials'] = 560 # ugly hack, CHANGE
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
 
+monkey = None
 if exp['debug']:
     resp_mapping = exp['keymap']
-    monkey = PsychometricMonkey(response_mapping=resp_mapping,
-                                intensity_var='opacity',
-                                stimulus_var='orientation')
-else: monkey = None
+    monkey = PsychometricMonkey(
+        response_mapping=resp_mapping, intensity_var='opacity',
+        stimulus_var='orientation')
 
-
-# TODO: add eeg baseline (resting-state)!
-# TODO: add some more logging?
 
 # create object for updating experimenter about progress
 exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
                             sub_text_pos=(0, 0.78))
 
-# from dB and to dB utility functions:
-to_db = lambda x: 10 * np.log10(x)
-from_db = lambda x: 10 ** (x / 10.)
+
+# TODO: add eeg baseline (resting-state)!
+# TODO: add some more logging?
 
 
 # INSTRUCTIONS
@@ -135,13 +134,13 @@ if exp['run training'] and not exp['debug']:
 
     slow['opacity'] = np.array([1.0, 1.0])
     txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
-    addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.' +
-        u'\nAby przejść dalej naciśnij spację.')
+    addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.'
+              u'\nAby przejść dalej naciśnij spację.')
 
     for s, c in zip(exp['train slow'], exp['train corr']):
         # present current training block until correctness is achieved
         df, current_corr = present_training(exp=slow, slowdown=s, corr=c,
-                                            auto=exp['debug'])
+                                            monkey=monkey)
         current_block += 1
 
         # update experimenter info:
@@ -150,24 +149,17 @@ if exp['run training'] and not exp['debug']:
 
         # show info for the subject:
         if s == 1:
-            addtxt = (u'Koniec treningu.\nAby przejść dalej ' +
+            addtxt = (u'Koniec treningu.\nAby przejść dalej '
                       u'naciśnij spację.')
         now_txt = txt + addtxt
         textscreen(now_txt.format(to_percent(current_corr)), auto=exp['debug'])
-        show_resp_rules(exp=exp)
+        show_resp_rules(exp=exp, auto=exp['debug'])
 
-        # this could be improved:
-        # concatenate training db's (and change indexing)
-        if 'df_train' in locals():
-            if isinstance(df_train, list):
-                df_train = trim_df(df)
-            else:
-                df_train = pd.concat([df_train, trim_df(df)])
-                df_train.index = np.r_[1:df_train.shape[0] + 1]
-        else:
-            df_train = trim_df(df)
+        # concatenate training df's
+        df_train.append(trim_df(df))
 
     # save training database:
+    df_train = pd.concat(df_train).reset_index(drop=True, inplace=True)
     df_train.to_excel(dm.give_path('a'))
 
 
@@ -194,10 +186,10 @@ if exp['run fitting']:
     # ---------
     # we start with staircase to make sure subjects familiarize themselves
     # with adapting contrast regime before the main fitting starts
-    max_trials = exp['staircase trials']
     current_trial = 1
+    max_trials = exp['staircase trials']
     staircase = StairHandler(0.8, nTrials=max_trials, nUp=1, nDown=2,
-                             nReversals=7, minVal=0.001, maxVal=2,
+                             nReversals=6, minVal=0.001, maxVal=2,
                              stepSizes=[0.1, 0.1, 0.05, 0.05, 0.025, 0.025],
                              stepType='lin')
 
@@ -236,14 +228,20 @@ if exp['run fitting']:
     model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
     model_lapse = np.arange(0., 0.11, 0.01)
     stim_params = np.arange(-20, 2.1, 0.333) # -20 dB is 0.01 contrast
+
     qp = QuestPlus(stim_params, [model_threshold, model_slope, model_lapse],
                    function=weibull_db)
     min_idx = np.abs(stim_params - to_db(start_contrast)).argmin()
     contrast = stim_params[min_idx]
-    qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
+
+    # args for break-related stuff
+    qp_refresh_rate = sample([3, 4, 5], 1)[0]
+    img_name = op.join(exp['data'], 'quest_plus_panel.png')
+    plot_fun = lambda x: plot_quest_plus(x)
+    df_save_path = dm.give_path('b')
 
     # update experimenters view:
-    block_name = 'Quest Plus - dopasowywanie kontrastu'
+    block_name = u'Quest Plus, część I'
     exp_info.blok_info(block_name, [0, 100])
 
     # remind about the button press mappings
@@ -265,36 +263,19 @@ if exp['run fitting']:
         response = fitting_db.loc[current_trial, 'ifcorrect']
         qp.update(contrast, response)
         contrast = qp.next_contrast()
+
+        # check for and perform break-related stuff
+        qp_refresh_rate = break_checker(
+            stim['window'], exp, fitting_db, exp_info, lg, current_trial,
+            qp_refresh_rate=qp_refresh_rate, plot_fun=plot_fun, plot_arg=qp,
+            dpi=120, img_name=img_name, df_save_path=df_save_path)
         current_trial += 1
-
-        has_break = current_trial % 10 == 0
-        if has_break: # exp['break after']
-            save_db = trim_df(fitting_db)
-            save_db.to_excel(dm.give_path('b'))
-
-            # remind about the button press mappings
-            show_resp_rules(exp=exp, auto=exp['debug'])
-            stim['window'].flip()
-
-        # visual feedback on parameters probability
-        if current_trial % qp_refresh_rate == 0 or has_break:
-            t0 = time.clock()
-            img_name = op.join(exp['data'], 'quest_plus_panel.png')
-            plot_quest_plus(qp).savefig(img_name, dpi=120)
-            stim['window'].winHandle.activate()
-
-            exp_info.experimenter_plot(img_name)
-            time_delta = time.clock() - t0
-            msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
-            lg.write(msg.format(time_delta))
-            # quest plus refresh adds ~ 1 s to ITI so we prefer that
-            # it is not predictable when refresh is going to happen
-            qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
 
     # saving quest may seem unnecessary - posterior can be reproduced
     # from trials, nevertheless it is useful for debugging
     posterior_filename = dm.give_path('posterior', file_ending='npy')
     np.save(posterior_filename, qp.posterior)
+
 
     # threshold fitting
     # -----------------
@@ -302,21 +283,17 @@ if exp['run fitting']:
     # initialize further threshold optimization
     trimmed_df = trim_df(fitting_db)
     qps, corrs = init_thresh_optim(trimmed_df, qp)
-    block_name = 'threshold optimization'
+    block_name = u'QuestPlus, część II'
 
-    t0 = time.clock()
-    ax = plot_threshold_entropy(qps, corrs=corrs)
+    plot_fun = lambda x: plot_threshold_entropy(x, corrs=corrs).figure
     img_name = op.join(exp['data'], 'quest_plus_thresholds.png')
-    ax.figure.savefig(img_name, dpi=180)
-    stim['window'].winHandle.activate()
-
-    exp_info.experimenter_plot(img_name)
-    time_delta = time.clock() - t0
-    msg = 'time taken to update QuestPlus threshold plot: {:.3f}\n'
-    lg.write(msg.format(time_delta))
-
+    qp_refresh_rate = break_checker(
+        stim['window'], exp, fitting_db, exp_info, lg, 1,
+        qp_refresh_rate=1, plot_fun=plot_fun, plot_arg=qps,
+        dpi=180, img_name=img_name, df_save_path=df_save_path)
+    
     # optimize thresh...
-    for trial in range(exp['threshold opt trials']):
+    for trial in range(exp['thresh opt trials']):
         # select contrast
         posteriors = [qp.get_threshold().sum(axis=(1, 2)) for qp in qps]
         posterior_peak = [posterior.max() for posterior in posteriors]
@@ -324,7 +301,7 @@ if exp['run fitting']:
         contrast = qps[optimize_threshold].next_contrast(axis=(1, 2))
 
         # CHECK if blok_info flips the screen, better if not...
-        exp_info.blok_info(block_name, [trial + 1, 50])
+        exp_info.blok_info(block_name, [trial + 1, exp['thresh opt trials']])
 
         # setup stimulus and present trial
         exp['opacity'] = [contrast, contrast]
@@ -339,27 +316,11 @@ if exp['run fitting']:
             qp.update(contrast, response)
         current_trial += 1
 
-        has_break = current_trial % 10 == 0
-        if has_break: # exp['break after']
-            save_db = trim_df(fitting_db)
-            save_db.to_excel(dm.give_path('b'))
-
-            # remind about the button press mappings
-            show_resp_rules(exp=exp, auto=exp['debug'])
-            stim['window'].flip()
-
-        # visual feedback on parameters probability
-        if current_trial % qp_refresh_rate == 0 or has_break:
-            t0 = time.clock()
-            ax = plot_threshold_entropy(qps, corrs=corrs)
-            ax.figure.savefig(img_name, dpi=180)
-            stim['window'].winHandle.activate()
-
-            exp_info.experimenter_plot(img_name)
-            time_delta = time.clock() - t0
-            msg = 'time taken to update QuestPlus threshold plot: {:.3f}\n'
-            lg.write(msg.format(time_delta))
-            qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
+        # check for and perform break-related stuff
+        qp_refresh_rate = break_checker(
+            stim['window'], exp, fitting_db, exp_info, lg, current_trial,
+            qp_refresh_rate=qp_refresh_rate, plot_fun=plot_fun, plot_arg=qps,
+            dpi=180, img_name=img_name, df_save_path=df_save_path)
 
     # save fitting dataframe
     fitting_db = trim_df(fitting_db)
