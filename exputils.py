@@ -140,26 +140,6 @@ class AnyQuestionsGUI(Interface):
 			core.wait(0.15)
 
 
-def scale_img(win, img, y_margin):
-	winsize = win.size
-	imsize = img.size
-	if isinstance(imsize, np.ndarray) and imsize.ndim == 2:
-		imsize = imsize[0, :]
-	elif isinstance(imsize[0], list) and len(imsize[0]) == 2:
-		imsize = imsize[0]
-	imh_norm = imsize[1] / winsize[1]
-	ypos = 1. - y_margin[0] - imh_norm
-	low_margin = ypos - imh_norm
-	ypos = int(ypos * winsize[1] / 2.)
-
-	if low_margin < y_margin[1]:
-		too_long_prop = (y_margin[1] - low_margin) / imh_norm
-		img.size = np.array(imsize) * (1-too_long_prop)
-		ypos = scale_img(win, img, y_margin)
-
-	return ypos
-
-
 # TODO
 # - [ ] add some of functionality below to chainsaw
 def create_database(exp, trials=None, rep=None, combine_with=None):

@@ -345,60 +345,6 @@ def present_feedback(i, db=db, stim=stim):
 	stim['window'].blendMode = 'add'
 
 
-# class for stepwise constrast adjustment
-class Stepwise(object):
-	"""Stepwise allows for simple staircase adjustment of
-	a given parameter (in this exp - contrast).
-
-	example
-	-------
-	To get a Stepwise object
-	s = Stepwise(corr_ratio=[2, 1], step=0.1)"""
-	def __init__(self, corr_ratio=[2,1], start=1.,
-		step=0.1, vmin=0.1, vmax=1.):
-		self.trial = 1
-		self.direction = 'down'
-		self.reversals = []
-		self.rev_dir    = []
-		self.corr_ratio = corr_ratio
-		self.param = start
-		self.step = step if isinstance(step, list) else [step]
-		self.current_step = self.step[0]
-		self.min = vmin
-		self.max = vmax
-		self.current_ratio = [0, 0]
-
-	def add(self, resp):
-		ind = 0 if resp else 1
-		self.current_ratio[ind] += 1
-		self.trial += 1
-		self.check()
-
-	def next(self):
-		# first check whether param should change
-		self.check()
-		return self.param
-
-	def check(self):
-		if self.current_ratio[0] >= self.corr_ratio[0]:
-			if self.direction == 'up':
-				self.rev_dir.append(self.direction)
-				self.reversals.append(self.param)
-				self.direction = 'down'
-			self.param -= self.current_step
-			self.current_ratio = [0, 0]
-		elif self.current_ratio[1] >= self.corr_ratio[1]:
-			if self.direction == 'down':
-				self.rev_dir.append(self.direction)
-				self.reversals.append(self.param)
-				self.direction = 'up'
-			self.param += self.current_step
-			self.current_ratio = [0, 0]
-
-		self.param = trim(self.param, self.min, self.max)
-		if len(self.step) > len(self.reversals):
-			self.current_step = self.step[len(self.reversals)]
-
 
 # instructions etc.
 # -----------------

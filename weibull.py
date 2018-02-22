@@ -171,20 +171,6 @@ def weibull_db(contrast, params, guess=0.5):
         -10. ** (slope * (contrast - threshold) / 20.))
 
 
-def generalized_logistic(x, params, chance_level=0.5, C=1.):
-    '''
-    A - lower asymptote
-    K - upper asymptote
-    B - growth rate
-    v - where maximum growth occurs (which asymptote)
-    Q - Y(0)
-    C - another scaling parameter
-    '''
-    A = chance_level
-    K, B, v, Q = params
-    return A + (K - A) / ((C + Q * np.exp(-B * x)) ** (1 / v))
-
-
 # TODO:
 # - [ ] highlight lowest point in entropy in plot
 class QuestPlus(object):
@@ -326,25 +312,6 @@ class QuestPlus(object):
         return plot_quest_plus(self)
 
 
-# for interactive plotting:
-# -------------------------
-def fitw(df, ind=None, last=60, init_params=[1., 1.], method='Nelder-Mead'):
-    if ind is None and last:
-        n_rows = df.shape[0]
-        start_ind = min([1, n_rows - last + 1])
-        ind = np.arange(start_ind, n_rows + 1, dtype = 'int')
-
-    # this might not be necessary
-    x = df.loc[ind, 'opacity'].values.astype('float64')
-    y = df.loc[ind, 'ifcorrect'].values.astype('int32')
-
-    # fit on non-nan
-    notnan = ~(np.isnan(y))
-    w = Weibull(method=method)
-    w.fit(x, y, init_params)
-    return w
-
-
 def init_thresh_optim(df, qp):
     '''Initialize threshold optimization.
 
@@ -410,19 +377,6 @@ def plot_threshold_entropy(qps, corrs=None, axis=None):
 
     axis.legend()
     return axis
-
-
-# - [ ] BaseMonkey needs fixing
-class BaseMonkey(object):
-    def __init__(self, respfun='random', response_mapping=None):
-        if respfun == 'random':
-            self.respfun = lambda x, c: sample([0, 1], 1)[0]
-        self.response_mapping = response_mapping
-
-    def respond(self, trial):
-        correct_response = self.response_mapping(trial)
-        response = self.respfun(trial, correct_response=correct_response)
-        return response
 
 
 class PsychometricMonkey(object):
