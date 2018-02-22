@@ -272,8 +272,9 @@ def evaluate_response(df, exp, trial, monkey=None):
 		if not k: k = event.waitKeys(maxWait=exp['respWait'], keyList=keys,
 									 timeStamped=exp['clock'])
 	else:
-		core.wait(0.1 + np.random() * 0.2)
+		core.wait(0.1 + np.random.rand() * 0.2)
 		k = [(monkey.respond(df.loc[trial, :]), 0.15)]
+		print(k)
 
 	# calculate RT and ifcorrect
 	if k:
@@ -284,15 +285,16 @@ def evaluate_response(df, exp, trial, monkey=None):
 				core.quit()
 
 		# performance
-		db.loc[trial, 'response']  = key
-		db.loc[trial, 'RT']        = RT
-		target_ori = db.loc[trial]['orientation']
-		db.loc[trial, 'ifcorrect'] = int(exp['keymap'][target_ori] == key)
+		df.loc[trial, 'response']  = key
+		df.loc[trial, 'RT']        = RT
+		target_ori = df.loc[trial]['orientation']
+		df.loc[trial, 'ifcorrect'] = int(exp['keymap'][target_ori] == key)
 	else:
-		db.loc[trial, 'response']  = 'NoResp'
-		db.loc[trial, 'ifcorrect'] = 0
+		df.loc[trial, 'response']  = 'NoResp'
+		df.loc[trial, 'ifcorrect'] = 0
 
 
+# - [ ] TODO Monkey istead of auto
 def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
 					 auto=False):
 	i = 1
@@ -305,7 +307,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
 	while train_corr < corr or i < mintrials:
 		stim['window'].flip()
 		core.wait(0.5)
-		present_trial(i, exp=exp, db=train_db, auto=auto)
+		present_trial(i, exp=exp, db=train_db)
 		present_feedback(i, db=train_db)
 
 		# check correctness

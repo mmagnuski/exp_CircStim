@@ -10,6 +10,7 @@ from __future__ import absolute_import
 import os
 import sys
 import random
+from functools import partial
 from copy import deepcopy
 
 import numpy as np
@@ -20,6 +21,9 @@ from scipy.optimize import minimize
 from .utils import trim, trim_df, round2step, reformat_params
 from .viz import plot_weibull, plot_quest_plus
 
+
+to_db = lambda x: 10 * np.log10(x)
+from_db = lambda x: 10 ** (x / 10.)
 
 class Weibull:
     '''
@@ -361,7 +365,7 @@ def init_thresh_optim(df, qp):
         Correctness thresholds for consecutive QuestPlus objects.
     '''
     init_params = qp.get_fit_params()
-    weib = wb.Weibull(kind='weibull_db')
+    weib = Weibull(kind='weibull_db')
     weib.fit(to_db(df.loc[:, 'opacity']), df.loc[:, 'ifcorrect'], init_params)
     lapse = weib.params[-1]
     top_corr = max(0.9, 1 - lapse - 0.01)
@@ -373,6 +377,8 @@ def init_thresh_optim(df, qp):
     stim_params = np.linspace(max(0.001, low - rng * 0.1),
                               min(hi + rng * 0.1, 1.5), num=120)
     thresh_params = np.linspace(low, hi, num=100)
+    model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
+    model_lapse = np.arange(0., 0.11, 0.01)
 
     # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
     qps = list()
@@ -380,7 +386,7 @@ def init_thresh_optim(df, qp):
     param_space = [thresh_params, model_slope, model_lapse]
     for corr in corrs:
         this_wb = partial(wb.weibull, corr_at_thresh=corr)
-        qp = wb.QuestPlus(stim_params, param_space, function=this_wb)
+        qp = QuestPlus(stim_params, param_space, function=this_wb)
         qp.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], approximate=True);
         qps.append(qp)
 
