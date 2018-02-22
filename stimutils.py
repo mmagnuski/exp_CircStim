@@ -206,11 +206,11 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 				)[0], decimals = 3)
 
 	# set target properties
-	orientation = db.loc[tr]['orientation']
-	contrast = db.loc[tr]['opacity']
+	orientation = db.loc[tr, 'orientation']
+	contrast = db.loc[tr, 'opacity']
 	target = stim['target'][orientation]
 	target.set_contrast(contrast)
-	target_code = 'target_' + str(int(db.loc[tr]['orientation']))
+	target_code = 'target_' + str(int(db.loc[tr, 'orientation']))
 
 	# get trial start time
 	db.loc[tr, 'time'] = core.getTime()
@@ -221,7 +221,7 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 
 	# present fix:
 	win.callOnFlip(onflip_work, exp['port'], code='fix')
-	for f in np.arange(db.loc[tr]['fixTime']):
+	for f in np.arange(db.loc[tr, 'fixTime']):
 		stim['fix'].draw()
 		win.flip()
 		if f == 3:
@@ -233,19 +233,19 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	# present target
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 		clock=exp['clock'])
-	for f in np.arange(db.loc[tr]['targetTime']):
+	for f in np.arange(db.loc[tr, 'targetTime']):
 		target.draw()
 		win.flip()
 
 	# interval
-	for f in np.arange(db.loc[tr]['SMI']):
+	for f in np.arange(db.loc[tr, 'SMI']):
 		win.flip()
 	clear_port(exp['port'])
 
 	# mask
 	cleared = False
 	win.callOnFlip(onflip_work, exp['port'], code='mask')
-	for f in np.arange(db.loc[tr]['maskTime']):
+	for f in np.arange(db.loc[tr, 'maskTime']):
 		for m in stim['mask']:
 			m.draw()
 		win.flip()
