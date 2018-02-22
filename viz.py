@@ -6,15 +6,19 @@ import matplotlib.pyplot as plt
 
 from .utils import check_color, group
 
-def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
+def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 			 	 mean_points=False, min_bucket='adaptive',
 				 split_bucket='adaptive', line_color=None, contrast_steps=None,
 				 mean_points_color=(0.22, 0.58, 0.78), linewidth=3.):
+	# set up x:
+	if x is None:
+		x = weibull.x
+
 	# get predicted data
 	numpnts = 1000
 	lowest = -40. if weibull.kind == 'weibull_db' else 0.
 	highest = 2. if weibull.kind == 'weibull_db' else 1.2
-	vmin, vmax = max(lowest, weibull.x.min()), min(highest, weibull.x.max())
+	vmin, vmax = max(lowest, x.min()), min(highest, x.max())
 	data_range = vmax - vmin
 	vmin, vmax = (max(lowest, vmin - 0.1 * data_range),
 				  min(vmax + 0.1 * data_range, highest))
@@ -22,7 +26,7 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	y = weibull.predict(x)
 
 	# add noise to y data to increase visibility
-	l = len(weibull.x)
+	l = len(x)
 	yrnd = np.random.uniform(-0.065, 0.065, l)
 
 	if line_color is None:
@@ -48,7 +52,7 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	    # bucketize
 	    # ---------
 	    # get points and sort
-	    x_pnts = weibull.x.copy()
+	    x_pnts = x.copy()
 	    y_pnts = weibull.orig_y.copy()
 	    srt = x_pnts.argsort()
 	    x_pnts = x_pnts[srt]
@@ -132,7 +136,7 @@ def plot_weibull(weibull, pth='', ax=None, points=True, line=True,
 	               lw=2, zorder=4, colors=[0., 0., 0.])
 
 	if points:
-	    plt.scatter(weibull.x, weibull.orig_y + yrnd, alpha=0.6, lw=0,
+	    plt.scatter(x, weibull.orig_y + yrnd, alpha=0.6, lw=0,
 	        zorder=6, c=[0.3, 0.3, 0.3])
 	if line:
 	    plt.plot(x, y, zorder=5, lw=linewidth, color=line_color)

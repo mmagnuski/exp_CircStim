@@ -120,15 +120,16 @@ class Weibull:
     def get_threshold(self, corr):
         return list(map(self._inverse, corr))
 
-    def plot(self, pth='', ax=None, points=True, line=True, mean_points=False,
-             min_bucket='adaptive', split_bucket='adaptive', line_color=None,
-             contrast_steps=None, mean_points_color=(0.22, 0.58, 0.78),
-             linewidth=3.):
-        return plot_weibull(self, pth=pth, ax=ax, points=points, line=line,
-                            mean_points=mean_points, min_bucket=min_bucket,
-                            split_bucket=split_bucket, line_color=line_color,
-                            contrast_steps=contrast_steps, linewidth=linewidth,
-                            mean_points_color=mean_points_color)
+    def plot(self, x=None, pth='', ax=None, points=True, line=True,
+             mean_points=False, min_bucket='adaptive', split_bucket='adaptive',
+             line_color=None, contrast_steps=None, linewidth=3.,
+             mean_points_color=(0.22, 0.58, 0.78)):
+        return plot_weibull(
+            self, x=x, pth=pth, ax=ax, points=points, line=line,
+            mean_points=mean_points, min_bucket=min_bucket,
+            split_bucket=split_bucket, line_color=line_color,
+            contrast_steps=contrast_steps, linewidth=linewidth,
+            mean_points_color=mean_points_color)
 
 
 def outside_bounds(val, bounds):
