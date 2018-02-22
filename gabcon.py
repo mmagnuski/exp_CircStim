@@ -92,8 +92,8 @@ exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
                             sub_text_pos=(0, 0.78))
 
 # from dB and to dB utility functions:
-from_db = lambda x: 10 ** (x / 10.)
 to_db = lambda x: 10 * np.log10(x)
+from_db = lambda x: 10 ** (x / 10.)
 
 
 # INSTRUCTIONS
@@ -222,8 +222,8 @@ if exp['run fitting']:
     # next, after about 25 trials we start main fitting procedure - QUEST+
 
     # init quest plus
-    start_contrast = staircase._nextIntensity
     min_step = 1. / 255
+    start_contrast = staircase._nextIntensity
     stim_params = to_db(np.arange(min_step, 1. + min_step, min_step))
     model_threshold = np.arange(-20, 3., 1.)
     model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)

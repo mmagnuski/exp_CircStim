@@ -277,8 +277,7 @@ class QuestPlus(object):
         return self.stim_domain[self.entropy.argmin()]
 
     # TODO:
-    # - [ ] check correctness, using same contrast twice gives equal results
-    #       to using it once (not correct)
+    # - [ ] check correctness
     def compute_entropy(self, contrasts):
         '''Compute entropy for a sequence of contrasts.'''
 
