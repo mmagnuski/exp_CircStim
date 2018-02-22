@@ -272,8 +272,8 @@ def evaluate_response(df, exp, trial, monkey=None):
 		if not k: k = event.waitKeys(maxWait=exp['respWait'], keyList=keys,
 									 timeStamped=exp['clock'])
 	else:
-		core.wait(0.15)
-		k = (monkey.respond(df.loc[trial, :]), 0.15)
+		core.wait(0.1 + np.random() * 0.2)
+		k = [(monkey.respond(df.loc[trial, :]), 0.15)]
 
 	# calculate RT and ifcorrect
 	if k:
@@ -293,7 +293,8 @@ def evaluate_response(df, exp, trial, monkey=None):
 		db.loc[trial, 'ifcorrect'] = 0
 
 
-def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim):
+def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
+					 auto=False):
 	i = 1
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
@@ -304,7 +305,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim):
 	while train_corr < corr or i < mintrials:
 		stim['window'].flip()
 		core.wait(0.5)
-		present_trial(i, exp=exp, db=train_db)
+		present_trial(i, exp=exp, db=train_db, auto=auto)
 		present_feedback(i, db=train_db)
 
 		# check correctness
@@ -314,8 +315,8 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim):
 		if (i % mintrials) == 0 and train_corr < corr:
 			# show info about correctness and remind key mapping
 			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
-			textscreen(thistxt)
-			show_resp_rules()
+			textscreen(thistxt, auto=auto)
+			show_resp_rules(auto=auto)
 
 			# FIX/CHECK - save opacity to db?
 			if exp['opacity'][0] < 3.:
@@ -399,7 +400,7 @@ class Stepwise(object):
 # -----------------
 
 # this should go to instructions module
-def show_resp_rules(exp=exp, win=stim['window'], text=None):
+def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 
 	# set up triggers for the break:
 	win.callOnFlip(onflip_work, exp['port'], code='breakStart')
@@ -447,23 +448,29 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None):
 
 	win.flip()
 
-	# wait for space:
-	k = event.waitKeys(keyList = ['space'])
+	if not auto:
+		# wait for space:
+		k = event.waitKeys(keyList = ['space'])
+	else:
+		core.wait(0.1)
 
 	# set end break trigger
 	win.callOnFlip(onflip_work, exp['port'], code='breakStop')
 	win.flip()
 
 
-def textscreen(text, win=stim['window'], exp=exp):
-	visual.TextStim(win, text = text, units = 'norm').draw()
+def textscreen(text, win=stim['window'], exp=exp, auto=False):
+	visual.TextStim(win, text=text, units='norm').draw()
 	# fix window blendMode:
 	win.blendMode = 'add'
 	win.flip()
-	event.waitKeys()
+	if not auto:
+		event.waitKeys()
+	else:
+		core.wait(0.15)
 
 
-def present_break(t, exp = exp, win = stim['window']):
+def present_break(t, exp=exp, win=stim['window'], auto=False):
 	tex  = u'Ukończono  {0} / {1}  powtórzeń.\nMożesz teraz ' + \
 		   u'chwilę odetchnąc.\nNaciśnij spację aby kontynuowac...'
 	tex  = tex.format(t, exp['numTrials'])
@@ -474,8 +481,11 @@ def present_break(t, exp = exp, win = stim['window']):
 	win.blendMode = 'add'
 	win.flip()
 
-	# wait for space key:
-	k = event.waitKeys(keyList = ['space', 'escape', 'return'])
+	if not auto:
+		# wait for space key:
+		k = event.waitKeys(keyList=['space', 'escape', 'return'])
+	else:
+		core.wait(0.1)
 
 
 def give_training_db(db, exp=exp, slowdown=8):
@@ -501,8 +511,9 @@ class Instructions:
 				  'right': 'next',
 				  'space': 'next'}
 
-	def __init__(self, fname, win=win):
+	def __init__(self, fname, win=win, auto=False):
 		self.win = win
+		self.auto = auto
 
 		# get instructions from file:
 		with open(fname, 'r') as f:
@@ -535,8 +546,12 @@ class Instructions:
 			self.win.flip()
 
 			# wait for response
-			k = event.waitKeys(keyList=self.navigation.keys())[0]
-			action = self.navigation[k]
+			if not self.auto:
+				k = event.waitKeys(keyList=self.navigation.keys())[0]
+				action = self.navigation[k]
+			else:
+				core.wait(0.15)
+				action = 'next'
 
 			# go next/prev according to the response
 			if action == 'next':

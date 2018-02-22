@@ -102,13 +102,14 @@ class ExperimenterInfo(Interface):
 
 
 class AnyQuestionsGUI(Interface):
-	def __init__(self, exp, stim):
+	def __init__(self, exp, stim, auto=False):
 		self.wait_text = False
 		super(AnyQuestionsGUI, self).__init__(exp, stim, main_win=1)
 		tx = (u'Jeżeli coś nie jest jasne / masz jakieś pytania - naciśnij '
 			  u'f.\nJeżeli wszystko jest jasne i nie masz pytań - naciśnij '
 			  u'spację.')
 		self.tx1 = visual.TextStim(self.win, text=tx)
+		self.auto = auto
 		if self.two_windows:
 			self.tx2 = visual.TextStim(self.win2, text='...', height=5.)
 			self.circ = visual.Circle(self.win2, radius=6, edges=64)
@@ -121,18 +122,22 @@ class AnyQuestionsGUI(Interface):
 			self.win2.flip()
 		self.tx1.draw()
 		self.win.flip()
-		self.pressed = event.waitKeys(keyList=['space', 'f'])
 
-		if not ('space' in self.pressed):
-			if self.two_windows:
-				self.tx2.setText(u'!!!!!!!!')
-				self.circ.draw()
-				self.tx2.draw()
-				self.win2.flip()
-			self.tx1.setText(u'Poczekaj na eksperymentatora.')
-			self.tx1.draw()
-			self.win.flip()
-			self.pressed = event.waitKeys(keyList=['q', 'return'])
+		if not self.auto:
+			self.pressed = event.waitKeys(keyList=['space', 'f'])
+
+			if not ('space' in self.pressed):
+				if self.two_windows:
+					self.tx2.setText(u'!!!!!!!!')
+					self.circ.draw()
+					self.tx2.draw()
+					self.win2.flip()
+				self.tx1.setText(u'Poczekaj na eksperymentatora.')
+				self.tx1.draw()
+				self.win.flip()
+				self.pressed = event.waitKeys(keyList=['q', 'return'])
+		else:
+			core.wait(0.15)
 
 
 def scale_img(win, img, y_margin):

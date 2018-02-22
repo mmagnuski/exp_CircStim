@@ -100,19 +100,21 @@ from_db = lambda x: 10 ** (x / 10.)
 # INSTRUCTIONS
 # ------------
 if exp['run instruct']:
-    instr = Instructions('instructions.yaml')
+    instr = Instructions('instructions.yaml', auto=exp['debug'])
     instr.present(stop=8)
-    show_resp_rules(exp=exp, text=u"Tak wygląda ekran przerwy.")
+    show_resp_rules(exp=exp, text=u"Tak wygląda ekran przerwy.",
+                    auto=exp['debug'])
     instr.present(stop=12)
-    # "are there any questions" GUI:
-    qst_gui = AnyQuestionsGUI(exp, stim)
+    # "are there any questions":
+    qst_gui = AnyQuestionsGUI(exp, stim, auto=exp['debug'])
     qst_gui.run()
     instr.present(stop=13)
 
 
 # show response rules:
-show_resp_rules(exp=exp, text=(u"Zaraz rozpocznie się trening." +
-    u"\nPrzygotuj się.\nPamiętaj o pozycji palców na klawiaturze."))
+msg = (u"Zaraz rozpocznie się trening.\nPrzygotuj się.\nPamiętaj o "
+       u"pozycji palców na klawiaturze.")
+show_resp_rules(exp=exp, text=msg, auto=exp['debug'])
 
 # TRAINING
 # --------
@@ -137,7 +139,8 @@ if exp['run training'] and not exp['debug']:
 
     for s, c in zip(exp['train slow'], exp['train corr']):
         # present current training block until correctness is achieved
-        df, current_corr = present_training(exp=slow, slowdown=s, corr=c)
+        df, current_corr = present_training(exp=slow, slowdown=s, corr=c,
+                                            auto=exp['debug'])
         current_block += 1
 
         # update experimenter info:
@@ -149,7 +152,7 @@ if exp['run training'] and not exp['debug']:
             addtxt = (u'Koniec treningu.\nAby przejść dalej ' +
                       u'naciśnij spację.')
         now_txt = txt + addtxt
-        textscreen(now_txt.format(to_percent(current_corr)))
+        textscreen(now_txt.format(to_percent(current_corr)), auto=exp['debug'])
         show_resp_rules(exp=exp)
 
         # this could be improved:
@@ -217,7 +220,7 @@ if exp['run fitting']:
             save_db.to_excel(dm.give_path('b'))
 
             # remind about the button press mappings
-            show_resp_rules(exp=exp)
+            show_resp_rules(exp=exp, auto=exp['debug'])
             stim['window'].flip()
 
     # QUEST+
@@ -243,7 +246,7 @@ if exp['run fitting']:
     exp_info.blok_info(block_name, [0, 100])
 
     # remind about the button press mappings
-    show_resp_rules(exp=exp)
+    show_resp_rules(exp=exp, auto=exp['debug'])
     stim['window'].flip()
 
     for trial in range(exp['QUEST plus trials']):
@@ -269,7 +272,7 @@ if exp['run fitting']:
             save_db.to_excel(dm.give_path('b'))
 
             # remind about the button press mappings
-            show_resp_rules(exp=exp)
+            show_resp_rules(exp=exp, auto=exp['debug'])
             stim['window'].flip()
 
         # visual feedback on parameters probability
@@ -341,7 +344,7 @@ if exp['run fitting']:
             save_db.to_excel(dm.give_path('b'))
 
             # remind about the button press mappings
-            show_resp_rules(exp=exp)
+            show_resp_rules(exp=exp, auto=exp['debug'])
             stim['window'].flip()
 
         # visual feedback on parameters probability
@@ -407,8 +410,8 @@ if exp['run main c']:
             temp_db = trim_df(db_c.copy())
             temp_db.to_excel(dm.give_path('c'))
             # break and refresh keyboard mapping
-            present_break(i, exp=exp)
-            show_resp_rules(exp=exp)
+            present_break(i, exp=exp, auto=exp['debug'])
+            show_resp_rules(exp=exp, auto=exp['debug'])
             stim['window'].flip()
 
         # update experimenter
