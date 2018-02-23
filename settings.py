@@ -20,6 +20,7 @@ exp['run baseline1'] = False  # NOT USED --> should be used
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True
+exp['start at thresh fitting'] = False
 exp['run main c']   = True
 exp['run baseline2'] = False
 

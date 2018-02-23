@@ -168,8 +168,8 @@ if exp['run training'] and not exp['debug']:
 # Contrast fitting
 # ----------------
 # staircase, QuestPlus, then QPThreshold
-
-if exp['run fitting']:
+omit_first_fitting_steps = exp['start at thresh fitting'] and exp['debug']
+if exp['run fitting'] and not omit_first_fitting_steps:
     # some instructions
     if exp['run instruct']:
         instr.present(stop=15)
@@ -218,6 +218,8 @@ if exp['run fitting']:
             show_resp_rules(exp=exp, auto=exp['debug'])
             stim['window'].flip()
 
+
+if exp['run fitting'] and not omit_first_fitting_steps:
     # QUEST+
     # ------
     # next, after about 25 trials we start main fitting procedure - QUEST+
@@ -278,9 +280,13 @@ if exp['run fitting']:
     posterior_filename = dm.give_path('posterior', file_ending='npy')
     np.save(posterior_filename, qp.posterior)
 
-
+if exp['run fitting']:
     # threshold fitting
     # -----------------
+
+    # if omit_first_fitting_steps:
+    #         read density and trials from disc
+    #        (or simulate without screen update)
 
     # initialize further threshold optimization
     trimmed_df = trim_df(fitting_db)
