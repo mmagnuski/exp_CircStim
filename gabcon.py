@@ -45,6 +45,7 @@ from random import sample
 
 import numpy  as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from PIL import Image
 
 # hackish, but works both for relative import and when run as a script
@@ -140,7 +141,7 @@ if exp['run training'] and not exp['debug']:
     for s, c in zip(exp['train slow'], exp['train corr']):
         # present current training block until correctness is achieved
         df, current_corr = present_training(exp=slow, slowdown=s, corr=c,
-                                            monkey=monkey)
+                                            monkey=monkey, auto=exp['debug'])
         current_block += 1
 
         # update experimenter info:
@@ -159,7 +160,8 @@ if exp['run training'] and not exp['debug']:
         df_train.append(trim_df(df))
 
     # save training database:
-    df_train = pd.concat(df_train).reset_index(drop=True, inplace=True)
+    df_train = pd.concat(df_train)
+    df_train.reset_index(drop=True, inplace=True)
     df_train.to_excel(dm.give_path('a'))
 
 
@@ -282,23 +284,24 @@ if exp['run fitting']:
 
     # initialize further threshold optimization
     trimmed_df = trim_df(fitting_db)
-    qps, corrs = init_thresh_optim(trimmed_df, qp)
+    corrs, qps = init_thresh_optim(trimmed_df, qp)
     block_name = u'QuestPlus, część II'
+    fig, ax = plt.subplots()
 
-    plot_fun = lambda x: plot_threshold_entropy(x, corrs=corrs).figure
+    plot_fun = lambda x: plot_threshold_entropy(x, corrs=corrs, axis=ax).figure
     img_name = op.join(exp['data'], 'quest_plus_thresholds.png')
     qp_refresh_rate = break_checker(
         stim['window'], exp, fitting_db, exp_info, lg, 1,
         qp_refresh_rate=1, plot_fun=plot_fun, plot_arg=qps,
         dpi=180, img_name=img_name, df_save_path=df_save_path)
-    
+
     # optimize thresh...
     for trial in range(exp['thresh opt trials']):
         # select contrast
-        posteriors = [qp.get_threshold().sum(axis=(1, 2)) for qp in qps]
+        posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
         posterior_peak = [posterior.max() for posterior in posteriors]
         optimize_threshold = np.array(posterior_peak).argmin()
-        contrast = qps[optimize_threshold].next_contrast(axis=(1, 2))
+        contrast = qps[optimize_threshold].next_contrast(axis=0)
 
         # CHECK if blok_info flips the screen, better if not...
         exp_info.blok_info(block_name, [trial + 1, exp['thresh opt trials']])
@@ -321,6 +324,7 @@ if exp['run fitting']:
             stim['window'], exp, fitting_db, exp_info, lg, current_trial,
             qp_refresh_rate=qp_refresh_rate, plot_fun=plot_fun, plot_arg=qps,
             dpi=180, img_name=img_name, df_save_path=df_save_path)
+        ax.clear()
 
     # save fitting dataframe
     fitting_db = trim_df(fitting_db)
@@ -347,7 +351,7 @@ if exp['run main c']:
         params = qp.get_fit_params(select='ML', weibull_args=wb_args)
         contrasts.append(params[0])
 
-    lg.write('final contrast steps: ', contrasts)
+    lg.write('final contrast steps: {}'.format(contrasts))
 
     # 30 repetitions * 4 angles * 5 steps = 600 trials
     db_c = create_database(exp, combine_with=('opacity', contrasts), rep=30)

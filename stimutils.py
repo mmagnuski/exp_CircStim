@@ -299,7 +299,7 @@ def evaluate_response(df, exp, trial, monkey=None):
 
 # - [ ] TODO Monkey istead of auto
 def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
-					 monkey=None):
+					   monkey=None, auto=None):
 	i = 1
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'

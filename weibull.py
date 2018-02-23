@@ -369,10 +369,10 @@ def plot_threshold_entropy(qps, corrs=None, axis=None):
 
     posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
     for post, corr in zip(posteriors, corrs):
-        lines = axis.plot(qps[-1].stim_domain, post, label=str(corr))
+        lines = axis.plot(qps[-1]._orig_params[0], post, label=str(corr))
         color = lines[0].get_color()
         max_idx = post.argmax()
-        axis.scatter(qps[-1].stim_domain[max_idx], post[max_idx],
+        axis.scatter(qps[-1]._orig_params[0][max_idx], post[max_idx],
                      facecolor=color, edgecolor='k', zorder=10, s=50)
 
     axis.legend()
