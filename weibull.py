@@ -340,10 +340,11 @@ def init_thresh_optim(df, qp):
     low, hi = weib.get_threshold([0.51, top_corr])
     low, hi = [max(from_db(low), 0.001), min(2., from_db(hi))]
     rng = (hi - low)
+    widen = min(0.08, rng * 0.1)
 
-    stim_params = np.linspace(max(0.001, low - rng * 0.1),
-                              min(hi + rng * 0.1, 1.5), num=120)
-    thresh_params = np.linspace(low, hi, num=100)
+    stim_params = np.linspace(max(0.001, low - widen),
+                              min(hi + widen, 1.5), num=120)
+    thresh_params = stim_params.copy()
     model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
     model_lapse = np.arange(0., 0.11, 0.01)
 
