@@ -57,7 +57,8 @@ if __name__ == '__main__' and __package__ is None:
 
 from .exputils  import (plot_Feedback, create_database, DataManager,
                         ExperimenterInfo, AnyQuestionsGUI)
-from .weibull   import Weibull, QuestPlus, weibull_db, PsychometricMonkey
+from .weibull   import (Weibull, QuestPlus, weibull_db, PsychometricMonkey,
+                        init_thresh_optim)
 from .utils     import to_percent, trim_df
 from .stimutils import (exp, db, stim, present_trial, present_break,
     show_resp_rules, textscreen, present_feedback, present_training,
@@ -233,7 +234,7 @@ if exp['run fitting']:
     stim_params = to_db(np.arange(min_step, 1. + min_step, min_step))
     model_threshold = np.arange(-20, 3., 1.)
     model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
-    model_lapse = np.arange(0., 0.16, 0.01)
+    model_lapse = np.arange(0., 0.11, 0.01)
     stim_params = np.arange(-20, 2.1, 0.333) # -20 dB is 0.01 contrast
     qp = QuestPlus(stim_params, [model_threshold, model_slope, model_lapse],
                    function=weibull_db)
@@ -282,10 +283,10 @@ if exp['run fitting']:
             plot_quest_plus(qp).savefig(img_name, dpi=120)
             stim['window'].winHandle.activate()
 
-            exp_info.experimenter_plot(self, img_name, logging=None)
+            exp_info.experimenter_plot(img_name)
             time_delta = time.clock() - t0
             msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
-            logging.warn(msg.format(time_delta))
+            lg.write(msg.format(time_delta))
             # quest plus refresh adds ~ 1 s to ITI so we prefer that
             # it is not predictable when refresh is going to happen
             qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
@@ -309,10 +310,10 @@ if exp['run fitting']:
     ax.figure.savefig(img_name, dpi=180)
     stim['window'].winHandle.activate()
 
-    exp_info.experimenter_plot(img_name, logging=None)
+    exp_info.experimenter_plot(img_name)
     time_delta = time.clock() - t0
-    msg = 'time taken to update QuestPlus threshold plot: {:.3f}'
-    logging.warn(msg.format(time_delta))
+    msg = 'time taken to update QuestPlus threshold plot: {:.3f}\n'
+    lg.write(msg.format(time_delta))
 
     # optimize thresh...
     for trial in range(exp['threshold opt trials']):
@@ -354,10 +355,10 @@ if exp['run fitting']:
             ax.figure.savefig(img_name, dpi=180)
             stim['window'].winHandle.activate()
 
-            exp_info.experimenter_plot(img_name, logging=None)
+            exp_info.experimenter_plot(img_name)
             time_delta = time.clock() - t0
             msg = 'time taken to update QuestPlus threshold plot: {:.3f}\n'
-            logging.warn(msg.format(time_delta))
+            lg.write(msg.format(time_delta))
             qp_refresh_rate = sample([2, 3, 4, 5], 1)[0]
 
     # save fitting dataframe
@@ -385,7 +386,7 @@ if exp['run main c']:
         params = qp.get_fit_params(select='ML', weibull_args=wb_args)
         contrasts.append(params[0])
 
-    logging.warn('final contrast steps: ', contrasts)
+    lg.write('final contrast steps: ', contrasts)
 
     # 30 repetitions * 4 angles * 5 steps = 600 trials
     db_c = create_database(exp, combine_with=('opacity', contrasts), rep=30)

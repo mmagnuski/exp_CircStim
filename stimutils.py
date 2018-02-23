@@ -206,11 +206,11 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 				)[0], decimals = 3)
 
 	# set target properties
-	orientation = db.loc[tr]['orientation']
-	contrast = db.loc[tr]['opacity']
+	orientation = db.loc[tr, 'orientation']
+	contrast = db.loc[tr, 'opacity']
 	target = stim['target'][orientation]
 	target.set_contrast(contrast)
-	target_code = 'target_' + str(int(db.loc[tr]['orientation']))
+	target_code = 'target_' + str(int(db.loc[tr, 'orientation']))
 
 	# get trial start time
 	db.loc[tr, 'time'] = core.getTime()
@@ -221,31 +221,33 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 
 	# present fix:
 	win.callOnFlip(onflip_work, exp['port'], code='fix')
-	for f in np.arange(db.loc[tr]['fixTime']):
+	for f in np.arange(db.loc[tr, 'fixTime']):
 		stim['fix'].draw()
 		win.flip()
 		if f == 3:
 			clear_port(exp['port'])
 
-	# clear keyboard buffer
-	event.getKeys()
+	# clear keyboard buffer, check for quit
+	k = event.getKeys()
+	if 'q' in k:
+		core.quit()
 
 	# present target
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 		clock=exp['clock'])
-	for f in np.arange(db.loc[tr]['targetTime']):
+	for f in np.arange(db.loc[tr, 'targetTime']):
 		target.draw()
 		win.flip()
 
 	# interval
-	for f in np.arange(db.loc[tr]['SMI']):
+	for f in np.arange(db.loc[tr, 'SMI']):
 		win.flip()
 	clear_port(exp['port'])
 
 	# mask
 	cleared = False
 	win.callOnFlip(onflip_work, exp['port'], code='mask')
-	for f in np.arange(db.loc[tr]['maskTime']):
+	for f in np.arange(db.loc[tr, 'maskTime']):
 		for m in stim['mask']:
 			m.draw()
 		win.flip()
@@ -272,8 +274,9 @@ def evaluate_response(df, exp, trial, monkey=None):
 		if not k: k = event.waitKeys(maxWait=exp['respWait'], keyList=keys,
 									 timeStamped=exp['clock'])
 	else:
-		core.wait(0.1 + np.random() * 0.2)
+		core.wait(0.1 + np.random.rand() * 0.2)
 		k = [(monkey.respond(df.loc[trial, :]), 0.15)]
+		print(k)
 
 	# calculate RT and ifcorrect
 	if k:
@@ -284,15 +287,16 @@ def evaluate_response(df, exp, trial, monkey=None):
 				core.quit()
 
 		# performance
-		db.loc[trial, 'response']  = key
-		db.loc[trial, 'RT']        = RT
-		target_ori = db.loc[trial]['orientation']
-		db.loc[trial, 'ifcorrect'] = int(exp['keymap'][target_ori] == key)
+		df.loc[trial, 'response']  = key
+		df.loc[trial, 'RT']        = RT
+		target_ori = df.loc[trial]['orientation']
+		df.loc[trial, 'ifcorrect'] = int(exp['keymap'][target_ori] == key)
 	else:
-		db.loc[trial, 'response']  = 'NoResp'
-		db.loc[trial, 'ifcorrect'] = 0
+		df.loc[trial, 'response']  = 'NoResp'
+		df.loc[trial, 'ifcorrect'] = 0
 
 
+# - [ ] TODO Monkey istead of auto
 def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
 					 auto=False):
 	i = 1
@@ -305,7 +309,7 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
 	while train_corr < corr or i < mintrials:
 		stim['window'].flip()
 		core.wait(0.5)
-		present_trial(i, exp=exp, db=train_db, auto=auto)
+		present_trial(i, exp=exp, db=train_db)
 		present_feedback(i, db=train_db)
 
 		# check correctness

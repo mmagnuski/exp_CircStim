@@ -11,15 +11,21 @@ from exputils  import (ms2frames, getSubject,
 # experiment settings
 # -------------------
 exp = dict()
+<<<<<<< HEAD
 exp['debug']        = True
 exp['in lab']       = False
 exp['two screens']  = exp['in lab']
 exp['use trigger']  = exp['in lab']
+=======
+exp['debug']        = False
+exp['two screens']  = True
+exp['use trigger']  = True
+>>>>>>> 3a37000e3404065cf0eae0d7090c01a0227b42f7
 
 exp['run blinkdot'] = False   # NOT USED?
 exp['run baseline1'] = False  # NOT USED --> should be used
 exp['run instruct'] = True
-exp['run training'] = False
+exp['run training'] = True
 exp['run fitting']  = True
 exp['run main c']   = True
 exp['break after']  = 15  # how often subjects have a break # NOT USED?
@@ -40,9 +46,9 @@ exp['train slow']   = [8, 5, 3, 2, 1]
 exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 
 # fitting settings
-exp['staircase trials']     = 10   # max value, default 25
-exp['QUEST plus trials']    = 50  # default 100
-exp['threshold opt trials'] = 25   # default 50
+exp['staircase trials']     = 25   # max value, default 25
+exp['QUEST plus trials']    = 100  # default 100
+exp['threshold opt trials'] = 50   # default 50
 
 # timing settings
 exp['targetTime']  = [2] # maybe test with targetTime == 2?
