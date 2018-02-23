@@ -12,8 +12,9 @@ from exputils  import (ms2frames, getSubject,
 # -------------------
 exp = dict()
 exp['debug']        = True
-exp['two screens']  = True
-exp['use trigger']  = True
+exp['in lab']       = False
+exp['two screens']  = exp['in lab']
+exp['use trigger']  = exp['in lab']
 
 exp['run blinkdot'] = False   # NOT USED?
 exp['run baseline1'] = False  # NOT USED --> should be used
@@ -42,7 +43,6 @@ exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 exp['staircase trials']     = 10   # max value, default 25
 exp['QUEST plus trials']    = 50  # default 100
 exp['threshold opt trials'] = 25   # default 50
-exp['fitCorrLims']  = [0.55, 0.95]  # only used in gui.py ContrastInterface which is not used
 
 # timing settings
 exp['targetTime']  = [2] # maybe test with targetTime == 2?
