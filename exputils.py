@@ -136,6 +136,8 @@ class AnyQuestionsGUI(Interface):
 				self.tx1.draw()
 				self.win.flip()
 				self.pressed = event.waitKeys(keyList=['q', 'return'])
+				if self.two_windows:
+					self.win2.flip()
 		else:
 			core.wait(0.15)
 
