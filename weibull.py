@@ -39,11 +39,13 @@ class Weibull:
     final_params = w.params
     '''
 
-    def __init__(self, method='Nelder-Mead', kind='weibull', bounds=None):
+    def __init__(self, method='Nelder-Mead', kind='weibull', bounds=None,
+                 corr_at_thresh=0.75):
         self.x = None
         self.y = None
         self.orig_y = None
         self.params = None
+        self.corr_at_thresh = corr_at_thresh
 
         # method (optimizer)
         valid_methods = ('Nelder-Mead', 'L-BFGS-B', 'TNC', 'SLSQP')
@@ -75,10 +77,16 @@ class Weibull:
                            (None, None), (None, None))
 
     def fun(self, params):
-        return self._fun(self.x, params)
+        return self.predict(self.x, params=params)
 
-    def predict(self, X):
-        return self._fun(X, self.params)
+    def predict(self, X, params=None):
+        if params is None:
+            params = self.params
+
+        if self.kind == 'weibull':
+            return self._fun(X, params, corr_at_thresh=self.corr_at_thresh)
+        else:
+            return self._fun(X, params)
 
     def drag(self, y):
         return y * .99 + .005
@@ -118,8 +126,7 @@ class Weibull:
     def _inverse(self, corrinput):
         invfun = lambda cntr: (corrinput - self.predict(cntr)) ** 2
         # optimize with respect to correctness
-        start_param = (self.params[0] if self.kind == 'weibull_db'
-                       else self.params[1])
+        start_param = self.params[0]
         return minimize(invfun, start_param, method='Nelder-Mead')['x'][0]
 
     def get_threshold(self, corr):

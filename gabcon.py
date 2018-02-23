@@ -323,7 +323,7 @@ if exp['run fitting']:
         qp_refresh_rate = break_checker(
             stim['window'], exp, fitting_db, exp_info, lg, current_trial,
             qp_refresh_rate=qp_refresh_rate, plot_fun=plot_fun, plot_arg=qps,
-            dpi=180, img_name=img_name, df_save_path=df_save_path)
+            dpi=120, img_name=img_name, df_save_path=df_save_path)
         ax.clear()
 
     # save fitting dataframe
@@ -347,9 +347,9 @@ if exp['run main c']:
     # get contrast thresholds from quest plus:
     contrasts = list()
     for idx, qp in enumerate(qps):
-        # wb_args = dict(kind='weibull', corr_at_thresh=corrs[idx])
-        # params = qp.get_fit_params(select='ML', weibull_args=wb_args)
-        params = qp.get_fit_params()
+        wb_args = dict(kind='weibull', corr_at_thresh=corrs[idx])
+        params = qp.get_fit_params(select='ML', weibull_args=wb_args)
+        # params = qp.get_fit_params()
         contrasts.append(params[0])
 
     lg.write('final contrast steps: {}'.format(contrasts))
