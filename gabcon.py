@@ -225,17 +225,12 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     # next, after about 25 trials we start main fitting procedure - QUEST+
 
     # init quest plus
-    min_step = 1. / 255
     start_contrast = staircase._nextIntensity
-    stim_params = to_db(np.arange(min_step, 1. + min_step, min_step))
-    model_threshold = np.arange(-20, 3., 1.)
-    model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
-    model_lapse = np.arange(0., 0.11, 0.01)
-    stim_params = np.arange(-20, 2.1, 0.333) # -20 dB is 0.01 contrast
+    stim_params = from_db(np.arange(-20, 3.1, 0.35)) # -20 dB is about 0.01
 
-    qp = QuestPlus(stim_params, [model_threshold, model_slope, model_lapse],
-                   function=weibull_db)
-    min_idx = np.abs(stim_params - to_db(start_contrast)).argmin()
+    model_params = [exp['thresholds'], exp['slopes'], exp['lapses']]
+    qp = QuestPlus(stim_params, model_params, function=weibull)
+    min_idx = np.abs(stim_params - start_contrast).argmin()
     contrast = stim_params[min_idx]
 
     # args for break-related stuff
@@ -257,7 +252,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
         exp_info.blok_info(block_name, [trial + 1, 100])
 
         # setup stimulus and present trial
-        exp['opacity'] = [from_db(contrast), from_db(contrast)]
+        exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
         present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
         stim['window'].flip()
@@ -290,7 +285,7 @@ if exp['run fitting']:
 
     # initialize further threshold optimization
     trimmed_df = trim_df(fitting_db)
-    corrs, qps = init_thresh_optim(trimmed_df, qp)
+    corrs, qps = init_thresh_optim(trimmed_df, qp, model_params)
     block_name = u'QuestPlus, część II'
     fig, ax = plt.subplots()
 
@@ -299,7 +294,8 @@ if exp['run fitting']:
     qp_refresh_rate = break_checker(
         stim['window'], exp, fitting_db, exp_info, lg, 1,
         qp_refresh_rate=1, plot_fun=plot_fun, plot_arg=qps,
-        dpi=180, img_name=img_name, df_save_path=df_save_path)
+        dpi=120, img_name=img_name, df_save_path=df_save_path)
+    ax.clear()
 
     # optimize thresh...
     for trial in range(exp['thresh opt trials']):
@@ -340,7 +336,6 @@ if exp['run fitting']:
     # from trials, nevertheless we save the posterior as numpy array
     posterior_filename = dm.give_path('posterior_thresh', file_ending='npy')
     np.save(posterior_filename, qps[2].posterior)
-    # + save stim space
 
 
 # EXPERIMENT - part c

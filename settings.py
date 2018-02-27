@@ -28,11 +28,14 @@ exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['clock']        = core.Clock()
 
 # contrast settings
-exp['corrLims']    = [0.55, 0.95] # NOT USED?
 exp['opacity']     = [0.05, 0.8]  # NOT USED?
-exp['min opac']    = 0.005        # NOT USED?
-exp['max opac']    = 2.0          # NOT USED?
-exp['opac steps']  = 10           # NOT USED?
+exp['min opac']    = 0.005        # NOT USED? (but could be)
+exp['max opac']    = 2.0          # NOT USED? (but could be)
+
+# parameter settings for QUEST+
+exp['thresholds'] = np.logspace(np.log10(0.05), np.log10(1.), num=30)
+exp['slopes'] = np.logspace(np.log10(1.), np.log10(14.), num=30)
+exp['lapses'] = np.arange(0., 0.11, 0.01)
 
 # training settings
 exp['train slow']   = [8, 5, 3, 2, 1]

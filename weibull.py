@@ -319,7 +319,7 @@ class QuestPlus(object):
         return plot_quest_plus(self)
 
 
-def init_thresh_optim(df, qp):
+def init_thresh_optim(df, qp, model_params):
     '''Initialize threshold optimization.
 
     Parameters
@@ -339,26 +339,23 @@ def init_thresh_optim(df, qp):
         Correctness thresholds for consecutive QuestPlus objects.
     '''
     init_params = qp.get_fit_params()
-    weib = Weibull(kind='weibull_db')
-    weib.fit(to_db(df.loc[:, 'opacity']), df.loc[:, 'ifcorrect'], init_params)
+    weib = Weibull(kind='weibull')
+    weib.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], init_params)
     lapse = weib.params[-1]
     top_corr = max(0.9, 1 - lapse - 0.01)
-
     low, hi = weib.get_threshold([0.51, top_corr])
     low, hi = [max(from_db(low), 0.001), min(2., from_db(hi))]
     rng = (hi - low)
     widen = min(0.08, rng * 0.1)
 
+    model_thresholds, model_slopes, model_lapses = model_params
     stim_params = np.linspace(max(0.001, low - widen),
                               min(hi + widen, 1.5), num=120)
-    thresh_params = stim_params.copy()
-    model_slope = np.logspace(np.log10(0.5), np.log10(18.), num=20)
-    model_lapse = np.arange(0., 0.11, 0.01)
 
     # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
     qps = list()
     corrs = np.linspace(0.6, min(0.9, top_corr), num=5)
-    param_space = [thresh_params, model_slope, model_lapse]
+    param_space = [model_thresholds, model_slopes, model_lapses]
     for corr in corrs:
         this_wb = partial(weibull, corr_at_thresh=corr)
         qp = QuestPlus(stim_params, param_space, function=this_wb)
@@ -392,7 +389,7 @@ class PsychometricMonkey(object):
                  intensity_var=None, stimulus_var=None):
         if psychometric is None:
             # init some reasonable psychometric function
-            psychometric =  Weibull()
+            psychometric =  Weibull(kind='weibull')
             psychometric.params = [0.1, 4.5, 0.05]
 
         self.psychometric = psychometric

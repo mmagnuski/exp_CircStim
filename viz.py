@@ -158,9 +158,9 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 	    return tempfname
 
 
-def plot_quest_plus(qp):
+def plot_quest_plus(qp, weibull_kind='weibull'):
 	import matplotlib.gridspec as gridspec
-	from .weibull import weibull_db, Weibull
+	from .weibull import weibull_db, weibull, Weibull
 
 	# check cmap
 	cmaps = dir(plt.cm)
@@ -182,14 +182,21 @@ def plot_quest_plus(qp):
 	# plot posterior agregated along lapse dimension
 	model_threshold, model_slope, model_lapse = qp._orig_params
 	thresh_step = np.diff(model_threshold).mean()
-	im_ax.imshow(posterior.sum(axis=-1), aspect='auto',
+	im_ax.imshow(posterior.sum(axis=-1), aspect='auto', origin='lower',
 				 cmap=use_cmap, interpolation='none',
 				 extent=[-0.5, len(model_slope) + 0.5,
-				 		 model_threshold[-1] + thresh_step / 2.,
-						 model_threshold[0] - thresh_step / 2.])
+				 		 -0.5, len(model_threshold) + 0.5])
+	# x ticks
 	x_ind = np.arange(0, len(model_slope), 3)
 	im_ax.set_xticks(x_ind)
 	im_ax.set_xticklabels(['{:.2f}'.format(x) for x in model_slope[x_ind]])
+
+	# y ticks
+	y_ind = np.arange(0, len(model_threshold), 3)
+	im_ax.set_yticks(y_ind)
+	im_ax.set_yticklabels(['{:.2f}'.format(x) for x in model_slope[y_ind]])
+
+	# axis labels
 	im_ax.set_xlabel('slope')
 	im_ax.set_ylabel('threshold')
 
@@ -204,7 +211,7 @@ def plot_quest_plus(qp):
 		#     axes[i]._get_lines.get_next_color()
 		this_prob = posterior.sum(axis=reduce_dims[i])
 		axes[i].grid(True)
-		if i == 1:
+		if i in [0, 1]:
 			this_x = np.arange(len(xs[i]))
 			axes[i].plot(this_x, this_prob, color=colors[i])
 			axes[i].fill_between(this_x, this_prob, color=colors[i], alpha=0.5)
@@ -226,17 +233,17 @@ def plot_quest_plus(qp):
 	mean_params = (qp.posterior[:, np.newaxis] * qp.param_domain).sum(axis=0)
 
 	# psychometric function fit
-	w = Weibull(kind='weibull_db')
+	w = Weibull(kind=weibull_kind)
 	w.fit(np.array(qp.stim_history), np.array(qp.resp_history), current_params)
-	w.plot(ax=func_ax, linewidth=1.5)
+	w.plot(ax=func_ax, linewidth=1.5, line_color=colors[0])
 	func_ax.findobj(plt.Line2D)[0].set_label('Maximum Likelihood fit')
 
 	vmin, vmax = qp.stim_domain[[0, -1]]
 	x = np.linspace(vmin, vmax, num=1000)
-	func_ax.plot(x, qp.function(x, current_params),
+	func_ax.plot(x, qp.function(x, current_params), color=colors[1],
 				 label='Bayesian max prob fit', zorder=10)
-	func_ax.plot(x, qp.function(x, mean_params), label='Bayesian mean prob fit',
-				 zorder=11)
-	func_ax.legend(loc='best')
+	func_ax.plot(x, qp.function(x, mean_params), color=colors[1],
+				 label='Bayesian mean prob fit', zorder=11)
+	func_ax.legend(loc='center right', prop={'size': 8})
 	fig.tight_layout()
 	return fig
