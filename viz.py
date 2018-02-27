@@ -238,7 +238,7 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 	x = np.linspace(vmin, vmax, num=1000)
 	func_ax.plot(x, qp.function(x, current_params), color=colors[1],
 				 label='Bayesian max prob fit', zorder=10)
-	func_ax.plot(x, qp.function(x, mean_params), color=colors[1],
+	func_ax.plot(x, qp.function(x, mean_params), color=colors[2],
 				 label='Bayesian mean prob fit', zorder=11)
 	func_ax.legend(loc='center right', prop={'size': 8})
 	fig.tight_layout()
