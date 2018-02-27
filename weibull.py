@@ -344,7 +344,7 @@ def init_thresh_optim(df, qp, model_params):
     lapse = weib.params[-1]
     top_corr = max(0.9, 1 - lapse - 0.01)
     low, hi = weib.get_threshold([0.51, top_corr])
-    low, hi = [max(from_db(low), 0.001), min(2., from_db(hi))]
+    low, hi = [max(low, 0.001), min(2., hi)]
     rng = (hi - low)
     widen = min(0.08, rng * 0.1)
 
