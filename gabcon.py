@@ -60,7 +60,7 @@ from .exputils  import (plot_Feedback, create_database, DataManager,
                         ExperimenterInfo, AnyQuestionsGUI)
 from .weibull   import (Weibull, QuestPlus, weibull_db, PsychometricMonkey,
                         init_thresh_optim, plot_threshold_entropy, from_db,
-                        to_db)
+                        to_db, weibull)
 from .utils     import to_percent, trim_df
 from .stimutils import (exp, db, stim, present_trial, present_break,
     show_resp_rules, textscreen, present_feedback, present_training,
