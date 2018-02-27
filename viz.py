@@ -115,20 +115,16 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 	                ii += 1
 	        slices.extend(add_slices)
 
-	        x_bucket_mean = np.array([x_pnts[slc].mean()
-	                                  for slc in slices])
-	        y_bucket_mean = np.array([y_pnts[slc].mean()
-	                                  for slc in slices])
-	        bucket_sem = np.array([stats.sem(y_pnts[slc])
-	                               for slc in slices])
+	        x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
+	        y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
+	        bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
 
 	        # plot bucket means and sem
 	        plt.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
 	                    c=mean_points_color)
-	        plt.vlines(x_bucket_mean,
-	                   y_bucket_mean - bucket_sem,
-	                   y_bucket_mean + bucket_sem,
-	                   lw=2, zorder=4, colors=mean_points_color)
+	        plt.vlines(x_bucket_mean, y_bucket_mean - bucket_sem,
+	                   y_bucket_mean + bucket_sem, lw=2, zorder=4,
+					   colors=mean_points_color)
 
 	if contrast_steps is not None:
 	    corrs = weibull.predict(contrast_steps)
