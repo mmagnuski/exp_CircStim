@@ -124,6 +124,7 @@ if exp['run training'] and not exp['debug']:
     # signal onset of training
     core.wait(0.05)
     onflip_work(exp['port'], code='training')
+    exp['window'].flip()
     core.wait(0.1)
     clear_port(exp['port'])
 
@@ -178,6 +179,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     if exp['use trigger']:
         core.wait(0.05)
         onflip_work(exp['port'], code='fitting')
+        exp['window'].flip()
         core.wait(0.1)
         clear_port(exp['port'])
 
@@ -363,6 +365,7 @@ if exp['run main c']:
     if exp['use trigger']:
         core.wait(0.05)
         onflip_work(exp['port'], 'contrast')
+        exp['window'].flip()
         core.wait(0.1)
         clear_port(exp['port'])
 

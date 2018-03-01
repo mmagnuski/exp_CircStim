@@ -5,8 +5,7 @@ import pandas as pd
 from psychopy  import visual, core
 from random    import randint, uniform
 from utils     import continue_dataframe
-from exputils  import (ms2frames, getSubject,
-	getFrameRate, create_database)
+from exputils  import (ms2frames, getSubject, getFrameRate, create_database)
 
 # experiment settings
 # -------------------
