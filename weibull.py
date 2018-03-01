@@ -347,7 +347,7 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     low, hi = weib.get_threshold([0.51, top_corr])
     low, hi = [max(low, 0.001), min(2., hi)]
     if logger:
-        msg = 'low (51%) and high (top corr) thresholds: {}'
+        msg = 'low (51%) and high (top corr) thresholds: {}, {}'
         logger.write(msg.format(low, hi))
     rng = (hi - low)
     widen = min(0.08, rng * 0.1)
@@ -357,12 +357,12 @@ def init_thresh_optim(df, qp, model_params, logger=None):
                               min(hi + widen, 1.5), num=120)
     if logger:
         msg = 'stim params for all qps: {}'
-        msg.format(stim_params)
+        logger.write(msg.format(stim_params))
 
     # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
     qps = list()
     corrs = np.linspace(0.6, min(0.9, top_corr), num=5)
-    param_space = [model_thresholds, model_slopes, model_lapses]
+    param_space = [stim_params, model_slopes, model_lapses]
     for corr in corrs:
         this_wb = partial(weibull, corr_at_thresh=corr)
         qp = QuestPlus(stim_params, param_space, function=this_wb)
