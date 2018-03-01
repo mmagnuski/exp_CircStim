@@ -11,7 +11,7 @@ from exputils  import (ms2frames, getSubject, getFrameRate, create_database)
 # -------------------
 exp = dict()
 exp['debug']        = True
-exp['in lab']       = False
+exp['in lab']       = True
 exp['two screens']  = exp['in lab']
 exp['use trigger']  = exp['in lab']
 

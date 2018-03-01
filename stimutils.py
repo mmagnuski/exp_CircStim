@@ -277,7 +277,6 @@ def evaluate_response(df, exp, trial, monkey=None):
 	else:
 		core.wait(0.1 + np.random.rand() * 0.2)
 		k = [(monkey.respond(df.loc[trial, :]), 0.15)]
-		print(k)
 
 	# calculate RT and ifcorrect
 	if k:
