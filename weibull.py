@@ -350,7 +350,7 @@ def init_thresh_optim(df, qp, model_params, logger=None):
         msg = 'low (51%) and high (top corr) thresholds: {}, {}'
         logger.write(msg.format(low, hi))
     rng = (hi - low)
-    widen = min(0.08, rng * 0.1)
+    widen = rng * 0.15
 
     model_thresholds, model_slopes, model_lapses = model_params
     stim_params = np.linspace(max(0.001, low - widen),
