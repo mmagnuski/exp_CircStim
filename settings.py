@@ -33,7 +33,7 @@ exp['max opac']    = 2.0          # NOT USED? (but could be)
 
 # parameter settings for QUEST+
 exp['thresholds'] = np.logspace(np.log10(0.05), np.log10(1.), num=30)
-exp['slopes'] = np.logspace(np.log10(1.), np.log10(14.), num=30)
+exp['slopes'] = np.logspace(np.log10(1.), np.log10(15.), num=30)
 exp['lapses'] = np.arange(0., 0.11, 0.01)
 
 # training settings
