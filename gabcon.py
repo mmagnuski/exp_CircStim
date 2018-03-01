@@ -287,7 +287,7 @@ if exp['run fitting']:
 
     # initialize further threshold optimization
     trimmed_df = trim_df(fitting_db)
-    corrs, qps = init_thresh_optim(trimmed_df, qp, model_params)
+    corrs, qps = init_thresh_optim(trimmed_df, qp, model_params, logger=lg)
     block_name = u'QuestPlus, część II'
     fig, ax = plt.subplots()
 

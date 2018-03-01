@@ -319,7 +319,7 @@ class QuestPlus(object):
         return plot_quest_plus(self)
 
 
-def init_thresh_optim(df, qp, model_params):
+def init_thresh_optim(df, qp, model_params, logger=None):
     '''Initialize threshold optimization.
 
     Parameters
@@ -343,14 +343,21 @@ def init_thresh_optim(df, qp, model_params):
     weib.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], init_params)
     lapse = weib.params[-1]
     top_corr = max(0.9, 1 - lapse - 0.01)
+    if logger: logger.write('top correctness: {}'.format(top_corr))
     low, hi = weib.get_threshold([0.51, top_corr])
     low, hi = [max(low, 0.001), min(2., hi)]
+    if logger:
+        msg = 'low (51%) and high (top corr) thresholds: {}'
+        logger.write(msg.format(low, hi))
     rng = (hi - low)
     widen = min(0.08, rng * 0.1)
 
     model_thresholds, model_slopes, model_lapses = model_params
     stim_params = np.linspace(max(0.001, low - widen),
                               min(hi + widen, 1.5), num=120)
+    if logger:
+        msg = 'stim params for all qps: {}'
+        msg.format(stim_params)
 
     # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
     qps = list()
