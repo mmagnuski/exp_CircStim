@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 
 from .utils import check_color, group
 
+
+line_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+
 def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 			 	 mean_points=False, min_bucket='adaptive',
 				 split_bucket='adaptive', line_color=None, contrast_steps=None,
@@ -205,7 +208,7 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 	xs = [model_threshold, model_slope, model_lapse]
 	reduce_dims = [(1, 2), (0, 2), (0, 1)]
 	titles = ['threshold', 'slope', 'lapse']
-	colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+	colors = line_colors[:3]
 	for i in range(3):
 		# for _ in range(i):
 		#     axes[i]._get_lines.get_next_color()
@@ -247,3 +250,23 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 	func_ax.legend(loc='center right', prop={'size': 8})
 	fig.tight_layout()
 	return fig
+
+
+def plot_threshold_entropy(qps, corrs=None, axis=None):
+    '''Plot entropy for each threshold.'''
+    if corrs is None:
+        corrs = ['step {}'.format(idx) for idx in range(1, len(qps) + 1)]
+    if axis is None:
+        axis = plt.gca()
+
+    posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
+    for idx, post, corr in zip(range(len(corrs)), posteriors, corrs):
+        lines = axis.plot(qps[-1]._orig_params[0], post, label=str(corr),
+                          color=line_colors[idx])
+        color = lines[0].get_color()
+        max_idx = post.argmax()
+        axis.scatter(qps[-1]._orig_params[0][max_idx], post[max_idx],
+                     facecolor=color, edgecolor='k', zorder=10, s=50)
+
+    axis.legend()
+    return axis

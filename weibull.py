@@ -372,25 +372,6 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     return corrs, qps
 
 
-def plot_threshold_entropy(qps, corrs=None, axis=None):
-    '''Plot entropy for each threshold.'''
-    if corrs is None:
-        corrs = ['step {}'.format(idx) for idx in range(1, len(qps) + 1)]
-    if axis is None:
-        axis = plt.gca()
-
-    posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
-    for post, corr in zip(posteriors, corrs):
-        lines = axis.plot(qps[-1]._orig_params[0], post, label=str(corr))
-        color = lines[0].get_color()
-        max_idx = post.argmax()
-        axis.scatter(qps[-1]._orig_params[0][max_idx], post[max_idx],
-                     facecolor=color, edgecolor='k', zorder=10, s=50)
-
-    axis.legend()
-    return axis
-
-
 class PsychometricMonkey(object):
     def __init__(self, psychometric=None, response_mapping=None,
                  intensity_var=None, stimulus_var=None):
