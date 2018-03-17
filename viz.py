@@ -9,10 +9,13 @@ from .utils import check_color, group
 def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 			 	 mean_points=False, min_bucket='adaptive',
 				 split_bucket='adaptive', line_color=None, contrast_steps=None,
-				 mean_points_color=(0.22, 0.58, 0.78), linewidth=3.):
+				 mean_points_color=(0.22, 0.58, 0.78), linewidth=3.,
+				 scale='linear'):
 	# set up x:
 	if x is None:
 		x = weibull.x.copy()
+	if weibull.kind == 'weibull_db':
+		scale = 'linear'
 
 	# get predicted data
 	numpnts = 1000
@@ -136,6 +139,7 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 				   zorder=6, c=[0.3, 0.3, 0.3])
 	if line:
 		ax.plot(x, y, zorder=5, lw=linewidth, color=line_color)
+		ax.set_xscale(scale)
 
 	# aesthetics
 	# ----------
@@ -231,7 +235,7 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 	# psychometric function fit
 	w = Weibull(kind=weibull_kind)
 	w.fit(np.array(qp.stim_history), np.array(qp.resp_history), current_params)
-	w.plot(ax=func_ax, linewidth=1.5, line_color=colors[0])
+	w.plot(ax=func_ax, linewidth=1.5, line_color=colors[0], scale='log')
 	func_ax.findobj(plt.Line2D)[0].set_label('Maximum Likelihood fit')
 
 	vmin, vmax = qp.stim_domain[[0, -1]]
