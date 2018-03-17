@@ -447,7 +447,11 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
         show_resp_rules(exp=exp, auto=exp['debug'])
         window.flip()
 
-    # visual feedback on parameters probability
+	if not exp['two screens']:
+		# make sure feedback is only shown after the break on one screen
+		qp_refresh_rate = 10000
+
+	# visual feedback on parameters probability
     if current_trial % qp_refresh_rate == 0 or has_break:
         t0 = time.clock()
         plot_fun(plot_arg).savefig(img_name, dpi=dpi)
@@ -457,6 +461,10 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
         time_delta = time.clock() - t0
         msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
         logfile.write(msg.format(time_delta))
+
+		if not exp['two screens']:
+			event.waitKeys(['f', 'j', 'space', 'return'])
+
         # quest plus refresh adds ~ 1 s to ITI so we prefer that
         # it is not predictable when refresh is going to happen
         return sample([3, 4, 5], 1)[0]
