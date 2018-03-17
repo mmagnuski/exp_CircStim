@@ -347,8 +347,8 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     low, hi = weib.get_threshold([0.51, top_corr])
     low, hi = [max(low, 0.001), min(2., hi)]
     if logger:
-        msg = 'low (51%) and high (top corr) thresholds: {}'
-        logger.write(msg.format(low, hi))
+        msg = 'low (51%) and high ({}) thresholds: {}, {}\n'
+        logger.write(msg.format(top_corr, low, hi))
     rng = (hi - low)
     widen = rng * 0.15
 
