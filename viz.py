@@ -120,22 +120,22 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 	        bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
 
 	        # plot bucket means and sem
-	        plt.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
+	        ax.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
 	                    c=mean_points_color)
-	        plt.vlines(x_bucket_mean, y_bucket_mean - bucket_sem,
+	        ax.vlines(x_bucket_mean, y_bucket_mean - bucket_sem,
 	                   y_bucket_mean + bucket_sem, lw=2, zorder=4,
 					   colors=mean_points_color)
 
 	if contrast_steps is not None:
 	    corrs = weibull.predict(contrast_steps)
-	    plt.vlines(contrast_steps, corrs - 0.04, corrs + 0.04,
+	    ax.vlines(contrast_steps, corrs - 0.04, corrs + 0.04,
 	               lw=2, zorder=4, colors=[0., 0., 0.])
 
 	if points:
-	    plt.scatter(weibull.x, weibull.orig_y + yrnd, alpha=0.6, lw=0,
-	        zorder=6, c=[0.3, 0.3, 0.3])
+		ax.scatter(weibull.x, weibull.orig_y + yrnd, alpha=0.6, lw=0,
+				   zorder=6, c=[0.3, 0.3, 0.3])
 	if line:
-	    plt.plot(x, y, zorder=5, lw=linewidth, color=line_color)
+		ax.plot(x, y, zorder=5, lw=linewidth, color=line_color)
 
 	# aesthetics
 	# ----------
