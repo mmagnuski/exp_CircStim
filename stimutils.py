@@ -8,6 +8,7 @@ import yaml
 import time
 from random import sample
 import numpy  as np
+import matplotlib.pyplot as plt
 
 from psychopy import core, visual, event, monitors
 from settings import exp, db
@@ -454,7 +455,9 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
 	# visual feedback on parameters probability
     if current_trial % qp_refresh_rate == 0 or has_break:
         t0 = time.clock()
-        plot_fun(plot_arg).savefig(img_name, dpi=dpi)
+        fig = plot_fun(plot_arg)
+        fig.savefig(img_name, dpi=dpi)
+        plt.close(fig)
         window.winHandle.activate()
 
         exp_info.experimenter_plot(img_name)

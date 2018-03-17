@@ -49,8 +49,8 @@ exp['thresh opt trials'] = 50   # default 50
 # timing settings
 exp['targetTime']  = [2] # maybe test with targetTime == 2?
 exp['SMI']         = [1] # Stimulus Mask Interval
-exp['fixTimeLim']  = [1., 2.5] if not exp['debug'] else [0.1, 0.2]
-exp['maskTime']    = [20]
+exp['fixTimeLim']  = [1., 2.5] if not exp['debug'] else [0.025, 0.05]
+exp['maskTime']    = [20] if not exp['debug'] else [5]
 exp['fdb time']    = [40] # feedback time in frames
 exp['respWait']    = 1.5
 
