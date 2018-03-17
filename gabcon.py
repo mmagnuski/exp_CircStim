@@ -350,9 +350,9 @@ if exp['run main c']:
     # get contrast thresholds from quest plus:
     contrasts = list()
     for idx, qp in enumerate(qps):
-        wb_args = dict(kind='weibull', corr_at_thresh=corrs[idx])
-        params = qp.get_fit_params(select='ML', weibull_args=wb_args)
-        # params = qp.get_fit_params()
+        # wb_args = dict(kind='weibull', corr_at_thresh=corrs[idx])
+        # params = qp.get_fit_params(select='ML', weibull_args=wb_args)
+        params = qp.get_fit_params()
         contrasts.append(params[0])
 
     lg.write('final contrast steps: {}'.format(contrasts))
