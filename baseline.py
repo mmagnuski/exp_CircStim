@@ -1,9 +1,12 @@
 import os
+import os.path as op
 import random
 import warnings
 from ctypes import windll
 
 from psychopy import visual, event, monitors, core, sound
+
+from settings import exp
 
 
 def send_trigger(exp, code):
@@ -11,11 +14,11 @@ def send_trigger(exp, code):
 		windll.inpout32.Out32(exp['port address'], code)
 
 def run(window, segment_time=60., debug=False, instr_dir='instr'):
-    segment_time = 0.5 if debug else segment_time
+    segment_time = 1. if debug else segment_time
 
     # present instructions
     img_dir = os.path.join(instr_dir, 'baseline.png')
-    img = visual.ImageStim(window, image=img_dir, size=[1169, 826],
+    img = visual.ImageStim(window, image=img_dir, size=[1920, 1080],
                            units='pix', interpolate=True)
     img.draw(); window.flip()
     event.waitKeys(keyList=['right'])
@@ -26,9 +29,9 @@ def run(window, segment_time=60., debug=False, instr_dir='instr'):
     seq = random.sample(possible_seq, 1)[0]
 
     sound_files = {s[0].upper(): op.join('sound', s)
-                   for s in ['open.wav', 'close.wav']]
+                   for s in ['open.wav', 'close.wav']}
     trig ={'O': 10, 'C': 11}
-    stop_sound = sound.Sound(os.path.join('snd', 'stop.wav'))
+    stop_sound = sound.Sound(os.path.join('sound', 'stop.wav'))
     sounds = {k: sound.Sound(sound_files[k]) for k in sound_files.keys()}
 
     for s in seq:
@@ -42,10 +45,10 @@ def run(window, segment_time=60., debug=False, instr_dir='instr'):
         snd.play()
 
         # set trigger
-        send_trigger(settings, trig[s])
+        send_trigger(exp, trig[s])
         window.flip()
         core.wait(0.1)
-        send_trigger(settings, 0)
+        send_trigger(exp, 0)
 
         # wait segment_time, play ring and then wait break time
         core.wait(segment_time)
