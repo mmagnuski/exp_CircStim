@@ -15,7 +15,7 @@ exp['in lab']       = True
 exp['two screens']  = exp['in lab']
 exp['use trigger']  = exp['in lab']
 
-exp['run baseline1'] = False  # NOT USED --> should be used
+exp['run baseline1'] = False
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True

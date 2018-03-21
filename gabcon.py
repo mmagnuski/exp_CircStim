@@ -56,6 +56,7 @@ if __name__ == '__main__' and __package__ is None:
     __package__ = "GabCon"
     import GabCon # maybe not necessary
 
+from .baseline import run as run_baseline
 from .exputils  import (plot_Feedback, create_database, DataManager,
                         ExperimenterInfo, AnyQuestionsGUI)
 from .weibull   import (Weibull, QuestPlus, weibull_db, PsychometricMonkey,
@@ -93,9 +94,9 @@ if exp['debug']:
 exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
                             sub_text_pos=(0, 0.78))
 
-
-# TODO: add eeg baseline (resting-state)!
-# TODO: add some more logging?
+# eeg baseline (resting-state)
+if exp['run baseline1']:
+    run_baseline(stim['window'], segment_time=70., debug=exp['debug'])
 
 
 # INSTRUCTIONS
