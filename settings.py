@@ -16,7 +16,7 @@ exp['two screens']  = exp['in lab']
 exp['use trigger']  = exp['in lab']
 exp['participant distance'] = 80.
 
-exp['run baseline1'] = False
+exp['run baseline1'] = True
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True
@@ -56,8 +56,8 @@ exp['fdb time']    = [40] # feedback time in frames
 exp['respWait']    = 1.5
 
 # gabor settings
-exp['gabor size']  = 5
-exp['gabor freq']  = 1.5
+exp['gabor size']  = 4
+exp['gabor freq']  = 2.5
 exp['orientation'] = [0, 45, 90, 135]
 exp['use keys']    = ['f', 'j']
 

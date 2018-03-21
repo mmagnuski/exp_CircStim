@@ -26,6 +26,7 @@ monitor = "testMonitor"
 if exp['in lab']:
 	distance = exp['participant distance']
 	monitor = Monitor('BenQ', width=53.136, distance=distance)
+	monitor.setSizePix((1920, 1080))
 
 
 # create a window
@@ -380,10 +381,10 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 
 	positions = [[-1, -0.43], [-1, 0.43], \
 				 [1, -0.43],  [1, 0.43]]
-	positions = np.array(positions) * 10
+	positions = np.array(positions) * 7
 
 	for o, p in zip(ornt, positions):
-		stims.append(gabor(ori=o, pos=p, size=4, units='deg'))
+		stims.append(gabor(ori=o, pos=p, size=3., units='deg'))
 
 	# add info on correct responses
 	tx = [ u'naciśnij  ' + exp['keymap'][ornt[0]],
@@ -463,9 +464,9 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
         show_resp_rules(exp=exp, auto=exp['debug'])
         window.flip()
 
-	if not exp['two screens']:
-		# make sure feedback is only shown after the break on one screen
-		qp_refresh_rate = 10000
+    if not exp['two screens']:
+        # make sure feedback is only shown after the break on one screen
+        qp_refresh_rate = 10000
 
 	# visual feedback on parameters probability
     if current_trial % qp_refresh_rate == 0 or has_break:
@@ -480,8 +481,8 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
         msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
         logfile.write(msg.format(time_delta))
 
-		if not exp['two screens']:
-			event.waitKeys(['f', 'j', 'space', 'return'])
+        if not exp['two screens']:
+            event.waitKeys(['f', 'j', 'space', 'return'])
 
         # quest plus refresh adds ~ 1 s to ITI so we prefer that
         # it is not predictable when refresh is going to happen
