@@ -22,7 +22,7 @@ exp['run training'] = True
 exp['run fitting']  = True
 exp['start at thresh fitting'] = False
 exp['run main c']   = True
-exp['run baseline2'] = False
+exp['run baseline2'] = False # ?
 
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['clock']        = core.Clock()
@@ -79,13 +79,14 @@ portdict['send'] = exp['use trigger']
 portdict['port address'] = int(exp['port address'], base=16) \
 						   if exp['port address'] and portdict['send'] \
 						   else exp['port address']
-portdict['codes'] = {'fix': 1, 'mask': 2}
+portdict['codes'] = {'fix': 1, 'mask': 2, 'mask_offset': 3}
 portdict['codes'].update({'target_' + str(ori) : 4 + i \
 						   for i, ori in enumerate(exp['orientation'])
 						   })
+portdict['codes'].update({'response_f': 15, 'response_j': 16})
 portdict['codes'].update({'breakStart': 100, 'breakStop': 102})
 portdict['codes'].update({'training': 10, 'fitting': 20,
-		'contrast': 30, 'time': 40})
+						  'contrast': 30, 'time': 40})
 exp['port'] = portdict
 
 # subject info

@@ -236,7 +236,7 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 
 	# present target
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
-		clock=exp['clock'])
+				   clock=exp['clock'])
 	for f in np.arange(db.loc[tr, 'targetTime']):
 		target.draw()
 		win.flip()
@@ -262,6 +262,16 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	# response
 	evaluate_response(db, exp, tr, monkey=monkey)
 
+	# after 250 - 500 ms from response mask disappears
+	offset = np.random.randint(25, 50) * 1.
+	core.wait(offset / 100.)
+
+	# send mask offset trigger
+	win.callOnFlip(onflip_work, exp['port'], code='mask_offset')
+	win.flip()
+	core.wait(0.025)
+	clear_port(exp['port'])
+
 
 def evaluate_response(df, exp, trial, monkey=None):
 	# which keys we wait for:
@@ -282,6 +292,11 @@ def evaluate_response(df, exp, trial, monkey=None):
 	# calculate RT and ifcorrect
 	if k:
 		key, RT = k[0]
+
+		# send trigger
+		onflip_work(exp['port'], code='response_{}'.format(key))
+		core.wait(0.025)
+		clear_port(exp['port'])
 
 		# if debug - test for quit
 		if exp['debug'] and key == 'q':
