@@ -14,6 +14,7 @@ exp['debug']        = True
 exp['in lab']       = True
 exp['two screens']  = exp['in lab']
 exp['use trigger']  = exp['in lab']
+exp['participant distance'] = 80.
 
 exp['run baseline1'] = False
 exp['run instruct'] = True

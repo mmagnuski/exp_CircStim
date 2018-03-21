@@ -11,6 +11,8 @@ import numpy  as np
 import matplotlib.pyplot as plt
 
 from psychopy import core, visual, event, monitors
+from psychopy.monitors import Monitor
+
 from settings import exp, db
 from exputils import getFrameRate, trim_df
 from utils    import trim, to_percent
@@ -20,21 +22,19 @@ if os.name == 'nt' and exp['use trigger']:
 
 
 # setup monitor
-monitorName = "testMonitor"
-monitors = monitors.getAllMonitors()
-if "BENQ-XL2411" in monitors:
-	monitorName = "BENQ-XL2411"
+monitor = "testMonitor"
+if exp['in lab']:
+	distance = exp['participant distance']
+	monitor = Monitor('BenQ', width=53.136, distance=distance)
 
 
 # create a window
 # ---------------
-winkeys = {'units' : 'deg', 'fullscr' : True, 'useFBO' : True,
-	'blendMode' : 'add', 'monitor' : monitorName}
+winkeys = {'units': 'deg', 'fullscr': True, 'useFBO': True, 'blendMode': 'add',
+		   'monitor': monitor, 'size': (1920, 1080)}
 if exp['two screens']:
-	winkeys.update({'screen' : 1})
+	winkeys.update({'screen': 1})
 win = visual.Window(**winkeys)
-# win = visual.Window(monitor='testMonitor', fullscr=True, units='deg',
-#     useFBO=True, blendMode='add')
 win.setMouseVisible(False)
 
 stim = dict()
