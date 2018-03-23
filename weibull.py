@@ -338,14 +338,18 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     corrs : array of float
         Correctness thresholds for consecutive QuestPlus objects.
     '''
-    init_params = qp.get_fit_params()
+
+    # ML fitting does not always work well so we use bayesian params
+    bayesian_params = qp.get_fit_params()
     weib = Weibull(kind='weibull')
-    weib.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], init_params)
+    weib.params = bayesian_params
+    # weib.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], bayesian_params)
+
     lapse = weib.params[-1]
     top_corr = max(0.9, 1 - lapse - 0.01)
-    if logger: logger.write('top correctness: {}'.format(top_corr))
+    if logger: logger.write('top correctness: {}\n'.format(top_corr))
     low, hi = weib.get_threshold([0.51, top_corr])
-    low, hi = [max(low, 0.001), min(2., hi)]
+    low, hi = [min(max(low, 0.001), 2.), max(min(2., hi), 0.001)]
     if logger:
         msg = 'low (51%) and high ({}) thresholds: {}, {}\n'
         logger.write(msg.format(top_corr, low, hi))
@@ -356,7 +360,7 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     stim_params = np.linspace(max(0.001, low - widen),
                               min(hi + widen, 1.5), num=120)
     if logger:
-        msg = 'stim params for all qps: {}'
+        msg = 'stim params for all qps: {}\n'
         logger.write(msg.format(stim_params))
 
     # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
