@@ -194,7 +194,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     current_trial = 1
     max_trials = exp['staircase trials']
     staircase = StairHandler(0.8, nTrials=max_trials, nUp=1, nDown=2,
-                             nReversals=6, minVal=0.001, maxVal=2,
+                             nReversals=6, minVal=0.01, maxVal=2.,
                              stepSizes=[0.1, 0.1, 0.05, 0.05, 0.025, 0.025],
                              stepType='lin')
 
@@ -288,7 +288,9 @@ if exp['run fitting']:
 
     # initialize further threshold optimization
     trimmed_df = trim_df(fitting_db)
-    corrs, qps = init_thresh_optim(trimmed_df, qp, model_params, logger=lg)
+    first_qp = np.where(trimmed_df.trial_type == 'Quest+')[0][0]
+    trimmed_df = trimmed_df.iloc[first_qp:, :]
+    corrs, qps, wb = init_thresh_optim(trimmed_df, qp, model_params, logger=lg)
     block_name = u'QuestPlus, część II'
     fig, ax = plt.subplots()
 
@@ -304,8 +306,11 @@ if exp['run fitting']:
     for trial in range(exp['thresh opt trials']):
         # select contrast
         posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
-        posterior_peak = [posterior.max() for posterior in posteriors]
-        optimize_threshold = np.array(posterior_peak).argmin()
+        posterior_entropy = [-np.nansum(posterior * np.log(posterior))
+                             for posterior in posteriors]
+        choice_prob = posterior_entropy / posterior_entropy.sum()
+        optimize_threshold = np.random.choice(np.arange(len(qps)),
+                                              p=choice_prob))
         contrast = qps[optimize_threshold].next_contrast(axis=0)
 
         # CHECK if blok_info flips the screen, better if not...
