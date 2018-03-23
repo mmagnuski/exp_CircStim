@@ -481,6 +481,9 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
         plt.close(fig)
         window.winHandle.activate()
 
+        if not exp['two screens']:
+            win.blendMode = 'avg'
+
         exp_info.experimenter_plot(img_name)
         time_delta = time.clock() - t0
         msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
@@ -488,6 +491,7 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
 
         if not exp['two screens']:
             event.waitKeys(['f', 'j', 'space', 'return'])
+            win.blendMode = 'add'
 
         # quest plus refresh adds ~ 1 s to ITI so we prefer that
         # it is not predictable when refresh is going to happen
