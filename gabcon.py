@@ -361,7 +361,21 @@ if exp['run main c']:
         params = qp.get_fit_params()
         contrasts.append(params[0])
 
-    lg.write('final contrast steps: {}'.format(contrasts))
+    lg.write('final contrast steps: {}\n'.format(contrasts))
+
+    # set up break plots
+    qp_refresh_rate = sample([3, 4, 5], 1)[0]
+    img_name = op.join(exp['data'], 'quest_plus_panel.png')
+
+    def wb_plot(wb, df):
+        df = trim_df(df.copy())
+        wb.x = df.opacity.values.copy()
+        wb.y = df.ifcorrect.values.copy()
+        wb.orig_y = df.ifcorrect.values.copy()
+        return wb.plot(mean_points=True).figure
+
+    plot_fun = lambda x: wb_plot(wb, x)
+    df_save_path = dm.give_path('c')
 
     # 30 repetitions * 4 angles * 5 steps = 600 trials
     db_c = create_database(exp, combine_with=('opacity', contrasts), rep=30)
@@ -381,19 +395,15 @@ if exp['run main c']:
         present_trial(i, exp=exp, db=db_c, use_exp=False, monkey=monkey)
         stim['window'].flip()
 
-        # present break
-        if i % exp['break after'] == 0:
-            # save data before every break
-            temp_db = trim_df(db_c.copy())
-            temp_db.to_excel(dm.give_path('c'))
-            # break and refresh keyboard mapping
-            present_break(i, exp=exp, auto=exp['debug'])
-            show_resp_rules(exp=exp, auto=exp['debug'])
-            stim['window'].flip()
+        # break handling
+        qp_refresh_rate = break_checker(
+            stim['window'], exp, db_c, exp_info, lg, i,
+            qp_refresh_rate=1000, plot_fun=plot_fun,
+            plot_arg=db_c, dpi=120, img_name=img_name,
+            df_save_path=df_save_path, show_completed=True)
 
         # update experimenter
         exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
-        # - [ ] add some figure with correctness for different contrast steps
 
     db_c.to_excel(dm.give_path('c'))
 

@@ -369,7 +369,7 @@ def init_thresh_optim(df, qp, model_params, logger=None):
         qp.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], approximate=True);
         qps.append(qp)
 
-    return corrs, qps
+    return corrs, qps, weib
 
 
 class PsychometricMonkey(object):

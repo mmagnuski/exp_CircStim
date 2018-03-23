@@ -453,7 +453,8 @@ def present_break(t, exp=exp, win=stim['window'], auto=False):
 
 def break_checker(window, exp, df, exp_info, logfile, current_trial,
                   qp_refresh_rate=3, plot_fun=None, plot_arg=None, dpi=120,
-                  img_name='temp.png', df_save_path='temp.xlsx'):
+                  img_name='temp.png', df_save_path='temp.xlsx',
+                  show_completed=False):
 
     has_break = current_trial % exp['break after'] == 0
     if has_break:
@@ -462,13 +463,17 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
 
         # remind about the button press mappings
         show_resp_rules(exp=exp, auto=exp['debug'])
+        if not show_completed: window.flip()
+
+    if show_completed and has_break:
+        present_break(current_trial, exp=exp, win=window, auto=exp['debug'])
         window.flip()
 
     if not exp['two screens']:
         # make sure feedback is only shown after the break on one screen
         qp_refresh_rate = 10000
 
-	# visual feedback on parameters probability
+    # visual feedback on parameters probability
     if current_trial % qp_refresh_rate == 0 or has_break:
         t0 = time.clock()
         fig = plot_fun(plot_arg)
