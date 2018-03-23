@@ -128,7 +128,7 @@ class Gabor(object):
 
 
 def fix(win=win, color=(0.5, 0.5, 0.5)):
-	dot = visual.Circle(win, radius=0.18, edges=16, units='deg',
+	dot = visual.Circle(win, radius=0.09, edges=16, units='deg',
 						interpolate=True)
 	dot.setFillColor(color)
 	dot.setLineColor(color)
@@ -381,7 +381,7 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 
 	positions = [[-1, -0.43], [-1, 0.43], \
 				 [1, -0.43],  [1, 0.43]]
-	positions = np.array(positions) * 7
+	positions = np.array(positions) * 5
 
 	for o, p in zip(ornt, positions):
 		stims.append(gabor(ori=o, pos=p, size=3., units='deg'))
@@ -391,7 +391,7 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 		   u'naciśnij  ' + exp['keymap'][ornt[2]],
 		   u'aby przejść dalej naciśnij spację' ]
 	positions = [[-1, 0.85], [1, 0.85], [0, -0.9]]
-	positions = np.array(positions) * 10
+	positions = np.array(positions) * 5
 	txStim = []
 
 	for t, p in zip(tx, positions):

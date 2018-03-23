@@ -10,11 +10,11 @@ from exputils  import (ms2frames, getSubject, getFrameRate, create_database)
 # experiment settings
 # -------------------
 exp = dict()
-exp['debug']        = True
+exp['debug']        = False
 exp['in lab']       = True
 exp['two screens']  = exp['in lab']
 exp['use trigger']  = exp['in lab']
-exp['participant distance'] = 80.
+exp['participant distance'] = 90.
 
 exp['run baseline1'] = True
 exp['run instruct'] = True
@@ -33,7 +33,7 @@ exp['min opac']    = 0.005        # NOT USED? (but could be)
 exp['max opac']    = 2.0          # NOT USED? (but could be)
 
 # parameter settings for QUEST+
-exp['thresholds'] = np.logspace(np.log10(0.05), np.log10(1.), num=30)
+exp['thresholds'] = np.logspace(np.log10(0.01), np.log10(1.), num=45)
 exp['slopes'] = np.logspace(np.log10(1.), np.log10(15.), num=30)
 exp['lapses'] = np.arange(0., 0.11, 0.01)
 
@@ -44,12 +44,12 @@ exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 # fitting settings
 exp['break after']  = 12
 exp['staircase trials']  = 25   # max value, default 25
-exp['QUEST plus trials'] = 100  # default 100
-exp['thresh opt trials'] = 50   # default 50
+exp['QUEST plus trials'] = 75   # default 100
+exp['thresh opt trials'] = 75   # default 50
 
 # timing settings
-exp['targetTime']  = [2] # maybe test with targetTime == 2?
-exp['SMI']         = [1] # Stimulus Mask Interval
+exp['targetTime']  = [1] # maybe test with targetTime == 2?
+exp['SMI']         = [2] # Stimulus Mask Interval
 exp['fixTimeLim']  = [1., 2.5] if not exp['debug'] else [0.025, 0.05]
 exp['maskTime']    = [20] if not exp['debug'] else [5]
 exp['fdb time']    = [40] # feedback time in frames
@@ -57,7 +57,7 @@ exp['respWait']    = 1.5
 
 # gabor settings
 exp['gabor size']  = 4
-exp['gabor freq']  = 2.5
+exp['gabor freq']  = 2
 exp['orientation'] = [0, 45, 90, 135]
 exp['use keys']    = ['f', 'j']
 
