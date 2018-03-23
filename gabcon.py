@@ -95,7 +95,8 @@ exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
 
 # eeg baseline (resting-state)
 if exp['run baseline1']:
-    run_baseline(stim['window'], segment_time=70., debug=exp['debug'])
+    run_baseline(stim['window'], exp, segment_time=70., debug=exp['debug'])
+    exp_info.blok_info(u'skończył się baseline\nmożna odłączyć głośniki', [1, 1])
 
 
 # INSTRUCTIONS

@@ -6,14 +6,12 @@ from ctypes import windll
 
 from psychopy import visual, event, monitors, core, sound
 
-from settings import exp
 
+def send_trigger(portdict, code):
+    if portdict['send']:
+		windll.inpout32.Out32(portdict['port address'], code)
 
-def send_trigger(exp, code):
-    if exp['use trigger']:
-		windll.inpout32.Out32(exp['port address'], code)
-
-def run(window, segment_time=60., debug=False, instr_dir='instr'):
+def run(window, exp, segment_time=60., debug=False, instr_dir='instr'):
     segment_time = 1. if debug else segment_time
 
     # present instructions
@@ -45,10 +43,10 @@ def run(window, segment_time=60., debug=False, instr_dir='instr'):
         snd.play()
 
         # set trigger
-        send_trigger(exp, trig[s])
+        send_trigger(exp['port'], trig[s])
         window.flip()
         core.wait(0.1)
-        send_trigger(exp, 0)
+        send_trigger(exp['port'], 0)
 
         # wait segment_time, play ring and then wait break time
         core.wait(segment_time)
