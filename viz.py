@@ -2,18 +2,19 @@
 from __future__ import absolute_import
 import os
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from .utils import check_color, group
 
-
+mpl_version = mpl.__version__
 line_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
 
 def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
-			 	 mean_points=False, min_bucket='adaptive',
-				 split_bucket='adaptive', line_color=None, contrast_steps=None,
+			 	 mean_points=False, line_color=None, contrast_steps=None,
 				 mean_points_color=(0.22, 0.58, 0.78), linewidth=3.,
-				 scale='linear'):
+				 scale='linear', min_bucket='adaptive',
+				 split_bucket='adaptive'):
 	# set up x:
 	if x is None:
 		x = weibull.x.copy()
@@ -45,6 +46,7 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 		ax.set_facecolor((0.92, 0.92, 0.92))
 	except:
 		ax.set_axis_bgcolor((0.92, 0.92, 0.92))
+
 	plt.grid(True, color=(1., 1., 1.), lw=1.5, linestyle='-', zorder=-1)
 
 	line_color = check_color(line_color)
@@ -52,85 +54,26 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 	# plot buckets
 	# TODO - bucketing or binning points should be done by sep fun
 	if mean_points:
-	    from scipy import stats
-	    mean_points_color = check_color(mean_points_color)
+		from scipy import stats
+		x_pnts = weibull.x.copy()
+		y_pnts = weibull.orig_y.copy()
+		srt = x_pnts.argsort()
+		x_pnts = x_pnts[srt]
+		y_pnts = y_pnts[srt]
 
-	    # bucketize
-	    # ---------
-	    # get points and sort
-	    x_pnts = weibull.x.copy()
-	    y_pnts = weibull.orig_y.copy()
-	    srt = x_pnts.argsort()
-	    x_pnts = x_pnts[srt]
-	    y_pnts = y_pnts[srt]
+		slices = bin_points(x_pnts, y_pnts, min_bucket=min_bucket,
+						 split_bucket=split_bucket)
+		x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
+		y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
+		bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
 
-	    # adaptive min_bucket and split_bucket
-	    adaptive_min_bucket = isinstance(min_bucket, str) and \
-	        min_bucket == 'adaptive'
-	    adaptive_split_bucket = isinstance(split_bucket, str) and \
-	        split_bucket == 'adaptive'
-	    if adaptive_min_bucket or adaptive_split_bucket:
-	        drop_elements = int(np.ceil(len(x_pnts) * 0.08))
-	        contrast_range = x_pnts[drop_elements:-drop_elements][[0, -1]]
-	        contrast_range = np.diff(contrast_range)[0]
-	        if adaptive_min_bucket:
-	            min_bucket = contrast_range / 20.
-	        if adaptive_split_bucket:
-	            split_bucket = contrast_range / 10.
-
-	    # look for buckets
-	    x_buckets = group(np.diff(x_pnts) <= min_bucket)
-	    n_pnts_in_bucket = (np.diff(x_buckets, axis=-1) + 1).ravel()
-	    good_buckets = n_pnts_in_bucket >= (3 - 1) # -1 because of diff
-
-	    if x_buckets.shape[0] > 0 and np.any(good_buckets):
-	        x_buckets = x_buckets[good_buckets, :]
-
-	        # turn buckets to slices, get mean and sem
-	        x_buckets[:, 1] += 2 # +1 because of python slicing
-								 # another +1 because of diff
-	        slices = [slice(l[0], l[1]) for l in x_buckets]
-
-	        # test each slice for contrast range and split if needed
-	        add_slices = list()
-	        ii = 0
-
-	        while ii < len(slices):
-	            slc = slices[ii]
-	            pnts = x_pnts[slc]
-	            l, h = pnts[[0, -1]]
-	            rng = h - l
-	            start = slc.start
-	            if rng > split_bucket:
-	                slices.pop(ii)
-	                n_full_splits = int(np.floor(rng / split_bucket))
-	                last_l = l
-	                last_ind = 0
-	                for splt in range(n_full_splits):
-	                    this_high = last_l + split_bucket
-	                    this_ind = np.where(pnts >= this_high)[0][0]
-	                    add_slices.append(slice(start + last_ind, start +
-												this_ind + 1))
-	                    last_l = this_high
-	                    last_ind = this_ind + 1
-
-	                # last one - to the end
-	                if start + last_ind < slc.stop:
-	                    add_slices.append(slice(start + last_ind, slc.stop))
-	            else:
-	                ii += 1
-	        slices.extend(add_slices)
-
-	        x_bucket_mean = np.array([x_pnts[slc].mean() for slc in slices])
-	        y_bucket_mean = np.array([y_pnts[slc].mean() for slc in slices])
-	        bucket_sem = np.array([stats.sem(y_pnts[slc]) for slc in slices])
-
-	        # plot bucket means and sem
-	        ax.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
-	                    c=mean_points_color)
-	        ax.vlines(x_bucket_mean, y_bucket_mean - bucket_sem,
-	                   y_bucket_mean + bucket_sem, lw=2, zorder=4,
-					   colors=mean_points_color)
+		# plot bucket means and sem
+		mean_points_color = check_color(mean_points_color)
+		ax.scatter(x_bucket_mean, y_bucket_mean, lw=0, zorder=4, s=32.,
+		            c=mean_points_color)
+		ax.vlines(x_bucket_mean, y_bucket_mean - bucket_sem,
+		           y_bucket_mean + bucket_sem, lw=2, zorder=4,
+				   colors=mean_points_color)
 
 	if contrast_steps is not None:
 	    corrs = weibull.predict(contrast_steps)
@@ -148,17 +91,11 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 	# ----------
 	uplim = min(vmax, np.where(y == y.max())[0][0])
 	lowlim = vmin
-	plt.xlim([lowlim, uplim])
-	plt.ylim([-0.1, 1.1])
-	plt.xlabel('stimulus intensity')
-	plt.ylabel('correctness')
-
-	# save figure
-	if pth:
-	    tempfname = os.path.join(pth, 'weibull_fit_temp.png')
-	    plt.savefig(tempfname, dpi=120)
-	    plt.close()
-	    return tempfname
+	ax.set_xlim([lowlim, uplim])
+	ax.set_ylim([-0.1, 1.1])
+	ax.set_xlabel('stimulus intensity')
+	ax.set_ylabel('correctness')
+	return ax
 
 
 def plot_quest_plus(qp, weibull_kind='weibull'):
@@ -190,14 +127,16 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 				 extent=[-0.5, len(model_slope) + 0.5,
 				 		 -0.5, len(model_threshold) + 0.5])
 	# x ticks
-	x_ind = np.arange(0, len(model_slope), 3)
+	n_steps = int(np.floor(len(model_slope) / 5.))
+	x_ind = np.arange(0, len(model_slope), n_steps)
 	im_ax.set_xticks(x_ind)
 	im_ax.set_xticklabels(['{:.2f}'.format(x) for x in model_slope[x_ind]])
 
 	# y ticks
-	y_ind = np.arange(0, len(model_threshold), 3)
+	n_steps = int(np.floor(len(model_threshold) / 7.))
+	y_ind = np.arange(0, len(model_threshold), n_steps)
 	im_ax.set_yticks(y_ind)
-	im_ax.set_yticklabels(['{:.2f}'.format(x) for x in model_slope[y_ind]])
+	im_ax.set_yticklabels(['{:.2f}'.format(x) for x in model_threshold[y_ind]])
 
 	# axis labels
 	im_ax.set_xlabel('slope')
@@ -208,24 +147,34 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 	xs = [model_threshold, model_slope, model_lapse]
 	reduce_dims = [(1, 2), (0, 2), (0, 1)]
 	titles = ['threshold', 'slope', 'lapse']
+	upper_y_lims = [0.55, 0.1, 0.15]
 	colors = line_colors[:3]
 	for i in range(3):
 		# for _ in range(i):
 		#     axes[i]._get_lines.get_next_color()
 		this_prob = posterior.sum(axis=reduce_dims[i])
-		axes[i].grid(True)
+		if mpl_version[0] == '2':
+			plt.grid(True)
+		else:
+			axes[i].grid(True, color=[0.8, 0.8, 0.8], linestyle='-', lw=1.,
+					 	 zorder=0)
 		if i in [0, 1]:
 			this_x = np.arange(len(xs[i]))
-			axes[i].plot(this_x, this_prob, color=colors[i])
-			axes[i].fill_between(this_x, this_prob, color=colors[i], alpha=0.5)
-			ticks = this_x[::3]
+			axes[i].plot(this_x, this_prob, color=colors[i], zorder=4)
+			axes[i].fill_between(this_x, this_prob, color=colors[i], alpha=0.5,
+								 zorder=3)
+			n_steps = int(np.floor(len(this_x) / 5.))
+			ticks = this_x[::n_steps]
 			axes[i].set_xticks(ticks)
 			axes[i].set_xticklabels(['{:.2f}'.format(x)
 									 for x in xs[i][ticks]])
 		else:
-			axes[i].plot(xs[i], this_prob, color=colors[i])
-			axes[i].fill_between(xs[i], this_prob, color=colors[i], alpha=0.5)
+			axes[i].plot(xs[i], this_prob, color=colors[i], zorder=4)
+			axes[i].fill_between(xs[i], this_prob, color=colors[i], alpha=0.5,
+								 zorder=3)
 		axes[i].set_title('{} probability'.format(titles[i]))
+		current_upper_ylim = axes[i].get_ylim()[1]
+		axes[i].set_ylim((0., max(upper_y_lims[i], current_upper_ylim)))
 
 	# plot expected entropy
 	entropy_ax.plot(qp.stim_domain, qp.entropy, color='k')
@@ -269,4 +218,68 @@ def plot_threshold_entropy(qps, corrs=None, axis=None):
                      facecolor=color, edgecolor='k', zorder=10, s=50)
 
     axis.legend()
+    current_upper_ylim = axis.get_ylim()[1]
+    axis.set_ylim((0., max(0.07, current_upper_ylim)))
     return axis
+
+
+def bin_points(x_pnts, y_pnts, min_bucket, split_bucket):
+	# adaptive min_bucket and split_bucket
+	adaptive_min_bucket = isinstance(min_bucket, str) and \
+		min_bucket == 'adaptive'
+	adaptive_split_bucket = isinstance(split_bucket, str) and \
+		split_bucket == 'adaptive'
+	if adaptive_min_bucket or adaptive_split_bucket:
+		contrast_range = x_pnts[[0, -1]]
+		# or if we want to trim edges:
+		# drop_elements = int(np.ceil(len(x_pnts) * 0.08))
+		# contrast_range = x_pnts[drop_elements:-drop_elements][[0, -1]]
+		contrast_range = np.diff(contrast_range)[0]
+		if adaptive_min_bucket:
+			min_bucket = contrast_range / 20.
+		if adaptive_split_bucket:
+			split_bucket = contrast_range / 10.
+
+	# look for buckets
+	x_buckets = group(np.diff(x_pnts) <= min_bucket)
+	n_pnts_in_bucket = (np.diff(x_buckets, axis=-1) + 1).ravel()
+	good_buckets = n_pnts_in_bucket >= (3 - 1) # -1 because of diff
+
+	if x_buckets.shape[0] > 0 and np.any(good_buckets):
+		x_buckets = x_buckets[good_buckets, :]
+
+		# turn buckets to slices, get mean and sem
+		x_buckets[:, 1] += 2 # +1 because of python slicing
+							 # another +1 because of diff
+		slices = [slice(l[0], l[1]) for l in x_buckets]
+
+		# test each slice for contrast range and split if needed
+		add_slices = list()
+		ii = 0
+
+		while ii < len(slices):
+			slc = slices[ii]
+			pnts = x_pnts[slc]
+			l, h = pnts[[0, -1]]
+			rng = h - l
+			start = slc.start
+			if rng > split_bucket:
+				slices.pop(ii)
+				n_full_splits = int(np.floor(rng / split_bucket))
+				last_l = l
+				last_ind = 0
+				for splt in range(n_full_splits):
+					this_high = last_l + split_bucket
+					this_ind = np.where(pnts >= this_high)[0][0]
+					add_slices.append(slice(start + last_ind, start +
+											this_ind + 1))
+					last_l = this_high
+					last_ind = this_ind + 1
+
+				# last one - to the end
+				if start + last_ind < slc.stop:
+					add_slices.append(slice(start + last_ind, slc.stop))
+			else:
+				ii += 1
+		slices.extend(add_slices)
+	return slices
