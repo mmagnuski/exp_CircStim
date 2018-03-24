@@ -11,18 +11,17 @@ from exputils  import (ms2frames, getSubject, getFrameRate, create_database)
 # -------------------
 exp = dict()
 exp['debug']        = False
-exp['in lab']       = True
-exp['two screens']  = exp['in lab']
-exp['use trigger']  = exp['in lab']
+exp['lab monitor']  = True
+exp['two screens']  = False
+exp['use trigger']  = True
 exp['participant distance'] = 90.
 
 exp['run baseline1'] = True
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True
-exp['start at thresh fitting'] = False
 exp['run main c']   = True
-exp['run baseline2'] = False # ?
+exp['start at thresh fitting'] = False
 
 exp['port address'] = '0xDC00' # string, for example '0xD05'
 exp['clock']        = core.Clock()

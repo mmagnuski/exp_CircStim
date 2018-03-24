@@ -23,7 +23,7 @@ if os.name == 'nt' and exp['use trigger']:
 
 # setup monitor
 monitor = "testMonitor"
-if exp['in lab']:
+if exp['lab monitor']:
 	distance = exp['participant distance']
 	monitor = Monitor('BenQ', width=53.136, distance=distance)
 	monitor.setSizePix((1920, 1080))
