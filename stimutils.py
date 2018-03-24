@@ -514,33 +514,64 @@ def give_training_db(db, exp=exp, slowdown=8):
 
 
 class Instructions:
-	nextpage = 0
 	mapdict = {'gabor': gabor, 'text': txt_newlines, 'fix': fix,
 			   'feedback': feedback_circle}
 	navigation = {'left': 'prev', 'right': 'next', 'space': 'next'}
 
-	def __init__(self, fname, win=win, auto=False):
+	def __init__(self, fname, win=win, auto=False, exp_info=None,
+				 images=False, image_args=dict()):
 		self.win = win
 		self.auto = auto
+		self.images = images
+		self.exp_info = exp_info
 
 		# get instructions from file:
-		with open(fname, 'r') as f:
-		    instr = yaml.load_all(f)
-		    self.pages = list(instr)
+		if not images:
+			with open(fname, 'r') as f:
+			    instr = yaml.load_all(f)
+			    self.pages = list(instr)
+		else:
+			self.pages = [visual.ImageStim(
+				stim['window'], image=file, **image_args) for file in fname]
+		self.this_page = 0
 		self.stop_at_page = len(self.pages)
 
 	def present(self, start=None, stop=None):
 		if not isinstance(start, int):
-			start = self.nextpage
+			start = self.this_page
 		if not isinstance(stop, int):
 			stop = len(self.pages)
 
 		# show pages:
-		self.nextpage = start
-		while self.nextpage < stop:
+		self.this_page = start
+		while self.this_page < stop:
 			# create page elements
 			self.create_page()
+			self.show_page()
 
+			# wait for response
+			if not self.auto:
+				k = event.waitKeys(keyList=self.navigation.keys() + ['q'])[0]
+				if 'q' in k:
+					core.quit()
+				action = self.navigation[k]
+			else:
+				core.wait(0.15)
+				action = 'next'
+
+			# go next/prev according to the response
+			if action == 'next':
+				self.this_page += 1
+			else:
+				self.this_page = max(0, self.this_page - 1)
+
+	def create_page(self):
+		if self.images: return
+		self.pageitems = [self.parse_item(item)
+						  for item in self.pages[self.this_page]]
+
+	def show_page(self):
+		if not self.images:
 			# draw page elements
 			any_circle = np.any([isinstance(x, visual.Circle)
 				for x in self.pageitems])
@@ -551,30 +582,19 @@ class Instructions:
 				it.draw()
 				if isinstance(it, visual.TextStim) and not any_circle:
 					self.win.blendMode = 'add'
-			self.win.flip()
+		else:
+			self.pages[self.this_page].draw()
+		self.win.flip()
 
-			# wait for response
-			if not self.auto:
-				k = event.waitKeys(keyList=self.navigation.keys())[0]
-				action = self.navigation[k]
-			else:
-				core.wait(0.15)
-				action = 'next'
-
-			# go next/prev according to the response
-			if action == 'next':
-				self.nextpage += 1
-			else:
-				self.nextpage = max(0, self.nextpage - 1)
-
-	def create_page(self, page_num=None):
-		if not isinstance(page_num, int):
-			page_num = self.nextpage
-		self.pageitems = [self.parse_item(i) for i in self.pages[page_num]]
+		# inform experimenter about the progress
+		if self.exp_info is not None:
+			msg = 'Instrukcje, strona {}'.format(self.this_page)
+			self.exp_info.general_info(msg)
 
 	def parse_item(self, item):
 		# currently: gabor or text:
-		fun = self.mapdict.get(item['item'], [])
+		fun = self.mapdict.get(item['item'], None)
 		args = item['value']
 		args.update({'win' : self.win})
-		if fun: return fun(**item['value'])
+		if fun is not None:
+			return fun(**item['value'])

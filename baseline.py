@@ -5,6 +5,7 @@ import warnings
 from ctypes import windll
 
 from psychopy import visual, event, monitors, core, sound
+from stimutils import Instructions
 
 
 def send_trigger(portdict, code):
@@ -15,10 +16,15 @@ def run(window, exp, segment_time=60., debug=False, instr_dir='instr'):
     segment_time = 1. if debug else segment_time
 
     # present instructions
-    img_dir = os.path.join(instr_dir, 'baseline.png')
-    img = visual.ImageStim(window, image=img_dir, size=[1920, 1080],
-                           units='pix', interpolate=True)
-    img.draw(); window.flip()
+    # check participant sex
+    sex = exp['participant']['sex'][0]
+    img_files = [op.join(instr_dir, fl) for fl in os.listdir(instr_dir)
+                 if fl.startswith(sex + '_') and fl.lower().endswith('.png')]
+    instr = Instructions(img_files, images=True, auto=exp['debug'],
+                         image_args=dict(size=[1451, 816], units='pix'),
+                         exp_info=exp_info)
+    instr.present()
+
     event.waitKeys(keyList=['right'])
     window.flip()
 
