@@ -12,7 +12,8 @@ def send_trigger(portdict, code):
     if portdict['send']:
 		windll.inpout32.Out32(portdict['port address'], code)
 
-def run(window, exp, segment_time=60., debug=False, instr_dir='instr'):
+def run(window, exp, segment_time=60., debug=False, instr_dir='instr',
+        exp_info=None):
     segment_time = 1. if debug else segment_time
 
     # present instructions

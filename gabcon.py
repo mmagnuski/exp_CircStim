@@ -96,13 +96,14 @@ exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
 # eeg baseline (resting-state)
 if exp['run baseline1']:
     run_baseline(stim['window'], exp, segment_time=70., debug=exp['debug'])
-    exp_info.blok_info(u'skończył się baseline\nmożna odłączyć głośniki', [1, 1])
+    exp_info.general_info(u'skończył się baseline\nmożna odłączyć głośniki')
 
 
 # INSTRUCTIONS
 # ------------
 if exp['run instruct']:
-    instr = Instructions('instructions.yaml', auto=exp['debug'])
+    instr = Instructions(r'instr\instructions.yaml', auto=exp['debug'],
+                         exp_info=exp_info)
     instr.present(stop=8)
     show_resp_rules(exp=exp, text=u"Tak wygląda ekran przerwy.",
                     auto=exp['debug'])

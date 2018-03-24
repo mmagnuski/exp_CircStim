@@ -76,7 +76,7 @@ class ExperimenterInfo(Interface):
 			texts.append(None)
 
 		for txt, key in zip(texts, ['main', 'sub', 'detail']):
-			if txt:
+			if txt is not None:
 				update = True
 				self.texts[key].setText(txt)
 
@@ -93,6 +93,10 @@ class ExperimenterInfo(Interface):
 		tx.append(u'Trwa {}'.format(name))
 		tx.append(u'Ukończono {} \ {} powtórzeń'.format(*blockinfo[:2]))
 		self.update_text(tx)
+
+	def general_info(self, text):
+		texts = [None, None, text]
+		self.update_text(texts)
 
 	def experimenter_plot(self, img_name):
 		self.image.setImage(img_name)
