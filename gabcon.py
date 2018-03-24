@@ -311,7 +311,7 @@ if exp['run fitting']:
                              for posterior in posteriors]
         choice_prob = posterior_entropy / posterior_entropy.sum()
         optimize_threshold = np.random.choice(np.arange(len(qps)),
-                                              p=choice_prob))
+                                              p=choice_prob)
         contrast = qps[optimize_threshold].next_contrast(axis=0)
 
         # CHECK if blok_info flips the screen, better if not...
