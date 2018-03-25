@@ -200,6 +200,10 @@ if exp['run fitting'] and not omit_first_fitting_steps:
                              stepType='lin')
 
     for contrast in staircase:
+        # never go longer than 35 trials
+        if current_trial > 35:
+           break
+
         exp_info.blok_info(u'procedura schodkowa', [current_trial, max_trials])
 
         # setup stimulus and present trial
@@ -307,8 +311,8 @@ if exp['run fitting']:
     for trial in range(exp['thresh opt trials']):
         # select contrast
         posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
-        posterior_entropy = [-np.nansum(posterior * np.log(posterior))
-                             for posterior in posteriors]
+        posterior_entropy = np.array([-np.nansum(posterior * np.log(posterior))
+                                      for posterior in posteriors])
         choice_prob = posterior_entropy / posterior_entropy.sum()
         optimize_threshold = np.random.choice(np.arange(len(qps)),
                                               p=choice_prob)
@@ -366,7 +370,7 @@ if exp['run main c']:
 
     # set up break plots
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
-    img_name = op.join(exp['data'], 'quest_plus_panel.png')
+    img_name = op.join(exp['data'], 'final_proc_panel.png')
 
     def wb_plot(wb, df):
         df = trim_df(df.copy())

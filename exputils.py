@@ -242,10 +242,13 @@ def getSubject():
     Here it just asks for subject's name/code
     and returns it as a string
     '''
-    myDlg = gui.Dlg(title="Pseudonim", size = (800,600))
+    myDlg = gui.Dlg(title="GabCon 2018", size = (800,600))
     myDlg.addText('Informacje o osobie badanej')
     myDlg.addField('numer:')
-    myDlg.addField(u'plec:', choices=[u'kobieta', u'mezczyzna'])
+    myDlg.addField('plec:', choices=['kobieta', 'mezczyzna'])
+    myDlg.addField('distance (cm)', 95.)
+    myDlg.addText('Ustawienia procedury')
+    myDlg.addField('debug mode:', choices=['False', 'True'])
     myDlg.show()  # show dialog and wait for OK or Cancel
 
     if myDlg.OK:  # the user pressed OK
