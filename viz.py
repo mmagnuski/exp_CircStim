@@ -197,6 +197,11 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 	func_ax.plot(x, qp.function(x, mean_params), color=colors[2],
 				 label='Bayesian mean prob fit', zorder=11)
 	func_ax.legend(loc='center right', prop={'size': 8})
+
+	# set tick formatter to linear:
+	func_ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
+	# x_limits = func_ax.get_xlim()
+
 	fig.tight_layout()
 	return fig
 
@@ -210,7 +215,8 @@ def plot_threshold_entropy(qps, corrs=None, axis=None):
 
     posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
     for idx, post, corr in zip(range(len(corrs)), posteriors, corrs):
-        lines = axis.plot(qps[-1]._orig_params[0], post, label=str(corr),
+        label_str = '{:.2f}'.format(corr)
+        lines = axis.plot(qps[-1]._orig_params[0], post, label=label_str,
                           color=line_colors[idx])
         color = lines[0].get_color()
         max_idx = post.argmax()

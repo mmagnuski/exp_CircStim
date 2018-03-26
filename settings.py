@@ -10,15 +10,13 @@ from exputils  import (ms2frames, getSubject, getFrameRate, create_database)
 # experiment settings
 # -------------------
 exp = dict()
-exp['debug']        = False
 exp['lab monitor']  = True
-exp['two screens']  = False
+exp['two screens']  = True
 exp['use trigger']  = True
-exp['participant distance'] = 90.
 
-exp['run baseline1'] = True
+exp['run baseline1'] = False
 exp['run instruct'] = True
-exp['run training'] = True
+exp['run training'] = False
 exp['run fitting']  = True
 exp['run main c']   = True
 exp['start at thresh fitting'] = False
@@ -33,8 +31,8 @@ exp['max opac']    = 2.0          # NOT USED? (but could be)
 
 # parameter settings for QUEST+
 exp['thresholds'] = np.logspace(np.log10(0.01), np.log10(1.), num=45)
-exp['slopes'] = np.logspace(np.log10(1.), np.log10(15.), num=30)
-exp['lapses'] = np.arange(0., 0.11, 0.01)
+exp['slopes'] = np.logspace(np.log10(0.5), np.log10(20.), num=45)
+exp['lapses'] = np.arange(0., 0.06, 0.01)
 
 # training settings
 exp['train slow']   = [8, 5, 3, 2, 1]
@@ -43,8 +41,21 @@ exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 # fitting settings
 exp['break after']  = 12
 exp['staircase trials']  = 25   # max value, default 25
-exp['QUEST plus trials'] = 75   # default 100
-exp['thresh opt trials'] = 75   # default 50
+exp['QUEST plus trials'] = 100   # default 100
+exp['thresh opt trials'] = 50    # default 50
+
+# subject info
+# ------------
+sub_data = getSubject()
+if sub_data is None:
+    core.quit()
+
+exp['participant']  = dict()
+exp['participant']['ID'] = sub_data[0]
+exp['participant']['sex'] = sub_data[1][0]
+exp['participant distance'] = sub_data[2]
+exp['debug'] = sub_data[3] == 'True'
+
 
 # timing settings
 exp['targetTime']  = [1] # maybe test with targetTime == 2?
@@ -88,15 +99,7 @@ portdict['codes'].update({'training': 10, 'fitting': 20,
 						  'contrast': 30, 'time': 40})
 exp['port'] = portdict
 
-# subject info
-# ------------
-sub_data = getSubject()
-if sub_data is None:
-    core.quit()
-exp['participant']  = dict()
-exp['participant']['ID'] = sub_data[0]
-exp['participant']['sex'] = sub_data[1][0]
-# exp['participant']['age'] = sub_data[1]
+
 
 # get path
 pth   = os.path.dirname(os.path.abspath(__file__))

@@ -381,7 +381,7 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 
 	positions = [[-1, -0.43], [-1, 0.43], \
 				 [1, -0.43],  [1, 0.43]]
-	positions = np.array(positions) * 5
+	positions = np.array(positions) * 6.
 
 	for o, p in zip(ornt, positions):
 		stims.append(gabor(ori=o, pos=p, size=3., units='deg'))
@@ -391,11 +391,12 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 		   u'naciśnij  ' + exp['keymap'][ornt[2]],
 		   u'aby przejść dalej naciśnij spację' ]
 	positions = [[-1, 0.85], [1, 0.85], [0, -0.9]]
-	positions = np.array(positions) * 5
+	positions = np.array(positions) * 6.
 	txStim = []
 
 	for t, p in zip(tx, positions):
-		txStim.append(visual.TextStim(win, text=t, pos=p, units='deg'))
+		txStim.append(visual.TextStim(win, text=t, pos=p, units='deg',
+									  height=0.7))
 
 	# draw all:
 	for t in txStim:
@@ -403,7 +404,7 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 
 	# draw text if necessary:
 	if text:
-		visual.TextStim(win, text=text).draw()
+		visual.TextStim(win, text=text, units='deg', height=0.7).draw()
 
 	# fix window blendMode:
 	win.blendMode = 'add'

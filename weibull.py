@@ -346,10 +346,10 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     # weib.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], bayesian_params)
 
     lapse = weib.params[-1]
-    top_corr = max(0.9, 1 - lapse - 0.01)
+    top_corr = max(0.99, 1 - lapse - 0.01)
     if logger: logger.write('top correctness: {}\n'.format(top_corr))
     low, hi = weib.get_threshold([0.51, top_corr])
-    low, hi = [min(max(low, 0.001), 2.), max(min(2., hi), 0.001)]
+    low, hi = [min(max(low, 0.002), 2.), max(min(2., hi), 0.001)]
     if logger:
         msg = 'low (51%) and high ({}) thresholds: {}, {}\n'
         logger.write(msg.format(top_corr, low, hi))
@@ -357,15 +357,16 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     widen = rng * 0.15
 
     model_thresholds, model_slopes, model_lapses = model_params
-    stim_params = np.linspace(max(0.001, low - widen),
+    stim_params = np.linspace(max(0.002, low - widen),
                               min(hi + widen, 1.5), num=120)
+    # TODO - add exceeding values to stim_params
     if logger:
         msg = 'stim params for all qps: {}\n'
         logger.write(msg.format(stim_params))
 
     # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
     qps = list()
-    corrs = np.linspace(0.6, min(0.9, top_corr), num=5)
+    corrs = np.array([0.6, 0.7, 0.8, 0.9, min(0.999, top_corr)])
     param_space = [stim_params, model_slopes, model_lapses]
     for corr in corrs:
         this_wb = partial(weibull, corr_at_thresh=corr)
@@ -382,7 +383,7 @@ class PsychometricMonkey(object):
         if psychometric is None:
             # init some reasonable psychometric function
             psychometric =  Weibull(kind='weibull')
-            psychometric.params = [0.1, 4.5, 0.05]
+            psychometric.params = [0.2, 6.5, 0.03]
 
         self.psychometric = psychometric
         self.response_mapping = response_mapping

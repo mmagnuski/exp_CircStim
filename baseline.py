@@ -25,8 +25,6 @@ def run(window, exp, segment_time=60., debug=False, instr_dir='instr',
                          image_args=dict(size=[1451, 816], units='pix'),
                          exp_info=exp_info)
     instr.present()
-
-    event.waitKeys(keyList=['right'])
     window.flip()
 
     # choose seqence:
