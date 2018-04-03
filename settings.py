@@ -14,7 +14,7 @@ exp['lab monitor']  = True
 exp['two screens']  = True
 exp['use trigger']  = True
 
-exp['run baseline1'] = False
+exp['run baseline1'] = True
 exp['run instruct'] = True
 exp['run training'] = True
 exp['run fitting']  = True
