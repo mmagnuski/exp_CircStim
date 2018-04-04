@@ -346,7 +346,7 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     # weib.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], bayesian_params)
 
     lapse = weib.params[-1]
-    top_corr = max(0.99, 1 - lapse - 0.01)
+    top_corr = min(0.99, 1 - lapse - 0.01)
     if logger: logger.write('top correctness: {}\n'.format(top_corr))
     low, hi = weib.get_threshold([0.51, top_corr])
     low, hi = [min(max(low, 0.002), 2.), max(min(2., hi), 0.001)]
