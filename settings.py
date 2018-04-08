@@ -14,9 +14,9 @@ exp['lab monitor']  = True
 exp['two screens']  = True
 exp['use trigger']  = True
 
-exp['run baseline1'] = False
+exp['run baseline1'] = True
 exp['run instruct'] = True
-exp['run training'] = False
+exp['run training'] = True
 exp['run fitting']  = True
 exp['run main c']   = True
 exp['start at thresh fitting'] = False
@@ -31,7 +31,7 @@ exp['max opac']    = 2.0          # NOT USED? (but could be)
 
 # parameter settings for QUEST+
 exp['thresholds'] = np.logspace(np.log10(0.01), np.log10(1.), num=45)
-exp['slopes'] = np.logspace(np.log10(0.5), np.log10(20.), num=45)
+exp['slopes'] = np.logspace(np.log10(0.25), np.log10(20.), num=45)
 exp['lapses'] = np.arange(0., 0.06, 0.01)
 
 # training settings

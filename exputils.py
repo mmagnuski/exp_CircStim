@@ -58,15 +58,15 @@ class ExperimenterInfo(Interface):
 		# center image
 		self.image = stim['centerImage'] if 'centerImage' in stim else None
 
-	def refresh(self):
+	def refresh(self, image=True):
 		for txt in self.texts.values():
 			txt.draw()
 
-		if self.image is not None:
+		if image and self.image is not None:
 			self.image.draw()
 		self.win.flip()
 
-	def update_text(self, texts):
+	def update_text(self, texts, image=True):
 		update = False
 		if not (self.two_windows and texts):
 			return None
@@ -81,7 +81,7 @@ class ExperimenterInfo(Interface):
 				self.texts[key].setText(txt)
 
 		if update:
-			self.refresh()
+			self.refresh(image=image)
 
 	def training_info(self, blockinfo, corr):
 		text1 = u'Ukończono blok {0} \\ {1} treningu.'.format(*blockinfo)
@@ -96,7 +96,7 @@ class ExperimenterInfo(Interface):
 
 	def general_info(self, text):
 		texts = [None, None, text]
-		self.update_text(texts)
+		self.update_text(texts, image=False)
 
 	def experimenter_plot(self, img_name):
 		self.image.setImage(img_name)

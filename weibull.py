@@ -346,7 +346,7 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     # weib.fit(df.loc[:, 'opacity'], df.loc[:, 'ifcorrect'], bayesian_params)
 
     lapse = weib.params[-1]
-    top_corr = max(0.99, 1 - lapse - 0.01)
+    top_corr = min(0.99, 1 - lapse - 0.01)
     if logger: logger.write('top correctness: {}\n'.format(top_corr))
     low, hi = weib.get_threshold([0.51, top_corr])
     low, hi = [min(max(low, 0.002), 2.), max(min(2., hi), 0.001)]
@@ -357,8 +357,8 @@ def init_thresh_optim(df, qp, model_params, logger=None):
     widen = rng * 0.15
 
     model_thresholds, model_slopes, model_lapses = model_params
-    stim_params = np.linspace(max(0.002, low - widen),
-                              min(hi + widen, 1.5), num=120)
+    stim_params = np.logspace(np.log10(max(0.002, low - widen)),
+                              np.log10(min(hi + widen, 1.5)), num=120)
     # TODO - add exceeding values to stim_params
     if logger:
         msg = 'stim params for all qps: {}\n'
@@ -366,7 +366,9 @@ def init_thresh_optim(df, qp, model_params, logger=None):
 
     # fit QuestPlus for each threshold (takes ~ 6 - 11 seconds)
     qps = list()
-    corrs = np.array([0.6, 0.7, 0.8, 0.9, min(0.999, top_corr)])
+    # corrs = np.array([0.6, 0.7, 0.8, 0.9, min(0.999, top_corr)])
+    # corrs = np.array([0.55, 0.65, 0.75, 0.85, 0.95])
+    corrs = np.linspace(0.6, 0.9, num=5)
     param_space = [stim_params, model_slopes, model_lapses]
     for corr in corrs:
         this_wb = partial(weibull, corr_at_thresh=corr)
