@@ -80,6 +80,7 @@ exp = dm.update_exp(exp)
 exp['numTrials'] = 560 # ugly hack, CHANGE
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
+subj_id = exp['participant']['ID']
 
 monkey = None
 if exp['debug']:
@@ -259,7 +260,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
 
     # args for break-related stuff
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
-    img_name = op.join(exp['data'], 'quest_plus_panel.png')
+    img_name = op.join(exp['data'], '{}_quest_plus_panel.png'.format(subj_id))
     plot_fun = lambda x: plot_quest_plus(x)
     df_save_path = dm.give_path('b')
 
@@ -316,7 +317,7 @@ if exp['run main c']:
 
     # set up break plots
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
-    img_name = op.join(exp['data'], 'final_proc_panel.png')
+    img_name = op.join(exp['data'], '{}_final_proc_panel.png'.format(subj_id))
 
     def wb_plot(wb, df):
         df = trim_df(df.copy())
