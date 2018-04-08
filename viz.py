@@ -147,7 +147,7 @@ def plot_quest_plus(qp, weibull_kind='weibull'):
 	xs = [model_threshold, model_slope, model_lapse]
 	reduce_dims = [(1, 2), (0, 2), (0, 1)]
 	titles = ['threshold', 'slope', 'lapse']
-	upper_y_lims = [0.55, 0.1, 0.15]
+	upper_y_lims = [0.4, 0.1, 0.15]
 	colors = line_colors[:3]
 	for i in range(3):
 		# for _ in range(i):

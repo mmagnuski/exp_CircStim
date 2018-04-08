@@ -329,8 +329,8 @@ if exp['run main c']:
     plot_fun = lambda x: wb_plot(wb, x)
     df_save_path = dm.give_path('c')
 
-    # 30 repetitions * 4 angles * 5 steps = 600 trials
-    db_c = create_database(exp, combine_with=('opacity', contrasts), rep=30)
+    # 32 repetitions * 4 angles * 5 steps = 640 trials
+    db_c = create_database(exp, combine_with=('opacity', contrasts), rep=32)
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin
