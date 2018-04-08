@@ -80,6 +80,7 @@ exp = dm.update_exp(exp)
 exp['numTrials'] = 560 # ugly hack, CHANGE
 log_path = dm.give_path('l', file_ending='log')
 lg = logging.LogFile(f=log_path, level=logging.WARNING, filemode='w')
+subj_id = exp['participant']['ID']
 
 monkey = None
 if exp['debug']:
@@ -234,17 +235,32 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     # next, after about 25 trials we start main fitting procedure - QUEST+
 
     # init quest plus
-    start_contrast = staircase._nextIntensity
     stim_params = from_db(np.arange(-20, 3.1, 0.35)) # -20 dB is about 0.01
-
     model_params = [exp['thresholds'], exp['slopes'], exp['lapses']]
     qp = QuestPlus(stim_params, model_params, function=weibull)
+
+    # find starting contrast
+    start_contrast = staircase._nextIntensity
     min_idx = np.abs(stim_params - start_contrast).argmin()
     contrast = stim_params[min_idx]
 
+    # set up priors
+    logfun = lambda x, th, slp: 0.8 / (1 + np.exp(-slp * (x - th))) + 0.2
+    x = np.linspace(0, 1, num=len(model_params[1]))
+    y1 = logfun(x, 0.1, 20)
+    y2 = logfun(x, 0.9, -20)
+    slope_prior = y1 * y2
+    lapse_prior = np.array([1., 1., 1., 1., 0.8, 0.4])
+    threshold_prior = np.ones(len(model_params[0]))
+
+    p1, p2, p3 = np.meshgrid(slope_prior, threshold_prior, lapse_prior)
+    priors = p1 * p2 * p3
+    priors /= priors.sum()
+    qp.posterior = priors.ravel()
+
     # args for break-related stuff
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
-    img_name = op.join(exp['data'], 'quest_plus_panel.png')
+    img_name = op.join(exp['data'], '{}_quest_plus_panel.png'.format(subj_id))
     plot_fun = lambda x: plot_quest_plus(x)
     df_save_path = dm.give_path('b')
 
@@ -284,73 +300,6 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     posterior_filename = dm.give_path('posterior', file_ending='npy')
     np.save(posterior_filename, qp.posterior)
 
-if exp['run fitting']:
-    # threshold fitting
-    # -----------------
-
-    # if omit_first_fitting_steps:
-    #         read density and trials from disc
-    #        (or simulate without screen update)
-
-    # initialize further threshold optimization
-    trimmed_df = trim_df(fitting_db)
-    first_qp = np.where(trimmed_df.trial_type == 'Quest+')[0][0]
-    trimmed_df = trimmed_df.iloc[first_qp:, :]
-    corrs, qps, wb = init_thresh_optim(trimmed_df, qp, model_params, logger=lg)
-    block_name = u'QuestPlus, część II'
-    fig, ax = plt.subplots()
-
-    plot_fun = lambda x: plot_threshold_entropy(x, corrs=corrs, axis=ax).figure
-    img_name = op.join(exp['data'], 'quest_plus_thresholds.png')
-    qp_refresh_rate = break_checker(
-        stim['window'], exp, fitting_db, exp_info, lg, 1,
-        qp_refresh_rate=1, plot_fun=plot_fun, plot_arg=qps,
-        dpi=120, img_name=img_name, df_save_path=df_save_path)
-    ax.clear()
-
-    # optimize thresh...
-    for trial in range(exp['thresh opt trials']):
-        # select contrast
-        posteriors = [qp.get_posterior().sum(axis=(1, 2)) for qp in qps]
-        posterior_entropy = np.array([-np.nansum(posterior * np.log(posterior))
-                                      for posterior in posteriors])
-        choice_prob = posterior_entropy / posterior_entropy.sum()
-        optimize_threshold = np.random.choice(np.arange(len(qps)),
-                                              p=choice_prob)
-        contrast = qps[optimize_threshold].next_contrast(axis=0)
-
-        # CHECK if blok_info flips the screen, better if not...
-        exp_info.blok_info(block_name, [trial + 1, exp['thresh opt trials']])
-
-        # setup stimulus and present trial
-        exp['opacity'] = [contrast, contrast]
-        core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
-        stim['window'].flip()
-
-        # set trial type, get response and inform staircase about it
-        fitting_db.loc[current_trial, 'trial_type'] = 'Quest+ thresholds'
-        response = fitting_db.loc[current_trial, 'ifcorrect']
-        for qp in qps:
-            qp.update(contrast, response)
-        current_trial += 1
-
-        # check for and perform break-related stuff
-        qp_refresh_rate = break_checker(
-            stim['window'], exp, fitting_db, exp_info, lg, current_trial,
-            qp_refresh_rate=qp_refresh_rate, plot_fun=plot_fun, plot_arg=qps,
-            dpi=120, img_name=img_name, df_save_path=df_save_path)
-        ax.clear()
-
-    # save fitting dataframe
-    fitting_db = trim_df(fitting_db)
-    fitting_db.to_excel(dm.give_path('b'))
-
-    # saving quest may seem unnecessary - posterior can be reproduced
-    # from trials, nevertheless we save the posterior as numpy array
-    posterior_filename = dm.give_path('posterior_thresh', file_ending='npy')
-    np.save(posterior_filename, qps[2].posterior)
-
 
 # EXPERIMENT - part c
 # -------------------
@@ -360,18 +309,15 @@ if exp['run main c']:
         instr.present(stop=16)
 
     # get contrast thresholds from quest plus:
-    contrasts = list()
-    for idx, qp in enumerate(qps):
-        # wb_args = dict(kind='weibull', corr_at_thresh=corrs[idx])
-        # params = qp.get_fit_params(select='ML', weibull_args=wb_args)
-        params = qp.get_fit_params()
-        contrasts.append(params[0])
-
+    corrs = np.linspace(0.6, 0.9, num=5)
+    weib = Weibull(kind='weibull')
+    weib.params = qp.get_fit_params()
+    contrasts = weib.get_threshold(corrs)
     lg.write('final contrast steps: {}\n'.format(contrasts))
 
     # set up break plots
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
-    img_name = op.join(exp['data'], 'final_proc_panel.png')
+    img_name = op.join(exp['data'], '{}_final_proc_panel.png'.format(subj_id))
 
     def wb_plot(wb, df):
         df = trim_df(df.copy())
@@ -383,8 +329,8 @@ if exp['run main c']:
     plot_fun = lambda x: wb_plot(wb, x)
     df_save_path = dm.give_path('c')
 
-    # 30 repetitions * 4 angles * 5 steps = 600 trials
-    db_c = create_database(exp, combine_with=('opacity', contrasts), rep=30)
+    # 32 repetitions * 4 angles * 5 steps = 640 trials
+    db_c = create_database(exp, combine_with=('opacity', contrasts), rep=32)
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin
