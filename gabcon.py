@@ -250,7 +250,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     y1 = logfun(x, 0.1, 20)
     y2 = logfun(x, 0.9, -20)
     slope_prior = y1 * y2
-    lapse_prior = np.array([1., 1., 1., 1., 0.8, 0.4])
+    lapse_prior = np.array([1., 1., 1., 1., 0.8, 0.5])
     threshold_prior = np.ones(len(model_params[0]))
 
     p1, p2, p3 = np.meshgrid(slope_prior, threshold_prior, lapse_prior)
@@ -326,7 +326,7 @@ if exp['run main c']:
         wb.orig_y = df.ifcorrect.values.copy()
         return wb.plot(mean_points=True).figure
 
-    plot_fun = lambda x: wb_plot(wb, x)
+    plot_fun = lambda x: wb_plot(weib, x)
     df_save_path = dm.give_path('c')
 
     # 32 repetitions * 4 angles * 5 steps = 640 trials

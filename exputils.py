@@ -99,10 +99,13 @@ class ExperimenterInfo(Interface):
 		self.update_text(texts, image=False)
 
 	def experimenter_plot(self, img_name):
-		self.image.setImage(img_name)
-		img_size = np.array(Image.open(img_name).size)
-		self.image.size = img_size # np.round(imgsize * resize)
-		self.refresh()
+		try:
+			self.image.setImage(img_name)
+			img_size = np.array(Image.open(img_name).size)
+			self.image.size = img_size # np.round(imgsize * resize)
+			self.refresh(image=True)
+		except:
+			self.refresh(image=False)
 
 
 class AnyQuestionsGUI(Interface):
