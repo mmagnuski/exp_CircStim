@@ -476,11 +476,14 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
 
     # visual feedback on parameters probability
     if current_trial % qp_refresh_rate == 0 or has_break:
-        t0 = time.clock()
-        fig = plot_fun(plot_arg)
-        fig.savefig(img_name, dpi=dpi)
-        plt.close(fig)
-        window.winHandle.activate()
+        try:
+            t0 = time.clock()
+            fig = plot_fun(plot_arg)
+            fig.savefig(img_name, dpi=dpi)
+            plt.close(fig)
+            window.winHandle.activate()
+        except:
+            pass
 
         if not exp['two screens']:
             win.blendMode = 'avg'
