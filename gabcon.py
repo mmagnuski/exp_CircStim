@@ -234,13 +234,28 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     # next, after about 25 trials we start main fitting procedure - QUEST+
 
     # init quest plus
-    start_contrast = staircase._nextIntensity
     stim_params = from_db(np.arange(-20, 3.1, 0.35)) # -20 dB is about 0.01
-
     model_params = [exp['thresholds'], exp['slopes'], exp['lapses']]
     qp = QuestPlus(stim_params, model_params, function=weibull)
+
+    # find starting contrast
+    start_contrast = staircase._nextIntensity
     min_idx = np.abs(stim_params - start_contrast).argmin()
     contrast = stim_params[min_idx]
+
+    # set up priors
+    logfun = lambda x, th, slp: 0.8 / (1 + np.exp(-slp * (x - th))) + 0.2
+    x = np.linspace(0, 1, num=len(model_params[1]))
+    y1 = logfun(x, 0.1, 20)
+    y2 = logfun(x, 0.9, -20)
+    slope_prior = y1 * y2
+    lapse_prior = np.array([1., 1., 1., 1., 0.8, 0.4])
+    threshold_prior = np.ones(len(model_params[0]))
+
+    p1, p2, p3 = np.meshgrid(slope_prior, threshold_prior, lapse_prior)
+    priors = p1 * p2 * p3
+    priors /= priors.sum()
+    qp.posterior = priors.ravel()
 
     # args for break-related stuff
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
