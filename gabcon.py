@@ -266,7 +266,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
 
     # update experimenters view:
     block_name = u'Quest Plus, część I'
-    exp_info.blok_info(block_name, [0, 100])
+    exp_info.blok_info(block_name, [0, exp['QUEST plus trials']])
 
     # remind about the button press mappings
     show_resp_rules(exp=exp, auto=exp['debug'])
@@ -274,7 +274,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
 
     for trial in range(exp['QUEST plus trials']):
         # CHECK if blok_info flips the screen, better if not...
-        exp_info.blok_info(block_name, [trial + 1, 100])
+        exp_info.blok_info(block_name, [trial + 1, exp['QUEST plus trials']])
 
         # setup stimulus and present trial
         exp['opacity'] = [contrast, contrast]
@@ -300,6 +300,52 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     posterior_filename = dm.give_path('posterior', file_ending='npy')
     np.save(posterior_filename, qp.posterior)
 
+    # THRESHOLD FITTING
+    # -----------------
+    block_name = u'Quest Plus, część II'
+    corrs = np.linspace(0.6, 0.9, num=5)
+    def get_contrasts(qp, corrs):
+        weib = Weibull(kind='weibull')
+        weib.params = qp.get_fit_params()
+        return weib.get_threshold(corrs)
+
+    contrasts = get_contrasts(qp, corrs)
+    lg.write('Contrast steps after {} trials: {}\n'.format(trial, contrasts))
+    use_contrasts = np.tile(np.asarray(contrasts), 2)
+    np.random.shuffle(use_contrasts)
+
+    trial = 0
+    while trial <= exp['thresh opt trials']:
+        for contrast in use_contrasts:
+            # CHECK if blok_info flips the screen, better if not...
+            exp_info.blok_info(block_name,
+                               [trial + 1, exp['thresh opt trials']])
+
+            # setup stimulus and present trial
+            exp['opacity'] = [contrast, contrast]
+            core.wait(0.5) # fixed pre-fix interval
+            present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
+            stim['window'].flip()
+
+            # set trial type, get response and inform staircase about it
+            fitting_db.loc[current_trial, 'trial_type'] = 'Quest+'
+            response = fitting_db.loc[current_trial, 'ifcorrect']
+            qp.update(contrast, response)
+
+            # check for and perform break-related stuff
+            qp_refresh_rate = break_checker(
+                stim['window'], exp, fitting_db, exp_info, lg, current_trial,
+                qp_refresh_rate=qp_refresh_rate, plot_fun=plot_fun, plot_arg=qp,
+                dpi=120, img_name=img_name, df_save_path=df_save_path)
+            current_trial += 1
+            trial += 1
+
+        # after each block of 10 trials (2 * 5 steps) - reevaluate QP
+        contrasts = get_contrasts(qp, corrs)
+        lg.write('Contrast steps after {} trials: {}\n'.format(
+            trial, contrasts))
+        use_contrasts = np.tile(np.asarray(contrasts), 2)
+        np.random.shuffle(use_contrasts)
 
 # EXPERIMENT - part c
 # -------------------
