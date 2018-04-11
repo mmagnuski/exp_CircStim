@@ -207,11 +207,9 @@ if exp['run fitting'] and not omit_first_fitting_steps:
            break
 
         exp_info.blok_info(u'procedura schodkowa', [current_trial, max_trials])
-
-        # setup stimulus and present trial
-        exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
+        present_trial(current_trial, db=fitting_db, contrast=contrast, exp=exp,
+                      monkey=monkey)
         stim['window'].flip()
 
         # set trial type, get response and inform staircase about it
@@ -275,11 +273,9 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     for trial in range(exp['QUEST plus trials']):
         # CHECK if blok_info flips the screen, better if not...
         exp_info.blok_info(block_name, [trial + 1, exp['QUEST plus trials']])
-
-        # setup stimulus and present trial
-        exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
+        present_trial(current_trial, db=fitting_db, contrast=contrast, exp=exp,
+                      monkey=monkey)
         stim['window'].flip()
 
         # set trial type, get response and inform staircase about it
@@ -322,9 +318,9 @@ if exp['run fitting'] and not omit_first_fitting_steps:
                                [trial + 1, exp['thresh opt trials']])
 
             # setup stimulus and present trial
-            exp['opacity'] = [contrast, contrast]
             core.wait(0.5) # fixed pre-fix interval
-            present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
+            present_trial(current_trial, db=fitting_db, contrast=contrast,
+                          exp=exp, monkey=monkey)
             stim['window'].flip()
 
             # set trial type, get response and inform staircase about it

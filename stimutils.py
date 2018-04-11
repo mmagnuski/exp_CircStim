@@ -192,31 +192,24 @@ def clear_port(portdict):
 # PRESENTATION
 # ------------
 
-def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
-				  use_exp=True, monkey=None):
+def present_trial(trial, exp=exp, stim=stim, db=db, win=stim['window'],
+				  contrast=1., monkey=None):
 	# PREPARE
 	# -------
 	# randomize opacity if not set
-	if use_exp:
-		# set target time and SMI
-		db.loc[tr, 'targetTime'] = exp['targetTime'][0]
-		db.loc[tr, 'SMI'] = exp['SMI'][0]
-		if exp['opacity'][0] == exp['opacity'][1]:
-			db.loc[tr, 'opacity'] = exp['opacity'][0]
-		else:
-			db.loc[tr, 'opacity'] = np.round(np.random.uniform(
-				low=exp['opacity'][0], high=exp['opacity'][1], size=1
-				)[0], decimals = 3)
+	if contrast is not None:
+		db.loc[trial, 'opacity'] = contrast
+	else:
+		contrast = db.loc[trial, 'opacity']
 
 	# set target properties
-	orientation = db.loc[tr, 'orientation']
-	contrast = db.loc[tr, 'opacity']
+	orientation = db.loc[trial, 'orientation']
 	target = stim['target'][orientation]
 	target.set_contrast(contrast)
-	target_code = 'target_' + str(int(db.loc[tr, 'orientation']))
+	target_code = 'target_' + str(int(db.loc[trial, 'orientation']))
 
 	# get trial start time
-	db.loc[tr, 'time'] = core.getTime()
+	db.loc[trial, 'time'] = core.getTime()
 
 
 	# PRESENT
@@ -224,7 +217,7 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 
 	# present fix:
 	win.callOnFlip(onflip_work, exp['port'], code='fix')
-	for f in np.arange(db.loc[tr, 'fixTime']):
+	for f in np.arange(db.loc[trial, 'fixTime']):
 		stim['fix'].draw()
 		win.flip()
 		if f == 3:
@@ -238,30 +231,23 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	# present target
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 				   clock=exp['clock'])
-	for f in np.arange(db.loc[tr, 'targetTime']):
+	for f in np.arange(db.loc[trial, 'targetTime']):
 		target.draw()
 		win.flip()
 
 	# interval
-	for f in np.arange(db.loc[tr, 'SMI']):
+	for f in np.arange(db.loc[trial, 'SMI']):
 		win.flip()
 	clear_port(exp['port'])
 
 	# mask
-	cleared = False
-	win.callOnFlip(onflip_work, exp['port'], code='mask')
-	for f in np.arange(db.loc[tr, 'maskTime']):
+	for f in np.arange(db.loc[trial, 'maskTime']):
 		for m in stim['mask']:
 			m.draw()
 		win.flip()
-		if f == 3:
-			clear_port(exp['port'])
-			cleared = True
-	if not cleared:
-		clear_port(exp['port'])
 
 	# response
-	evaluate_response(db, exp, tr, monkey=monkey)
+	evaluate_response(db, exp, trial, monkey=monkey)
 
 	# after 250 - 500 ms from response mask disappears
 	offset = np.random.randint(25, 50) * 1.
