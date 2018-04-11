@@ -94,6 +94,15 @@ if exp['debug']:
 exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
                             sub_text_pos=(0, 0.78))
 
+def general_trigger(port, code):
+    if exp['use trigger']:
+        core.wait(0.05)
+        onflip_work(port, code=code)
+        stim['window'].flip()
+        core.wait(0.05)
+        clear_port(port)
+
+
 # eeg baseline (resting-state)
 if exp['run baseline1']:
     run_baseline(stim['window'], exp, segment_time=70., debug=exp['debug'],
@@ -126,11 +135,7 @@ show_resp_rules(exp=exp, text=msg, auto=exp['debug'])
 if exp['run training'] and not exp['debug']:
 
     # signal onset of training
-    core.wait(0.05)
-    onflip_work(exp['port'], code='training')
-    stim['window'].flip()
-    core.wait(0.1)
-    clear_port(exp['port'])
+    general_trigger(exp['port'], 'training'):
 
     # set things up
     slow = exp.copy()
@@ -180,12 +185,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
         instr.present(stop=15)
 
     # send start trigger:
-    if exp['use trigger']:
-        core.wait(0.05)
-        onflip_work(exp['port'], code='fitting')
-        stim['window'].flip()
-        core.wait(0.1)
-        clear_port(exp['port'])
+    general_trigger(exp['port'], 'fitting')
 
     # init fitting db
     fitting_db = give_training_db(db, slowdown=1)
@@ -380,12 +380,7 @@ if exp['run main c']:
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin
-    if exp['use trigger']:
-        core.wait(0.05)
-        onflip_work(exp['port'], 'contrast')
-        stim['window'].flip()
-        core.wait(0.1)
-        clear_port(exp['port'])
+    general_trigger(exp['port'], 'contrast')
 
     # main loop
     for i in range(1, db_c.shape[0] + 1):
