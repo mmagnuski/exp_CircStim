@@ -141,17 +141,17 @@ if exp['run training'] and not exp['debug']:
     slow = exp.copy()
     df_train = list()
     num_training_blocks = len(exp['train slow'])
-    current_block = 0
 
-    slow['opacity'] = np.array([1.0, 1.0])
     txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
     addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.'
               u'\nAby przejść dalej naciśnij spację.')
 
+    current_block = 0
     for s, c in zip(exp['train slow'], exp['train corr']):
         # present current training block until correctness is achieved
-        df, current_corr = present_training(exp=slow, slowdown=s, corr=c,
-                                            monkey=monkey, auto=exp['debug'])
+        train_db = give_training_db(db, slowdown=slowdown)
+        df, current_corr = present_training(trial, train_db, exp=slow,
+                                            slowdown=s, corr=c, monkey=monkey)
         current_block += 1
 
         # update experimenter info:
@@ -230,7 +230,6 @@ if exp['run fitting'] and not omit_first_fitting_steps:
 if exp['run fitting'] and not omit_first_fitting_steps:
     # QUEST+
     # ------
-    # next, after about 25 trials we start main fitting procedure - QUEST+
 
     # init quest plus
     stim_params = from_db(np.arange(-20, 3.1, 0.35)) # -20 dB is about 0.01
@@ -311,11 +310,11 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     np.random.shuffle(use_contrasts)
 
     trial = 0
-    while trial <= exp['thresh opt trials']:
+    max_trials = exp['thresh opt trials']
+    while trial <= max_trials:
         for contrast in use_contrasts:
             # CHECK if blok_info flips the screen, better if not...
-            exp_info.blok_info(block_name,
-                               [trial + 1, exp['thresh opt trials']])
+            exp_info.blok_info(block_name, [trial + 1, max_trials])
 
             # setup stimulus and present trial
             core.wait(0.5) # fixed pre-fix interval
@@ -342,6 +341,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
             trial, contrasts))
         use_contrasts = np.tile(np.asarray(contrasts), 2)
         np.random.shuffle(use_contrasts)
+
 
 # EXPERIMENT - part c
 # -------------------

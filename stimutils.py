@@ -256,7 +256,7 @@ def present_trial(trial, exp=exp, stim=stim, db=db, win=stim['window'],
 	# send mask offset trigger
 	win.callOnFlip(onflip_work, exp['port'], code='mask_offset')
 	win.flip()
-	core.wait(0.025)
+	core.wait(0.02)
 	clear_port(exp['port'])
 
 
@@ -282,7 +282,7 @@ def evaluate_response(df, exp, trial, monkey=None):
 
 		# send trigger
 		onflip_work(exp['port'], code='response_{}'.format(key))
-		core.wait(0.025)
+		core.wait(0.02)
 		clear_port(exp['port'])
 
 		# if debug - test for quit
@@ -300,37 +300,37 @@ def evaluate_response(df, exp, trial, monkey=None):
 
 
 # - [ ] TODO Monkey istead of auto
-def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
-					   monkey=None, auto=None):
-	i = 1
+def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
+					 stim=stim, monkey=None, contrast=1.):
+	'''Present a block of training data.'''
+
+	train_corr = 0
+	auto = monkey is not None
+
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
-	train_corr = 0
-	train_db = give_training_db(db, slowdown=slowdown)
-	exp['opacity'] = np.array([1., 1.])
-	exp['targetTime'] = [train_db['targetTime'][0]]
-	exp['SMI'] = [train_db['SMI'][0]]
 
-	while train_corr < corr or i < mintrials:
+	while train_corr < corr or trial < mintrials:
 		stim['window'].flip()
 		core.wait(0.5)
-		present_trial(i, exp=exp, db=train_db, monkey=monkey)
-		present_feedback(i, db=train_db)
+		present_trial(trial, exp=exp, db=db, contrast=contrast,
+					  monkey=monkey)
+		present_feedback(trial, db=db)
 
 		# check correctness
-		train_corr = train_db.loc[max(1,
-			i-mintrials+1):i, 'ifcorrect'].mean()
+		start_last = max(1, trial - mintrials + 1)
+		train_corr = db.loc[start_last:trial, 'ifcorrect'].mean()
 
-		if (i % mintrials) == 0 and train_corr < corr:
+		if (trial % mintrials) == 0 and train_corr < corr:
 			# show info about correctness and remind key mapping
-			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
+			current_txt = txt.format(to_percent(train_corr), to_percent(corr))
 			textscreen(thistxt, auto=auto)
 			show_resp_rules(auto=auto)
 
 			# FIX/CHECK - save opacity to db?
-			if exp['opacity'][0] < 3.:
-				exp['opacity'] += 0.5
-		i += 1
+			if contrast < 3.:
+				contrast += 0.5
+		trial += 1
 	# return db so it can be saved
 	return train_db, train_corr
 
