@@ -136,6 +136,7 @@ if exp['run training'] and not exp['debug']:
 
     # signal onset of training
     general_trigger(exp['port'], 'training'):
+    train_pth = dm.give_path('a')
 
     # set things up
     slow = exp.copy()
@@ -169,10 +170,10 @@ if exp['run training'] and not exp['debug']:
         # concatenate training df's
         df_train.append(trim_df(df))
 
-    # save training database:
-    df_train = pd.concat(df_train)
-    df_train.reset_index(drop=True, inplace=True)
-    df_train.to_excel(dm.give_path('a'))
+        # save training database:
+        df_train_save = pd.concat(df_train)
+        df_train_save.reset_index(drop=True, inplace=True)
+        df_train_save.to_excel(train_pth)
 
 
 # Contrast fitting
