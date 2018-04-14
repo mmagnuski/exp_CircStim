@@ -158,7 +158,7 @@ def create_database(exp, trials=None, rep=None, combine_with=None,
 					'opacity', 'orientation', 'response', 'ifcorrect', 'RT']
 	from_exp = ['targetTime', 'SMI', 'maskTime']
 	if numerate_steps:
-		column_names = column_names[:7] + ['step'] + column_names[7:]
+		column_names = column_names[:6] + ['step'] + column_names[6:]
 
 	# combined columns
 	cmb = ['orientation']

@@ -322,8 +322,8 @@ def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
 	train_corr = 0
 	train_db = give_training_db(db, slowdown=slowdown)
 	exp['opacity'] = np.array([1., 1.])
-	exp['targetTime'] = [train_db['targetTime'][0]]
-	exp['SMI'] = [train_db['SMI'][0]]
+	exp['targetTime'] = [train_db.targetTime[0]]
+	exp['SMI'] = [train_db.SMI[0]]
 
 	while train_corr < corr or i < mintrials:
 		stim['window'].flip()

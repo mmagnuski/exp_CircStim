@@ -330,7 +330,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
             # set trial type, get response and inform staircase about it
             fitting_db.loc[current_trial, 'trial_type'] = 'Quest+'
             response = fitting_db.loc[current_trial, 'ifcorrect']
-            qp.update(contrast, response)
+            qp.update(contrast, response, approximate=True)
 
             # check for and perform break-related stuff
             qp_refresh_rate = break_checker(
@@ -356,10 +356,8 @@ if exp['run main c']:
 
     # get contrast thresholds from quest plus:
     corrs = np.linspace(0.6, 0.9, num=5)
-    weib = Weibull(kind='weibull')
-    weib.params = qp.get_fit_params()
-    contrasts = weib.get_threshold(corrs)
-    lg.write('final contrast steps: {}\n'.format(contrasts))
+    contrasts = get_contrasts(qp, corrs)
+    lg.write('contrast steps at the beginning of procedure: {}\n'.format(contrasts))
 
     # set up break plots
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
