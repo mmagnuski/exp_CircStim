@@ -376,7 +376,8 @@ if exp['run main c']:
     df_save_path = dm.give_path('c')
 
     # 32 repetitions * 4 angles * 5 steps = 640 trials
-    db_c = create_database(exp, combine_with=('opacity', contrasts), rep=32)
+    db_c = create_database(exp, combine_with=('opacity', contrasts), rep=32,
+                           shuffle_in_reps=True, numerate_steps=True)
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin

@@ -151,12 +151,14 @@ class AnyQuestionsGUI(Interface):
 
 # TODO
 # - [ ] add some of functionality below to chainsaw
-def create_database(exp, trials=None, rep=None, combine_with=None):
+def create_database(exp, trials=None, rep=None, combine_with=None,
+					shuffle_in_reps=False, numerate_steps=False):
 	# define column names:
-	colNames = ['time', 'fixTime', 'targetTime', 'SMI', \
-				'maskTime', 'opacity', 'orientation', \
-				'response', 'ifcorrect', 'RT']
+	column_names = ['time', 'fixTime', 'targetTime', 'SMI', 'maskTime',
+					'opacity', 'orientation', 'response', 'ifcorrect', 'RT']
 	from_exp = ['targetTime', 'SMI', 'maskTime']
+	if numerate_steps:
+		column_names = column_names[:7] + ['step'] + column_names[7:]
 
 	# combined columns
 	cmb = ['orientation']
@@ -168,20 +170,29 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	# generate all trial combinations
 	if not combine_with:
 		lst = exp['orientation']
+		trials_in_rep = len(lst)
 		num_rep = (int(rep) if not rep is None else
-			int(np.ceil(trials / float(len(lst)))))
+				   int(np.ceil(trials / float(len(lst)))))
 		lst = np.reshape(np.array(lst * num_rep), (-1, 1))
 	else:
 		cmb.append(combine_with[0])
 		lst = [[o, x] for o in exp['orientation'] for x in combine_with[1]]
-		num_rep = rep if not rep is None else np.ceil(trials / float(len(lst)))
+		trials_in_rep = len(lst)
+		num_rep = (int(rep) if not rep is None else
+				   int(np.ceil(trials / float(len(lst)))))
 		lst = np.array(lst * num_rep)
 
 	# turn to array and shuffle rows, then construct dataframe
-	np.random.shuffle(lst)
-	db = pd.DataFrame(index=np.arange(1, lst.shape[0] + 1), columns=colNames)
+	if shuffle_in_reps:
+		for rp in range(num_rep):
+			idx1 = rp * trials_in_rep
+			idx2 = (rp + 1) * trials_in_rep
+			lst[idx1:idx2] = np.random.permutation(lst[idx1:idx2])
+	else:
+		np.random.shuffle(lst)
 
-	# exp['numTrials'] = len(db)
+	db = pd.DataFrame(index=np.arange(1, lst.shape[0] + 1), columns=column_names)
+
 	num_trials = db.shape[0]
 	if not trials:
 		trials = num_trials
@@ -201,12 +212,22 @@ def create_database(exp, trials=None, rep=None, combine_with=None):
 	for col in from_exp:
 		db[col] = exp[col][0]
 
+	# numerate steps
+	if numerate_steps:
+		db.loc[:, 'opacity'] = db.loc[:, 'opacity'].astype('float64')
+		for stp_idx, stp in enumerate(combine_with[1], start=1):
+			mask = db[:, 'opacity'] == stp
+			assert mask.mean() == (1 / len(combine_with[1]))
+			db[mask, 'step'] = stp_idx
+
 	# fill NaNs with zeros:
 	db.fillna(0, inplace=True)
 
 	# make sure types are correct:
 	to_float = ['time', 'opacity', 'RT']
 	to_int = ['ifcorrect', 'fixTime', 'targetTime', 'SMI', 'maskTime']
+	if numerate_steps:
+		to_int.append('step')
 	db.loc[:, to_float + to_int] = db.loc[:, to_float + to_int].fillna(0)
 	db.loc[:, to_float] = db.loc[:, to_float].astype('float64')
 	db.loc[:, to_int] = db.loc[:, to_int].astype('int32')
