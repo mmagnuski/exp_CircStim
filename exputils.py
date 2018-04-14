@@ -216,9 +216,9 @@ def create_database(exp, trials=None, rep=None, combine_with=None,
 	if numerate_steps:
 		db.loc[:, 'opacity'] = db.loc[:, 'opacity'].astype('float64')
 		for stp_idx, stp in enumerate(combine_with[1], start=1):
-			mask = db[:, 'opacity'] == stp
-			assert mask.mean() == (1 / len(combine_with[1]))
-			db[mask, 'step'] = stp_idx
+			mask = db.loc[:, 'opacity'] == stp
+			assert mask.mean() == (1. / len(combine_with[1]))
+			db.loc[mask, 'step'] = stp_idx
 
 	# fill NaNs with zeros:
 	db.fillna(0, inplace=True)

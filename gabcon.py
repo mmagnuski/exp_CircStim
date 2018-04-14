@@ -135,7 +135,7 @@ show_resp_rules(exp=exp, text=msg, auto=exp['debug'])
 if exp['run training'] and not exp['debug']:
 
     # signal onset of training
-    general_trigger(exp['port'], 'training'):
+    general_trigger(exp['port'], 'training')
     train_pth = dm.give_path('a')
 
     # set things up
@@ -313,7 +313,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
 
     trial = 0
     max_trials = exp['thresh opt trials']
-    while trial <= max_trials:
+    while trial + 1 <= max_trials:
         for contrast in use_contrasts:
             # CHECK if blok_info flips the screen, better if not...
             exp_info.blok_info(block_name, [trial + 1, max_trials])
@@ -382,7 +382,7 @@ if exp['run main c']:
     # main loop
     for i in range(1, db_c.shape[0] + 1):
         core.wait(0.5) # pre-fixation time is always the same
-        present_trial(i, exp=exp, db=db_c, use_exp=False, monkey=monkey)
+        present_trial(i, exp=exp, db=db_c, monkey=monkey, contrast=None)
         stim['window'].flip()
 
         # break handling
