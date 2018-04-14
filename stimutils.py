@@ -192,31 +192,24 @@ def clear_port(portdict):
 # PRESENTATION
 # ------------
 
-def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
-				  use_exp=True, monkey=None):
+def present_trial(trial, exp=exp, stim=stim, db=db, win=stim['window'],
+				  contrast=1., monkey=None):
 	# PREPARE
 	# -------
 	# randomize opacity if not set
-	if use_exp:
-		# set target time and SMI
-		db.loc[tr, 'targetTime'] = exp['targetTime'][0]
-		db.loc[tr, 'SMI'] = exp['SMI'][0]
-		if exp['opacity'][0] == exp['opacity'][1]:
-			db.loc[tr, 'opacity'] = exp['opacity'][0]
-		else:
-			db.loc[tr, 'opacity'] = np.round(np.random.uniform(
-				low=exp['opacity'][0], high=exp['opacity'][1], size=1
-				)[0], decimals = 3)
+	if contrast is not None:
+		db.loc[trial, 'opacity'] = contrast
+	else:
+		contrast = db.loc[trial, 'opacity']
 
 	# set target properties
-	orientation = db.loc[tr, 'orientation']
-	contrast = db.loc[tr, 'opacity']
+	orientation = db.loc[trial, 'orientation']
 	target = stim['target'][orientation]
 	target.set_contrast(contrast)
-	target_code = 'target_' + str(int(db.loc[tr, 'orientation']))
+	target_code = 'target_' + str(int(db.loc[trial, 'orientation']))
 
 	# get trial start time
-	db.loc[tr, 'time'] = core.getTime()
+	db.loc[trial, 'time'] = core.getTime()
 
 
 	# PRESENT
@@ -224,7 +217,7 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 
 	# present fix:
 	win.callOnFlip(onflip_work, exp['port'], code='fix')
-	for f in np.arange(db.loc[tr, 'fixTime']):
+	for f in np.arange(db.loc[trial, 'fixTime']):
 		stim['fix'].draw()
 		win.flip()
 		if f == 3:
@@ -238,31 +231,25 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	# present target
 	win.callOnFlip(onflip_work, exp['port'], code=target_code,
 				   clock=exp['clock'])
-	for f in np.arange(db.loc[tr, 'targetTime']):
+	for f in np.arange(db.loc[trial, 'targetTime']):
 		target.draw()
 		win.flip()
 
 	# interval
-	for f in np.arange(db.loc[tr, 'SMI']):
+	for f in np.arange(db.loc[trial, 'SMI']):
 		win.flip()
 	clear_port(exp['port'])
 
 	# mask
-	cleared = False
-	win.callOnFlip(onflip_work, exp['port'], code='mask')
-	for f in np.arange(db.loc[tr, 'maskTime']):
+	for f in np.arange(db.loc[trial, 'maskTime']):
 		for m in stim['mask']:
 			m.draw()
 		win.flip()
-		if f == 3:
-			clear_port(exp['port'])
-			cleared = True
-	if not cleared:
-		clear_port(exp['port'])
 
 	# response
-	evaluate_response(db, exp, tr, monkey=monkey)
+	evaluate_response(db, exp, trial, monkey=monkey)
 
+	# FIXME - use frames?
 	# after 250 - 500 ms from response mask disappears
 	offset = np.random.randint(25, 50) * 1.
 	core.wait(offset / 100.)
@@ -270,7 +257,7 @@ def present_trial(tr, exp=exp, stim=stim, db=db, win=stim['window'],
 	# send mask offset trigger
 	win.callOnFlip(onflip_work, exp['port'], code='mask_offset')
 	win.flip()
-	core.wait(0.025)
+	core.wait(0.02)
 	clear_port(exp['port'])
 
 
@@ -296,7 +283,7 @@ def evaluate_response(df, exp, trial, monkey=None):
 
 		# send trigger
 		onflip_work(exp['port'], code='response_{}'.format(key))
-		core.wait(0.025)
+		core.wait(0.02)
 		clear_port(exp['port'])
 
 		# if debug - test for quit
@@ -314,37 +301,54 @@ def evaluate_response(df, exp, trial, monkey=None):
 
 
 # - [ ] TODO Monkey istead of auto
-def present_training(exp=exp, slowdown=5, mintrials=10, corr=0.85, stim=stim,
-					   monkey=None, auto=None):
-	i = 1
+def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
+					 stim=stim, monkey=None, contrast=1., exp_info=None,
+					 block_num=None):
+	'''Present a block of training data.'''
+
+	train_corr = 0
+	auto = monkey is not None
+
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
-	train_corr = 0
+
 	train_db = give_training_db(db, slowdown=slowdown)
 	exp['opacity'] = np.array([1., 1.])
 	exp['targetTime'] = [train_db.targetTime[0]]
 	exp['SMI'] = [train_db.SMI[0]]
 
-	while train_corr < corr or i < mintrials:
+	if exp_info is not None:
+		start_trial = trial - 1
+		info_msg = ('Trwa {} / {} blok treningowy.\nTrial {}\n'
+					'Obecna poprawność: {:.2f}')
+
+	while train_corr < corr or trial < mintrials:
 		stim['window'].flip()
 		core.wait(0.5)
-		present_trial(i, exp=exp, db=train_db, monkey=monkey)
-		present_feedback(i, db=train_db)
+		present_trial(trial, exp=exp, db=db, contrast=contrast,
+					  monkey=monkey)
+		present_feedback(trial, db=db)
 
 		# check correctness
-		train_corr = train_db.loc[max(1,
-			i-mintrials+1):i, 'ifcorrect'].mean()
+		start_last = max(1, trial - mintrials + 1)
+		train_corr = db.loc[start_last:trial, 'ifcorrect'].mean()
 
-		if (i % mintrials) == 0 and train_corr < corr:
+		if exp_info is not None:
+			msg = 'Instrukcje, strona {}'.format(self.this_page)
+			this_info_msg = info_msg.format(block_num[0], block_num[1],
+											trial - start_trial, train_corr)
+			exp_info.general_info(this_info_msg)
+
+		if (trial % mintrials) == 0 and train_corr < corr:
 			# show info about correctness and remind key mapping
-			thistxt = txt.format(to_percent(train_corr), to_percent(corr))
+			current_txt = txt.format(to_percent(train_corr), to_percent(corr))
 			textscreen(thistxt, auto=auto)
 			show_resp_rules(auto=auto)
 
 			# FIX/CHECK - save opacity to db?
-			if exp['opacity'][0] < 3.:
-				exp['opacity'] += 0.5
-		i += 1
+			if contrast < 3.:
+				contrast += 0.5
+		trial += 1
 	# return db so it can be saved
 	return train_db, train_corr
 
@@ -413,6 +417,8 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 	for g in stims:
 		g.draw()
 	win.flip()
+	core.wait(0.02)
+	clear_port(exp['port'])
 
 	if not auto:
 		# wait for space:
@@ -423,6 +429,8 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 	# set end break trigger
 	win.callOnFlip(onflip_work, exp['port'], code='breakStop')
 	win.flip()
+	core.wait(0.02)
+	clear_port(exp['port'])
 
 
 def textscreen(text, win=stim['window'], exp=exp, auto=False):
@@ -433,7 +441,7 @@ def textscreen(text, win=stim['window'], exp=exp, auto=False):
 	if not auto:
 		event.waitKeys()
 	else:
-		core.wait(0.15)
+		core.wait(0.1)
 
 
 def present_break(t, exp=exp, win=stim['window'], auto=False):
@@ -509,9 +517,9 @@ def give_training_db(db, exp=exp, slowdown=8):
 	# copy the dataframe
 	train_db = db.copy()
 	# shuffle orientations
-	val = train_db.loc[:, 'orientation'].values
-	np.random.shuffle(val)
-	train_db.loc[:, 'orientation'] = val
+	orientations = train_db.loc[:, 'orientation'].values
+	np.random.shuffle(orientations)
+	train_db.loc[:, 'orientation'] = orientations
 
 	# change targetTime, SMI (and maybe maskTime?)
 	train_db.loc[:, 'targetTime'] = exp['targetTime'][0] * slowdown

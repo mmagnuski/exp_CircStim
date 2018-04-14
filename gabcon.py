@@ -94,6 +94,15 @@ if exp['debug']:
 exp_info = ExperimenterInfo(exp, stim, main_text_pos=(0, 0.90),
                             sub_text_pos=(0, 0.78))
 
+def general_trigger(port, code):
+    if exp['use trigger']:
+        core.wait(0.05)
+        onflip_work(port, code=code)
+        stim['window'].flip()
+        core.wait(0.05)
+        clear_port(port)
+
+
 # eeg baseline (resting-state)
 if exp['run baseline1']:
     run_baseline(stim['window'], exp, segment_time=70., debug=exp['debug'],
@@ -126,27 +135,25 @@ show_resp_rules(exp=exp, text=msg, auto=exp['debug'])
 if exp['run training'] and not exp['debug']:
 
     # signal onset of training
-    core.wait(0.05)
-    onflip_work(exp['port'], code='training')
-    stim['window'].flip()
-    core.wait(0.1)
-    clear_port(exp['port'])
+    general_trigger(exp['port'], 'training'):
+    train_pth = dm.give_path('a')
 
     # set things up
     slow = exp.copy()
     df_train = list()
     num_training_blocks = len(exp['train slow'])
-    current_block = 0
 
-    slow['opacity'] = np.array([1.0, 1.0])
     txt = u'Twoja poprawność: {}\nOsiągnięto wymaganą poprawność.\n'
     addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.'
               u'\nAby przejść dalej naciśnij spację.')
 
+    current_block = 0
     for s, c in zip(exp['train slow'], exp['train corr']):
         # present current training block until correctness is achieved
-        df, current_corr = present_training(exp=slow, slowdown=s, corr=c,
-                                            monkey=monkey, auto=exp['debug'])
+        train_db = give_training_db(db, slowdown=slowdown)
+        df, current_corr = present_training(
+            trial, train_db, exp=slow, slowdown=s, corr=c, monkey=monkey,
+            exp_info=exp_info, block_num=[current_block, num_training_blocks])
         current_block += 1
 
         # update experimenter info:
@@ -164,10 +171,10 @@ if exp['run training'] and not exp['debug']:
         # concatenate training df's
         df_train.append(trim_df(df))
 
-    # save training database:
-    df_train = pd.concat(df_train)
-    df_train.reset_index(drop=True, inplace=True)
-    df_train.to_excel(dm.give_path('a'))
+        # save training database:
+        df_train_save = pd.concat(df_train)
+        df_train_save.reset_index(drop=True, inplace=True)
+        df_train_save.to_excel(train_pth)
 
 
 # Contrast fitting
@@ -180,12 +187,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
         instr.present(stop=15)
 
     # send start trigger:
-    if exp['use trigger']:
-        core.wait(0.05)
-        onflip_work(exp['port'], code='fitting')
-        stim['window'].flip()
-        core.wait(0.1)
-        clear_port(exp['port'])
+    general_trigger(exp['port'], 'fitting')
 
     # init fitting db
     fitting_db = give_training_db(db, slowdown=1)
@@ -207,11 +209,9 @@ if exp['run fitting'] and not omit_first_fitting_steps:
            break
 
         exp_info.blok_info(u'procedura schodkowa', [current_trial, max_trials])
-
-        # setup stimulus and present trial
-        exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
+        present_trial(current_trial, db=fitting_db, contrast=contrast, exp=exp,
+                      monkey=monkey)
         stim['window'].flip()
 
         # set trial type, get response and inform staircase about it
@@ -232,7 +232,6 @@ if exp['run fitting'] and not omit_first_fitting_steps:
 if exp['run fitting'] and not omit_first_fitting_steps:
     # QUEST+
     # ------
-    # next, after about 25 trials we start main fitting procedure - QUEST+
 
     # init quest plus
     stim_params = from_db(np.arange(-20, 3.1, 0.35)) # -20 dB is about 0.01
@@ -275,11 +274,9 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     for trial in range(exp['QUEST plus trials']):
         # CHECK if blok_info flips the screen, better if not...
         exp_info.blok_info(block_name, [trial + 1, exp['QUEST plus trials']])
-
-        # setup stimulus and present trial
-        exp['opacity'] = [contrast, contrast]
         core.wait(0.5) # fixed pre-fix interval
-        present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
+        present_trial(current_trial, db=fitting_db, contrast=contrast, exp=exp,
+                      monkey=monkey)
         stim['window'].flip()
 
         # set trial type, get response and inform staircase about it
@@ -315,16 +312,16 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     np.random.shuffle(use_contrasts)
 
     trial = 0
-    while trial <= exp['thresh opt trials']:
+    max_trials = exp['thresh opt trials']
+    while trial <= max_trials:
         for contrast in use_contrasts:
             # CHECK if blok_info flips the screen, better if not...
-            exp_info.blok_info(block_name,
-                               [trial + 1, exp['thresh opt trials']])
+            exp_info.blok_info(block_name, [trial + 1, max_trials])
 
             # setup stimulus and present trial
-            exp['opacity'] = [contrast, contrast]
             core.wait(0.5) # fixed pre-fix interval
-            present_trial(current_trial, db=fitting_db, exp=exp, monkey=monkey)
+            present_trial(current_trial, db=fitting_db, contrast=contrast,
+                          exp=exp, monkey=monkey)
             stim['window'].flip()
 
             # set trial type, get response and inform staircase about it
@@ -346,6 +343,7 @@ if exp['run fitting'] and not omit_first_fitting_steps:
             trial, contrasts))
         use_contrasts = np.tile(np.asarray(contrasts), 2)
         np.random.shuffle(use_contrasts)
+
 
 # EXPERIMENT - part c
 # -------------------
@@ -379,12 +377,7 @@ if exp['run main c']:
     exp['numTrials'] = len(db_c.index)
 
     # signal that main proc is about to begin
-    if exp['use trigger']:
-        core.wait(0.05)
-        onflip_work(exp['port'], 'contrast')
-        stim['window'].flip()
-        core.wait(0.1)
-        clear_port(exp['port'])
+    general_trigger(exp['port'], 'contrast')
 
     # main loop
     for i in range(1, db_c.shape[0] + 1):
