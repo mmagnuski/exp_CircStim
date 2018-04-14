@@ -249,6 +249,7 @@ def present_trial(trial, exp=exp, stim=stim, db=db, win=stim['window'],
 	# response
 	evaluate_response(db, exp, trial, monkey=monkey)
 
+	# FIXME - use frames?
 	# after 250 - 500 ms from response mask disappears
 	offset = np.random.randint(25, 50) * 1.
 	core.wait(offset / 100.)
@@ -411,6 +412,8 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 	for g in stims:
 		g.draw()
 	win.flip()
+	core.wait(0.02)
+	clear_port(exp['port'])
 
 	if not auto:
 		# wait for space:
@@ -421,6 +424,8 @@ def show_resp_rules(exp=exp, win=stim['window'], text=None, auto=False):
 	# set end break trigger
 	win.callOnFlip(onflip_work, exp['port'], code='breakStop')
 	win.flip()
+	core.wait(0.02)
+	clear_port(exp['port'])
 
 
 def textscreen(text, win=stim['window'], exp=exp, auto=False):
@@ -431,7 +436,7 @@ def textscreen(text, win=stim['window'], exp=exp, auto=False):
 	if not auto:
 		event.waitKeys()
 	else:
-		core.wait(0.15)
+		core.wait(0.1)
 
 
 def present_break(t, exp=exp, win=stim['window'], auto=False):
@@ -507,9 +512,9 @@ def give_training_db(db, exp=exp, slowdown=8):
 	# copy the dataframe
 	train_db = db.copy()
 	# shuffle orientations
-	val = train_db.loc[:, 'orientation'].values
-	np.random.shuffle(val)
-	train_db.loc[:, 'orientation'] = val
+	orientations = train_db.loc[:, 'orientation'].values
+	np.random.shuffle(orientations)
+	train_db.loc[:, 'orientation'] = orientations
 
 	# change targetTime, SMI (and maybe maskTime?)
 	train_db.loc[:, 'targetTime'] = exp['targetTime'][0] * slowdown
