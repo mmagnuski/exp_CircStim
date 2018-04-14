@@ -151,8 +151,9 @@ if exp['run training'] and not exp['debug']:
     for s, c in zip(exp['train slow'], exp['train corr']):
         # present current training block until correctness is achieved
         train_db = give_training_db(db, slowdown=slowdown)
-        df, current_corr = present_training(trial, train_db, exp=slow,
-                                            slowdown=s, corr=c, monkey=monkey)
+        df, current_corr = present_training(
+            trial, train_db, exp=slow, slowdown=s, corr=c, monkey=monkey,
+            exp_info=exp_info, block_num=[current_block, num_training_blocks])
         current_block += 1
 
         # update experimenter info:

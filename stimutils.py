@@ -301,7 +301,8 @@ def evaluate_response(df, exp, trial, monkey=None):
 
 # - [ ] TODO Monkey istead of auto
 def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
-					 stim=stim, monkey=None, contrast=1.):
+					 stim=stim, monkey=None, contrast=1., exp_info=None,
+					 block_num=None):
 	'''Present a block of training data.'''
 
 	train_corr = 0
@@ -309,6 +310,11 @@ def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
 
 	txt = u'Twoja poprawność:\n{}\n\ndocelowa poprawność:\n{}'
 	txt += u'\n\n Aby przejść dalej naciśnij spację.'
+
+	if exp_info is not None:
+		start_trial = trial - 1
+		info_msg = ('Trwa {} / {} blok treningowy.\nTrial {}\n'
+					'Obecna poprawność: {:.2f}')
 
 	while train_corr < corr or trial < mintrials:
 		stim['window'].flip()
@@ -320,6 +326,12 @@ def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
 		# check correctness
 		start_last = max(1, trial - mintrials + 1)
 		train_corr = db.loc[start_last:trial, 'ifcorrect'].mean()
+
+		if exp_info is not None:
+			msg = 'Instrukcje, strona {}'.format(self.this_page)
+			this_info_msg = info_msg.format(block_num[0], block_num[1],
+											trial - start_trial, train_corr)
+			exp_info.general_info(this_info_msg)
 
 		if (trial % mintrials) == 0 and train_corr < corr:
 			# show info about correctness and remind key mapping
