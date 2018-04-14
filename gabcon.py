@@ -385,6 +385,11 @@ if exp['run main c']:
         present_trial(i, exp=exp, db=db_c, monkey=monkey, contrast=None)
         stim['window'].flip()
 
+        # we still update QP
+        contrast = db_c.loc[i, 'opacity']
+        response = db_c.loc[i, 'ifcorrect']
+        qp.update(contrast, response, approximate=True)
+
         # break handling
         qp_refresh_rate = break_checker(
             stim['window'], exp, db_c, exp_info, lg, i,
@@ -394,6 +399,26 @@ if exp['run main c']:
 
         # update experimenter
         exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
+
+        # if qp gives very different steps - change
+        if 20 % i == 0:
+            prev_diffs = np.diff(contrasts)
+            prev_diffs = np.append(prev_diffs, prev_diffs[-1])
+            new_contrasts = get_contrasts(qp, corrs)
+            contrasts_differences = np.abs(new_contrasts - contrasts)
+            change = contrasts_differences > (prev_diffs * 0.8)
+
+            if change.any():
+                msg = 'Changed final contrast steps after {} trials to: {}\n'
+                lg.write(msg.format(i, contrasts))
+                contrasts[change] = new_contrasts[change]
+                step = db_c.loc[i + 1:, 'step'].values
+                opacity = db_c.loc[i + 1:, 'opacity'].values
+                for idx in range(len(contrasts)):
+                    if change[idx]:
+                        msk = step == idx + 1
+                        opacity[msk] = contrasts[idx]
+                db_c.loc[i + 1:, 'opacity'] = opacity
 
     db_c.to_excel(dm.give_path('c'))
 
