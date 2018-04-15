@@ -406,10 +406,10 @@ if exp['run main c']:
             prev_diffs = np.append(prev_diffs, prev_diffs[-1])
             new_contrasts = get_contrasts(qp, corrs)
             contrasts_differences = np.abs(new_contrasts - contrasts)
-            change = contrasts_differences > (prev_diffs * 0.8)
+            change = contrasts_differences > (prev_diffs * 0.5)
 
             if change.any():
-                msg = 'Changed final contrast steps after {} trials to: {}\n'
+                msg = 'Changed final contrast steps after trial {} to: {}\n'
                 lg.write(msg.format(i, contrasts))
                 contrasts[change] = new_contrasts[change]
                 step = db_c.loc[i + 1:, 'step'].values
