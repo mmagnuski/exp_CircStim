@@ -314,13 +314,13 @@ def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
 
 	train_db = give_training_db(db, slowdown=slowdown)
 	exp['opacity'] = np.array([1., 1.])
-	exp['targetTime'] = [train_db.targetTime[0]]
-	exp['SMI'] = [train_db.SMI[0]]
+	exp['targetTime'] = [train_db.loc[trial, 'targetTime']]
+	exp['SMI'] = [train_db.loc[trial, 'SMI']]
 
 	if exp_info is not None:
 		start_trial = trial - 1
-		info_msg = ('Trwa {} / {} blok treningowy.\nTrial {}\n'
-					'Obecna poprawność: {:.2f}')
+		info_msg = (u'Trwa {} / {} blok treningowy.\nTrial {}\n'
+					u'Obecna poprawność: {:.2f}')
 
 	while train_corr < corr or trial < mintrials:
 		stim['window'].flip()
@@ -334,15 +334,15 @@ def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
 		train_corr = db.loc[start_last:trial, 'ifcorrect'].mean()
 
 		if exp_info is not None:
-			msg = 'Instrukcje, strona {}'.format(self.this_page)
 			this_info_msg = info_msg.format(block_num[0], block_num[1],
 											trial - start_trial, train_corr)
+			print(this_info_msg.encode('utf-8'))
 			exp_info.general_info(this_info_msg)
 
 		if (trial % mintrials) == 0 and train_corr < corr:
 			# show info about correctness and remind key mapping
 			current_txt = txt.format(to_percent(train_corr), to_percent(corr))
-			textscreen(thistxt, auto=auto)
+			textscreen(current_txt, auto=auto)
 			show_resp_rules(auto=auto)
 
 			# FIX/CHECK - save opacity to db?
@@ -350,7 +350,7 @@ def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
 				contrast += 0.5
 		trial += 1
 	# return db so it can be saved
-	return train_db, train_corr
+	return train_db, train_corr, contrast
 
 
 def present_feedback(i, db=db, stim=stim):

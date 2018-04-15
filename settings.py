@@ -42,7 +42,7 @@ exp['train corr']   = [0.8, 0.8, 0.8, 0.9, 0.9]
 exp['break after']  = 12
 exp['staircase trials']  = 25   # max value, default 25
 exp['QUEST plus trials'] = 100   # default 100
-exp['thresh opt trials'] = 60    # default 60 = 15 * 4
+exp['thresh opt trials'] = 50    # default 60 = 15 * 4
 
 # subject info
 # ------------

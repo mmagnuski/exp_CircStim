@@ -147,13 +147,16 @@ if exp['run training']:
     addtxt = (u'Szybkość prezentacji bodźców zostaje zwiększona.'
               u'\nAby przejść dalej naciśnij spację.')
 
+    trial = 1
+    contrast = 1.
     current_block = 0
-    for s, c in zip(exp['train slow'], exp['train corr']):
+    for slowdown, corr in zip(exp['train slow'], exp['train corr']):
         # present current training block until correctness is achieved
         train_db = give_training_db(db, slowdown=slowdown)
-        df, current_corr = present_training(
-            trial, train_db, exp=slow, slowdown=s, corr=c, monkey=monkey,
-            exp_info=exp_info, block_num=[current_block, num_training_blocks])
+        df, current_corr, contrast = present_training(
+            trial, train_db, exp=slow, slowdown=slowdown, corr=corr,
+            monkey=monkey, exp_info=exp_info, contrast=contrast,
+            block_num=[current_block, num_training_blocks])
         current_block += 1
 
         # update experimenter info:
@@ -161,12 +164,15 @@ if exp['run training']:
                                current_corr)
 
         # show info for the subject:
-        if s == 1:
+        if slowdown == 1:
             addtxt = (u'Koniec treningu.\nAby przejść dalej '
                       u'naciśnij spację.')
         now_txt = txt + addtxt
         textscreen(now_txt.format(to_percent(current_corr)), auto=exp['debug'])
         show_resp_rules(exp=exp, auto=exp['debug'])
+
+        if contrast > 1.:
+            contrast -= 0.5
 
         # concatenate training df's
         df_train.append(trim_df(df))
@@ -368,6 +374,8 @@ if exp['run main c']:
         wb.orig_y = df.ifcorrect.values.copy()
         return wb.plot(mean_points=True).figure
 
+    weib = Weibull(kind='weibull')
+    weib.params = qp.get_fit_params()
     plot_fun = lambda x: wb_plot(weib, x)
     df_save_path = dm.give_path('c')
 
@@ -375,6 +383,7 @@ if exp['run main c']:
     db_c = create_database(exp, combine_with=('opacity', contrasts), rep=32,
                            shuffle_in_reps=True, numerate_steps=True)
     exp['numTrials'] = len(db_c.index)
+    contrasts = np.asarray(contrasts)
 
     # signal that main proc is about to begin
     general_trigger(exp['port'], 'contrast')
@@ -401,12 +410,12 @@ if exp['run main c']:
         exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
 
         # if qp gives very different steps - change
-        if 20 % i == 0:
-            prev_diffs = np.diff(contrasts)
+        if i % 20 == 0:
+            prev_diffs = np.abs(np.diff(contrasts))
             prev_diffs = np.append(prev_diffs, prev_diffs[-1])
-            new_contrasts = get_contrasts(qp, corrs)
+            new_contrasts = np.asarray(get_contrasts(qp, corrs))
             contrasts_differences = np.abs(new_contrasts - contrasts)
-            change = contrasts_differences > (prev_diffs * 0.5)
+            change = contrasts_differences > (prev_diffs * 0.35)
 
             if change.any():
                 msg = 'Changed final contrast steps after trial {} to: {}\n'
