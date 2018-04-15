@@ -132,7 +132,7 @@ show_resp_rules(exp=exp, text=msg, auto=exp['debug'])
 
 # TRAINING
 # --------
-if exp['run training'] and not exp['debug']:
+if exp['run training']:
 
     # signal onset of training
     general_trigger(exp['port'], 'training')
