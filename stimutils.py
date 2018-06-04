@@ -445,10 +445,13 @@ def textscreen(text, win=stim['window'], exp=exp, auto=False):
 		core.wait(0.1)
 
 
-def present_break(t, exp=exp, win=stim['window'], auto=False):
-	tex  = u'Ukończono  {0} / {1}  powtórzeń.\nMożesz teraz ' + \
-		   u'chwilę odetchnąc.\nNaciśnij spację aby kontynuowac...'
-	tex  = tex.format(t, exp['numTrials'])
+def present_break(t, exp=exp, win=stim['window'], auto=False, correctness=None):
+	tex  = u'Ukończono  {} / {}  powtórzeń.\nMożesz teraz ' + \
+		   u'chwilę odetchnąc.\n{}Naciśnij spację aby kontynuowac...'
+	add_text = ''
+	if correctness is not None:
+		add_text = u'Twoja poprawność wynosi: {:.1f}%\n'.format(correctness)
+	tex  = tex.format(t, exp['numTrials'], add_text)
 	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
 
 	info.draw()
