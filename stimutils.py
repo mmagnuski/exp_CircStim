@@ -336,7 +336,6 @@ def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
 		if exp_info is not None:
 			this_info_msg = info_msg.format(block_num[0], block_num[1],
 											trial - start_trial, train_corr)
-			print(this_info_msg.encode('utf-8'))
 			exp_info.general_info(this_info_msg)
 
 		if (trial % mintrials) == 0 and train_corr < corr:
@@ -365,6 +364,8 @@ def present_feedback(i, db=db, stim=stim):
 	for f in range(0, exp['fdb time'][0]):
 		stim['feedback'].draw()
 		stim['window'].flip()
+	if 'window2' in stim:
+		stim['window2'].blendMode = 'avg'
 	stim['window'].blendMode = 'add'
 
 
