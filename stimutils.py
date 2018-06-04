@@ -512,19 +512,31 @@ def final_info(corr, payout, win=stim['window'], auto=False, exp_info=None):
 def break_checker(window, exp, df, exp_info, logfile, current_trial,
                   qp_refresh_rate=3, plot_fun=None, plot_arg=None, dpi=120,
                   img_name='temp.png', df_save_path='temp.xlsx',
-                  show_completed=False):
+                  show_completed=False, show_correctness=False,
+                  use_forced_break=False):
 
     has_break = current_trial % exp['break after'] == 0
+    has_forced_break = current_trial == 214 or current_trial == 428
     if has_break:
         save_df = trim_df(df)
         save_df.to_excel(df_save_path)
 
+    if use_forced_break and has_forced_break:
+        forced_break(win=window, auto=exp['debug'], exp_info=exp_info)
+
+    if has_break or (has_forced_break and use_forced_break):
         # remind about the button press mappings
         show_resp_rules(exp=exp, auto=exp['debug'])
         if not show_completed: window.flip()
 
-    if show_completed and has_break:
-        present_break(current_trial, exp=exp, win=window, auto=exp['debug'])
+    if show_completed and (has_break or (has_forced_break and use_forced_break)):
+        if show_correctness:
+            upper_steps = df.query('step > 2')
+            avg_corr = upper_steps.ifcorrect.mean() * 100
+            present_break(current_trial, exp=exp, win=window, auto=exp['debug'],
+                          correctness=avg_corr)
+        else:
+            present_break(current_trial, exp=exp, win=window, auto=exp['debug'])
         window.flip()
 
     if not exp['two screens']:
