@@ -546,7 +546,6 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
     # visual feedback on parameters probability
     if current_trial % qp_refresh_rate == 0 or has_break:
         try:
-            t0 = time.clock()
             fig = plot_fun(plot_arg)
             fig.savefig(img_name, dpi=dpi)
             plt.close(fig)
@@ -558,9 +557,6 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
             win.blendMode = 'avg'
 
         exp_info.experimenter_plot(img_name)
-        time_delta = time.clock() - t0
-        msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
-        logfile.write(msg.format(time_delta))
 
         if not exp['two screens']:
             event.waitKeys(['f', 'j', 'space', 'return'])
