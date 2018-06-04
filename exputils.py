@@ -55,6 +55,15 @@ class ExperimenterInfo(Interface):
 		detail_text = visual.TextStim(self.win, pos=(0, 0), units='norm')
 		self.texts = dict(main=main_text, sub=sub_text, detail=detail_text)
 
+		# additional objects for alerting
+		self.alert_text = visual.TextStim(self.win, text='...', height=0.25,
+										  units='norm')
+		self.alert_circle = visual.Circle(self.win, radius=0.8, edges=64,
+										  units='norm')
+		self.alert_circle.setLineColor([0.9, 0.1, 0.1])
+		self.alert_circle.setFillColor([0.9, 0.1, 0.1])
+
+
 		# center image
 		self.image = stim['centerImage'] if 'centerImage' in stim else None
 
@@ -95,7 +104,7 @@ class ExperimenterInfo(Interface):
 		self.update_text(tx)
 
 	def general_info(self, text):
-		texts = [None, None, text]
+		texts = ['', '', text]
 		self.update_text(texts, image=False)
 
 	def experimenter_plot(self, img_name):
@@ -106,6 +115,12 @@ class ExperimenterInfo(Interface):
 			self.refresh(image=True)
 		except:
 			self.refresh(image=False)
+
+	def alert(self, text='!!!'):
+		self.alert_text.setText(text)
+		self.alert_circle.draw()
+		self.alert_text.draw()
+		self.win.flip()
 
 
 class AnyQuestionsGUI(Interface):
