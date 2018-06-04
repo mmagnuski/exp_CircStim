@@ -466,6 +466,49 @@ def present_break(t, exp=exp, win=stim['window'], auto=False, correctness=None):
 		core.wait(0.1)
 
 
+def forced_break(win=stim['window'], auto=False, exp_info=None):
+	tex  = u'Czas na obowiązkową przerwę,\npoczekaj na eksperymentatora.'
+	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
+
+	info.draw()
+
+	# fix window blendMode:
+	win.blendMode = 'add'
+	win.flip()
+
+	# update exp_info to alert experimenter
+	exp_info.alert(text=u'Pora na\nchwilę\nprzerwy!')
+
+	if not auto:
+		# wait for space key:
+		k = event.waitKeys(keyList=['x', 'q'])
+	else:
+		core.wait(10.)
+	exp_info.general_info('procedura jedzie dalej!')
+
+
+def final_info(corr, payout, win=stim['window'], auto=False, exp_info=None):
+	tex  = (u'To już koniec badania,\ndziękujemy bardzo za wytrwały udział!\n'
+			u'Twoja poprawność wyniosła: {:.1f}%\nWynagrodzenie: {} PLN')
+	tex = tex.format(corr, payout)
+	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
+
+	info.draw()
+
+	# fix window blendMode:
+	win.blendMode = 'add'
+	win.flip()
+
+	# update exp_info to alert experimenter
+	exp_info.alert(text=u'Koniec\nbadania!\nWynagrodzenie: {} PLN'.format(payout))
+
+	if not auto:
+		# wait for space key:
+		k = event.waitKeys(keyList=['q', 'space'])
+	else:
+		core.wait(10.)
+
+
 def break_checker(window, exp, df, exp_info, logfile, current_trial,
                   qp_refresh_rate=3, plot_fun=None, plot_arg=None, dpi=120,
                   img_name='temp.png', df_save_path='temp.xlsx',
