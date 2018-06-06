@@ -490,7 +490,7 @@ def forced_break(win=stim['window'], auto=False, exp_info=None):
 def final_info(corr, payout, win=stim['window'], auto=False, exp_info=None):
 	tex  = (u'To już koniec badania,\ndziękujemy bardzo za wytrwały udział!\n'
 			u'Twoja poprawność wyniosła: {:.1f}%\nWynagrodzenie: {} PLN')
-	tex = tex.format(corr, payout)
+	tex = tex.format(corr * 100, payout)
 	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
 
 	info.draw()
@@ -500,7 +500,8 @@ def final_info(corr, payout, win=stim['window'], auto=False, exp_info=None):
 	win.flip()
 
 	# update exp_info to alert experimenter
-	exp_info.alert(text=u'Koniec\nbadania!\nWynagrodzenie: {} PLN'.format(payout))
+	msg = u'Koniec badania!\nPoprawność: {:.1f}%\nWynagrodzenie: {} PLN'
+	exp_info.alert(text=msg.format(corr * 100, payout))
 
 	if not auto:
 		# wait for space key:

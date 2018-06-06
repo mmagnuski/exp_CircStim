@@ -418,7 +418,7 @@ if exp['run main c']:
         exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
 
         # if qp gives very different steps - change
-        if (i % 20 == 0) and (i <= 120):
+        if (i % 20 == 0) and (i <= 160):
             new_contrasts = np.asarray(get_contrasts(qp, corrs))
             weib = Weibull(kind='weibull')
             weib.params = qp.get_fit_params()
@@ -433,16 +433,16 @@ if exp['run main c']:
                 this_corr = old_corr.copy()
 
                 # additional check for corr % diff (between steps)
-                this_corr[change] = new_corr
+                this_corr[change] = new_corr[change]
                 corr_dif = np.diff(this_corr) * 100
 
-                while (corr_dif < 3.).any():
+                while (corr_dif < 4.).any():
                     change_idx = np.where(corr_dif < 3.)
                     for idx in change_idx:
                         change[idx] = True
                         change[idx + 1] = True
                     contrasts[change] = new_contrasts[change]
-                    this_corr[change] = new_corr
+                    this_corr[change] = new_corr[change]
                     corr_dif = np.diff(this_corr) * 100
 
                 lg.write(msg.format(i, contrasts))
@@ -457,8 +457,7 @@ if exp['run main c']:
     db_c.to_excel(dm.give_path('c'))
 
 # goodbye!
-higher_steps = db_c.query('step > 2')
-corr = higher_steps.ifcorrect.mean()
+corr = db_c.query('step > 2').ifcorrect.mean()
 payout = int(round(75. * corr))
 final_info(corr, payout, auto=exp['debug'], exp_info=exp_info)
 core.quit()
