@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from .utils import check_color, group
+from utils import check_color, group
 
 mpl_version = mpl.__version__
 line_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
@@ -100,7 +100,7 @@ def plot_weibull(weibull, x=None, pth='', ax=None, points=True, line=True,
 
 def plot_quest_plus(qp, weibull_kind='weibull'):
 	import matplotlib.gridspec as gridspec
-	from .weibull import weibull_db, weibull, Weibull
+	from weibull import weibull_db, weibull, Weibull
 
 	# check cmap
 	cmaps = dir(plt.cm)
