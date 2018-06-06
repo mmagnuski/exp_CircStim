@@ -418,7 +418,7 @@ if exp['run main c']:
         exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
 
         # if qp gives very different steps - change
-        if i % 20 == 0:
+        if (i % 20 == 0) and (i <= 120):
             prev_diffs = np.abs(np.diff(contrasts))
             prev_diffs = np.append(prev_diffs, prev_diffs[-1])
             new_contrasts = np.asarray(get_contrasts(qp, corrs))
