@@ -336,7 +336,6 @@ def present_training(trial, db, exp=exp, slowdown=5, mintrials=10, corr=0.8,
 		if exp_info is not None:
 			this_info_msg = info_msg.format(block_num[0], block_num[1],
 											trial - start_trial, train_corr)
-			print(this_info_msg.encode('utf-8'))
 			exp_info.general_info(this_info_msg)
 
 		if (trial % mintrials) == 0 and train_corr < corr:
@@ -365,6 +364,8 @@ def present_feedback(i, db=db, stim=stim):
 	for f in range(0, exp['fdb time'][0]):
 		stim['feedback'].draw()
 		stim['window'].flip()
+	if 'window2' in stim:
+		stim['window2'].blendMode = 'avg'
 	stim['window'].blendMode = 'add'
 
 
@@ -444,10 +445,13 @@ def textscreen(text, win=stim['window'], exp=exp, auto=False):
 		core.wait(0.1)
 
 
-def present_break(t, exp=exp, win=stim['window'], auto=False):
-	tex  = u'Ukończono  {0} / {1}  powtórzeń.\nMożesz teraz ' + \
-		   u'chwilę odetchnąc.\nNaciśnij spację aby kontynuowac...'
-	tex  = tex.format(t, exp['numTrials'])
+def present_break(t, exp=exp, win=stim['window'], auto=False, correctness=None):
+	tex  = u'Ukończono  {} / {}  powtórzeń.\nMożesz teraz ' + \
+		   u'chwilę odetchnąc.\n{}Naciśnij spację aby kontynuowac...'
+	add_text = ''
+	if correctness is not None:
+		add_text = u'Twoja poprawność wynosi: {:.1f}%\n'.format(correctness)
+	tex  = tex.format(t, exp['numTrials'], add_text)
 	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
 
 	info.draw()
@@ -462,22 +466,77 @@ def present_break(t, exp=exp, win=stim['window'], auto=False):
 		core.wait(0.1)
 
 
+def forced_break(win=stim['window'], auto=False, exp_info=None):
+	tex  = u'Czas na obowiązkową przerwę,\npoczekaj na eksperymentatora.'
+	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
+
+	info.draw()
+
+	# fix window blendMode:
+	win.blendMode = 'add'
+	win.flip()
+
+	# update exp_info to alert experimenter
+	exp_info.alert(text=u'Pora na\nchwilę\nprzerwy!')
+
+	if not auto:
+		# wait for space key:
+		k = event.waitKeys(keyList=['x', 'q'])
+	else:
+		core.wait(10.)
+	exp_info.general_info('procedura jedzie dalej!')
+
+
+def final_info(corr, payout, win=stim['window'], auto=False, exp_info=None):
+	tex  = (u'To już koniec badania,\ndziękujemy bardzo za wytrwały udział!\n'
+			u'Twoja poprawność wyniosła: {:.1f}%\nWynagrodzenie: {} PLN')
+	tex = tex.format(corr, payout)
+	info = visual.TextStim(win, text=tex, pos=[0, 0], units='norm')
+
+	info.draw()
+
+	# fix window blendMode:
+	win.blendMode = 'add'
+	win.flip()
+
+	# update exp_info to alert experimenter
+	exp_info.alert(text=u'Koniec\nbadania!\nWynagrodzenie: {} PLN'.format(payout))
+
+	if not auto:
+		# wait for space key:
+		k = event.waitKeys(keyList=['q', 'space'])
+	else:
+		core.wait(10.)
+
+
 def break_checker(window, exp, df, exp_info, logfile, current_trial,
                   qp_refresh_rate=3, plot_fun=None, plot_arg=None, dpi=120,
                   img_name='temp.png', df_save_path='temp.xlsx',
-                  show_completed=False):
+                  show_completed=False, show_correctness=False,
+                  use_forced_break=False):
 
     has_break = current_trial % exp['break after'] == 0
+    has_forced_break = current_trial == 214 or current_trial == 428
     if has_break:
         save_df = trim_df(df)
         save_df.to_excel(df_save_path)
 
+    if use_forced_break and has_forced_break:
+        forced_break(win=window, auto=exp['debug'], exp_info=exp_info)
+
+    if has_break or (has_forced_break and use_forced_break):
         # remind about the button press mappings
         show_resp_rules(exp=exp, auto=exp['debug'])
         if not show_completed: window.flip()
 
-    if show_completed and has_break:
-        present_break(current_trial, exp=exp, win=window, auto=exp['debug'])
+    if show_completed and (has_break or (has_forced_break and use_forced_break)):
+        if show_correctness:
+            upper_steps = df.query('step > 2')
+            avg_corr = upper_steps.ifcorrect.mean() * 100
+            present_break(current_trial, exp=exp, win=window, auto=exp['debug'],
+                          correctness=avg_corr)
+        else:
+            present_break(current_trial, exp=exp, win=window, auto=exp['debug'])
         window.flip()
 
     if not exp['two screens']:
@@ -487,7 +546,6 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
     # visual feedback on parameters probability
     if current_trial % qp_refresh_rate == 0 or has_break:
         try:
-            t0 = time.clock()
             fig = plot_fun(plot_arg)
             fig.savefig(img_name, dpi=dpi)
             plt.close(fig)
@@ -499,9 +557,6 @@ def break_checker(window, exp, df, exp_info, logfile, current_trial,
             win.blendMode = 'avg'
 
         exp_info.experimenter_plot(img_name)
-        time_delta = time.clock() - t0
-        msg = 'time taken to update QuestPlus panel plot: {:.3f}\n'
-        logfile.write(msg.format(time_delta))
 
         if not exp['two screens']:
             event.waitKeys(['f', 'j', 'space', 'return'])

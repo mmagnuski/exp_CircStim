@@ -64,7 +64,8 @@ from .weibull   import (Weibull, QuestPlus, weibull_db, PsychometricMonkey,
 from .utils     import to_percent, trim_df
 from .stimutils import (exp, db, stim, present_trial, present_break,
     show_resp_rules, textscreen, present_feedback, present_training,
-    give_training_db, Instructions, onflip_work, clear_port, break_checker)
+    give_training_db, Instructions, onflip_work, clear_port, break_checker,
+    forced_break, final_info)
 from .viz import plot_quest_plus, plot_threshold_entropy
 
 if exp['use trigger']:
@@ -303,6 +304,11 @@ if exp['run fitting'] and not omit_first_fitting_steps:
     posterior_filename = dm.give_path('posterior', file_ending='npy')
     np.save(posterior_filename, qp.posterior)
 
+    # forced break
+    forced_break(auto=exp['debug'], exp_info=exp_info)
+    show_resp_rules(exp=exp, auto=exp['debug'])
+    present_break(current_trial, exp=exp, auto=exp['debug'])
+
     # THRESHOLD FITTING
     # -----------------
     block_name = u'Quest Plus, część II'
@@ -367,12 +373,13 @@ if exp['run main c']:
     qp_refresh_rate = sample([3, 4, 5], 1)[0]
     img_name = op.join(exp['data'], '{}_final_proc_panel.png'.format(subj_id))
 
-    def wb_plot(wb, df):
+    def wb_plot(wb, lst):
+        df = lst[0]
         df = trim_df(df.copy())
         wb.x = df.opacity.values.copy()
         wb.y = df.ifcorrect.values.copy()
         wb.orig_y = df.ifcorrect.values.copy()
-        return wb.plot(mean_points=True).figure
+        return wb.plot(mean_points=True, contrast_steps=lst[1]).figure
 
     weib = Weibull(kind='weibull')
     weib.params = qp.get_fit_params()
@@ -403,8 +410,9 @@ if exp['run main c']:
         qp_refresh_rate = break_checker(
             stim['window'], exp, db_c, exp_info, lg, i,
             qp_refresh_rate=1000, plot_fun=plot_fun,
-            plot_arg=db_c, dpi=120, img_name=img_name,
-            df_save_path=df_save_path, show_completed=True)
+            plot_arg=[db_c, contrasts], dpi=120, img_name=img_name,
+            df_save_path=df_save_path, show_completed=True,
+            show_correctness=True, use_forced_break=True)
 
         # update experimenter
         exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
@@ -415,7 +423,7 @@ if exp['run main c']:
             prev_diffs = np.append(prev_diffs, prev_diffs[-1])
             new_contrasts = np.asarray(get_contrasts(qp, corrs))
             contrasts_differences = np.abs(new_contrasts - contrasts)
-            change = contrasts_differences > (prev_diffs * 0.35)
+            change = contrasts_differences > (prev_diffs * 0.33)
 
             if change.any():
                 msg = 'Changed final contrast steps after trial {} to: {}\n'
@@ -432,5 +440,8 @@ if exp['run main c']:
     db_c.to_excel(dm.give_path('c'))
 
 # goodbye!
-# - [ ] some thanks etc. here!
+higher_steps = db_c.query('step > 2')
+corr = higher_steps.ifcorrect.mean()
+payout = int(round(75. * corr))
+final_info(corr, payout, auto=exp['debug'], exp_info=exp_info)
 core.quit()
