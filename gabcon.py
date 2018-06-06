@@ -419,16 +419,33 @@ if exp['run main c']:
 
         # if qp gives very different steps - change
         if (i % 20 == 0) and (i <= 120):
-            prev_diffs = np.abs(np.diff(contrasts))
-            prev_diffs = np.append(prev_diffs, prev_diffs[-1])
             new_contrasts = np.asarray(get_contrasts(qp, corrs))
-            contrasts_differences = np.abs(new_contrasts - contrasts)
-            change = contrasts_differences > (prev_diffs * 0.33)
+            weib = Weibull(kind='weibull')
+            weib.params = qp.get_fit_params()
+            old_corr = np.array([weib.predict(x) for x in contrasts])
+            new_corr = np.array([weib.predict(x) for x in new_contrasts])
+            perc_diff = np.abs(old_corr - new_corr) * 100
+            change = perc_diff > 3.
 
             if change.any():
                 msg = 'Changed final contrast steps after trial {} to: {}\n'
-                lg.write(msg.format(i, contrasts))
                 contrasts[change] = new_contrasts[change]
+                this_corr = old_corr.copy()
+
+                # additional check for corr % diff (between steps)
+                this_corr[change] = new_corr
+                corr_dif = np.diff(this_corr) * 100
+
+                while (corr_dif < 3.).any():
+                    change_idx = np.where(corr_dif < 3.)
+                    for idx in change_idx:
+                        change[idx] = True
+                        change[idx + 1] = True
+                    contrasts[change] = new_contrasts[change]
+                    this_corr[change] = new_corr
+                    corr_dif = np.diff(this_corr) * 100
+
+                lg.write(msg.format(i, contrasts))
                 step = db_c.loc[i + 1:, 'step'].values
                 opacity = db_c.loc[i + 1:, 'opacity'].values
                 for idx in range(len(contrasts)):

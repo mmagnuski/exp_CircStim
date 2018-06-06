@@ -18,8 +18,8 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize
 
-from .utils import trim, trim_df, round2step, reformat_params
-from .viz import plot_weibull, plot_quest_plus
+from utils import trim, trim_df, round2step, reformat_params
+from viz import plot_weibull, plot_quest_plus
 
 
 # from dB and to dB utility functions:
