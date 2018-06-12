@@ -31,8 +31,8 @@ if exp['lab monitor']:
 
 # create a window
 # ---------------
-winkeys = {'units': 'deg', 'fullscr': True, 'useFBO': True, 'blendMode': 'add',
-		   'monitor': monitor, 'size': (1920, 1080)}
+winkeys = {'units': 'deg', 'fullscr': exp['full_screen'], 'useFBO': True,
+		   'blendMode': 'add', 'monitor': monitor, 'size': (1920, 1080)}
 if exp['two screens']:
 	winkeys.update({'screen': 1})
 win = visual.Window(**winkeys)
