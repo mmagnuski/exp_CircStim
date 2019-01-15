@@ -418,14 +418,14 @@ if exp['run main c']:
         exp_info.blok_info(u'główne badanie', [i, exp['numTrials']])
 
         # if qp gives very different steps - change
-        if (i % 20 == 0) and (i <= 160):
+        if (i % 20 == 0) and (i <= 100):
             new_contrasts = np.asarray(get_contrasts(qp, corrs))
             weib = Weibull(kind='weibull')
             weib.params = qp.get_fit_params()
             old_corr = np.array([weib.predict(x) for x in contrasts])
             new_corr = np.array([weib.predict(x) for x in new_contrasts])
             perc_diff = np.abs(old_corr - new_corr) * 100
-            change = perc_diff > 3.
+            change = perc_diff > 3.5
 
             if change.any():
                 msg = 'Changed final contrast steps after trial {} to: {}\n'
@@ -436,7 +436,7 @@ if exp['run main c']:
                 this_corr[change] = new_corr[change]
                 corr_dif = np.diff(this_corr) * 100
 
-                while (corr_dif < 4.).any():
+                while (corr_dif < 3.).any():
                     change_idx = np.where(corr_dif < 3.)
                     for idx in change_idx:
                         change[idx] = True

@@ -10,14 +10,14 @@ from exputils  import (ms2frames, getSubject, getFrameRate, create_database)
 # experiment settings
 # -------------------
 exp = dict()
-exp['full_screen'] = False
-exp['lab monitor'] = False
-exp['two screens'] = False
-exp['use trigger'] = False
+exp['full_screen'] = True
+exp['lab monitor'] = True
+exp['two screens'] = True
+exp['use trigger'] = True
 
 exp['run baseline1'] = False
 exp['run instruct'] = True
-exp['run training'] = False
+exp['run training'] = True
 exp['run fitting']  = True
 exp['run main c']   = True
 exp['start at thresh fitting'] = False
