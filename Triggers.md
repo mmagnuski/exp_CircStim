@@ -13,12 +13,12 @@ target (`4`-`7`):
   - 90  deg - `6`
   - 135 deg - `7`
   
-target contrast is not represented in marker (but maybe should...).  
-there is no marker for behavioral response, reaction times are saved so marker would be redundant.  
+target contrast is not represented in the marker (it is present in the behavioral data).  
+  
 
 responses
 ---------
-
+originally there was no marker for behavioral response, but was then added:
 `f` - `15`  
 `j` - `16`
 
